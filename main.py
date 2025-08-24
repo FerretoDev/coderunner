@@ -1,7 +1,7 @@
 class Jugador:
     def __init__(self, nombre, posicion):
         self.nombre = nombre
-        self.posicion = posicion
+        self.posicion = pepe
 
     def mover(self, nueva_posicion):
         self.posicion = nueva_posicion
