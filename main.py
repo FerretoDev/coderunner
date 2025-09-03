@@ -6,3 +6,8 @@ class Jugador:
     def mover(self, nueva_posicion):
         self.posicion = nueva_posicion
         print(f"{self.nombre} se ha movido a la posición {self.posicion}")
+        
+        
+def saludar():
+    print('Hola')
+    
