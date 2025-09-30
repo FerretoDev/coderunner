@@ -143,16 +143,5 @@ __pycache__/
 .env
 ```
 
----
 
-# 🚀 Qué hacer HOY en GitHub
-
-1. Crear repo llamado `coderunner`.
-2. Subir estructura de carpetas vacías (con `README.md` dentro si GitHub no deja subirlas vacías).
-3. Subir tu UML a `docs/uml.pdf`.
-4. Crear `docs/HU.md` y pegar ahí las 15 Historias de Usuario que hicimos.
-5. Crear `requirements.txt` con `pygame` y `pytest`.
-
----
-
-👉 ¿Querés que te arme también los **archivos iniciales vacíos en Python** (con las clases del UML ya declaradas pero sin lógica) para que tu grupo solo los complete en código?
+### `Integrantes`
