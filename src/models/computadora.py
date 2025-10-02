@@ -13,6 +13,6 @@ class Computadora(Personaje):
     def mover(self, nueva_posicion)-> None:
         "TODO"
 
-        #return super().mover(nueva_posicion)
+        return super().mover(nueva_posicion)
 
     
