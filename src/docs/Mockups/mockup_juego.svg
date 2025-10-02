@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="800" height="600" preserveAspectRatio="xMinYMin meet" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="800" height="600"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-600)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="0" y="0" width="800" height="600" style="stroke: rgb(0%,0%,0%); stroke-linecap: butt; stroke-width: 1; fill: rgb(0%,0%,0%); fill-rule: evenodd;"/>
+			<text x="228.628" y="550" style="font-family: Helvetica-Bold; font-size: 24px;fill: rgb(100%,100%,0%); stroke:none;" transform="translate(0,1100) scale(1,-1)">Pantalla del Juego (Laberinto)</text>
+			<rect x="100" y="100" width="600" height="400" style="stroke: rgb(0%,100%,100%); stroke-linecap: butt; stroke-width: 1; fill: none; fill-rule: evenodd;"/>
+			<rect x="120" y="450" width="20" height="20" style="stroke: rgb(0%,0%,0%); stroke-linecap: butt; stroke-width: 1; fill: rgb(0%,0%,100%); fill-rule: evenodd;"/>
+			<text x="114.17" y="480" style="font-family: Times-Roman; font-size: 10px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,960) scale(1,-1)">Jugador</text>
+			<rect x="650" y="150" width="20" height="20" style="stroke: rgb(0%,0%,0%); stroke-linecap: butt; stroke-width: 1; fill: rgb(100%,0%,0%); fill-rule: evenodd;"/>
+			<text x="632.78" y="140" style="font-family: Times-Roman; font-size: 10px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,280) scale(1,-1)">Computadora</text>
+			<rect x="300" y="300" width="15" height="15" style="stroke: rgb(0%,0%,0%); stroke-linecap: butt; stroke-width: 1; fill: rgb(0%,50%,0%); fill-rule: evenodd;"/>
+			<rect x="500" y="200" width="15" height="15" style="stroke: rgb(0%,0%,0%); stroke-linecap: butt; stroke-width: 1; fill: rgb(0%,50%,0%); fill-rule: evenodd;"/>
+			<text x="150" y="520" style="font-family: Times-Roman; font-size: 14px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,1040) scale(1,-1)">Jugador: Nombre</text>
+			<text x="400" y="520" style="font-family: Times-Roman; font-size: 14px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,1040) scale(1,-1)">Puntos: 000</text>
+			<text x="650" y="520" style="font-family: Times-Roman; font-size: 14px;fill: rgb(100%,0%,0%); stroke:none;" transform="translate(0,1040) scale(1,-1)">Vidas: ♥ ♥ ♥</text>
+		</g>
+	</g>
+</svg>
