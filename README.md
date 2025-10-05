@@ -1,4 +1,12 @@
-# 📂 Estructura recomendada de GitHub
+# 🎮 CodeRunner
+
+**Juego educativo de laberinto desarrollado en Python con Pygame**
+
+Un juego donde el jugador debe navegar por un laberinto, recolectar obsequios y evitar ser capturado por la computadora enemiga. Incluye sistema de puntuación, vidas, sonidos y un Salón de la Fama persistente.
+
+---
+
+## 📂 Estructura del Proyecto
 
 ```
 coderunner/
@@ -56,97 +64,99 @@ coderunner/
 
 ---
 
-# 📌 Explicación de la estructura
+## 🔧 Requisitos
 
-### 1. **Carpeta `src/models/`**
-
-Contiene las **clases del UML** que subiste:
-
-* `Personaje` (abstracta, base de Jugador y Computadora).
-* `Jugador` (nombre, vidas, puntaje).
-* `Computadora` (velocidad 1.1, perseguir jugador).
-* `Administrador` (clave, carga laberinto, reinicia salón).
-* `Laberinto` (muros, pasillos, obsequios, cargar desde archivo).
-* `Obsequio` (posición, valor=10, método recolectar).
-* `SalonFama` (guardar puntajes en JSON).
-* `Registro` (nombre, puntaje, laberinto).
-* `SistemaSonido` (mover, obsequio, captura).
-
-👉 Cada clase va en su archivo `.py` para mantener orden.
+- **Python 3.8+**
+- **Pygame 2.0+**
+- **pytest** (para testing)
 
 ---
 
-### 2. **Carpeta `src/game/`**
+## 📥 Instalación
 
-Contiene la **lógica del juego**:
+### 1. Clonar el repositorio
 
-* `juego.py`: clase `Juego` (inicia, actualizar, mostrar estado, terminar, salir).
-* `motor.py`: ciclo principal de `pygame` (eventos, render, update).
-* `interfaz.py`: menús y pantallas (Tkinter o Pygame).
-
----
-
-### 3. **Carpeta `src/data/`**
-
-* Archivos `.json` o `.txt` con mapas de laberinto.
-* Archivo `salon_fama.json` para puntajes guardados.
-
----
-
-### 4. **Carpeta `src/tests/`**
-
-* Archivos de **unittest o pytest** para probar cada módulo.
-* Ejemplo: `test_jugador.py` prueba `mover`, `perder_vida`, `sumar_puntos`.
-
----
-
-### 5. **Carpeta `docs/`**
-
-* Las **Historias de Usuario** (HU.md).
-* **UML** (el PDF que ya hiciste).
-* **Cronograma** en Excel.
-* **Casos de prueba** documentados.
-* **Prototipo UI** (captura de Canva, Figma o Paint).
-
----
-
-### 6. **Carpeta `assets/`**
-
-* Sonidos (wav, mp3).
-* Imágenes (íconos, fondos, prototipos).
-
----
-
-# 📑 Archivos raíz
-
-### `README.md`
-
-Explica el proyecto (ya te lo armé antes, lo podés reutilizar).
-
-### `requirements.txt`
-
-Dependencias del proyecto (mínimo):
-
-```
-pygame
-pytest
+```bash
+git clone https://github.com/tu-usuario/coderunner.git
+cd coderunner
 ```
 
-### `.gitignore`
+### 2. Crear entorno virtual (recomendado)
 
-Ignorar carpetas innecesarias:
+```bash
+# En Windows
+python -m venv venv
+venv\Scripts\activate
 
+# En Linux/Mac
+python3 -m venv venv
+source venv/bin/activate
 ```
-__pycache__/
-*.pyc
-.venv/
-.env
+
+### 3. Instalar dependencias
+
+```bash
+pip install -r requirements.txt
 ```
 
+---
 
-### `Integrantes`
-* Paulo Anchía C5C482
+## 🚀 Ejecución
 
+### Iniciar el juego
+
+```bash
+python src/main.py
+```
+
+---
+
+## 🎮 Controles
+
+| Tecla | Acción |
+|-------|--------|
+| `↑` | Mover arriba |
+| `↓` | Mover abajo |
+| `←` | Mover izquierda |
+| `→` | Mover derecha |
+| `ESC` | Salir |
+
+---
+
+## 🧪 Testing
+
+### Ejecutar todos los tests
+
+```bash
+pytest src/tests/
+```
+
+### Ejecutar tests con cobertura
+
+```bash
+pytest --cov=src src/tests/
+```
+
+---
+
+## 📚 Documentación
+
+- **Historias de Usuario**: [`docs/HU.md`](docs/HU.md)
+- **Diagrama UML**: [`docs/uml.pdf`](docs/uml.pdf)
+- **Cronograma**: [`docs/cronograma.xlsx`](docs/cronograma.xlsx)
+- **Casos de Prueba**: [`docs/casos_prueba.xlsx`](docs/casos_prueba.xlsx)
+
+---
+
+## 👥 Integrantes
+
+- **Paulo Anchía** - C5C482
+
+---
+
+## 📄 Licencia
+
+Este proyecto es de uso académico para el curso de Programación I.
 
 
 
