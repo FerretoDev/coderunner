@@ -1,6 +1,8 @@
-import pygame
 import sys
-from .componentes.input_texto import InputTexto, Boton
+
+import pygame
+
+from .componentes.input_texto import Boton, InputTexto
 
 
 class MenuPrincipal:
@@ -13,9 +15,9 @@ class MenuPrincipal:
 
         # Colores
         self.COLORES = {
-            'fondo': (20, 20, 30),
-            'texto': (255, 255, 255),
-            'acento': (0, 150, 255)
+            "fondo": (20, 20, 30),
+            "texto": (255, 255, 255),
+            "acento": (0, 150, 255),
         }
 
         # Fuentes
@@ -41,14 +43,16 @@ class MenuPrincipal:
 
         for i, texto in enumerate(textos):
             x = inicio_x + (ancho_boton + espacio) * i
-            self.botones.append(Boton(x, y, ancho_boton, alto_boton, texto, accion=i + 1))
+            self.botones.append(
+                Boton(x, y, ancho_boton, alto_boton, texto, accion=i + 1)
+            )
 
     def dibujar(self):
         """Dibuja el menú"""
-        self.screen.fill(self.COLORES['fondo'])
+        self.screen.fill(self.COLORES["fondo"])
 
         # Título
-        titulo = self.font_titulo.render("CodeRunner", True, self.COLORES['texto'])
+        titulo = self.font_titulo.render("CodeRunner", True, self.COLORES["texto"])
         sombra = self.font_titulo.render("CodeRunner", True, (10, 10, 20))
 
         sombra_rect = sombra.get_rect(center=(self.ancho // 2 + 3, 103))
@@ -59,15 +63,18 @@ class MenuPrincipal:
 
         # Línea decorativa
         pygame.draw.line(
-            self.screen, self.COLORES['acento'],
+            self.screen,
+            self.COLORES["acento"],
             (self.ancho // 2 - 150, 150),
-            (self.ancho // 2 + 150, 150), 3
+            (self.ancho // 2 + 150, 150),
+            3,
         )
 
         # Subtítulo
         subtitulo = self.font_subtitulo.render(
             "Escapa del laberinto · Recolecta obsequios · Evita al enemigo",
-            True, (150, 150, 150)
+            True,
+            (150, 150, 150),
         )
         subtitulo_rect = subtitulo.get_rect(center=(self.ancho // 2, 180))
         self.screen.blit(subtitulo, subtitulo_rect)
@@ -78,8 +85,7 @@ class MenuPrincipal:
 
         # Footer
         footer = self.font_subtitulo.render(
-            "Usa el mouse para seleccionar",
-            True, (100, 100, 120)
+            "Usa el mouse para seleccionar", True, (100, 100, 120)
         )
         footer_rect = footer.get_rect(center=(self.ancho // 2, self.alto - 30))
         self.screen.blit(footer, footer_rect)
@@ -123,29 +129,13 @@ class PantallaIniciarJuego:
 
         # Input de nombre
         self.input_nombre = InputTexto(
-            self.ancho // 2 - 200,
-            250,
-            400,
-            50,
-            "Ingresa tu nombre"
+            self.ancho // 2 - 200, 250, 400, 50, "Ingresa tu nombre"
         )
 
         # Botones
-        self.btn_continuar = Boton(
-            self.ancho // 2 - 100,
-            350,
-            200,
-            50,
-            "Continuar"
-        )
+        self.btn_continuar = Boton(self.ancho // 2 - 100, 350, 200, 50, "Continuar")
 
-        self.btn_volver = Boton(
-            self.ancho // 2 - 100,
-            420,
-            200,
-            50,
-            "Volver"
-        )
+        self.btn_volver = Boton(self.ancho // 2 - 100, 420, 200, 50, "Volver")
 
     def dibujar(self):
         """Dibuja la pantalla"""
@@ -158,8 +148,7 @@ class PantallaIniciarJuego:
 
         # Instrucción
         instruccion = self.font_texto.render(
-            "Ingresa tu nombre para comenzar:",
-            True, (200, 200, 200)
+            "Ingresa tu nombre para comenzar:", True, (200, 200, 200)
         )
         instruccion_rect = instruccion.get_rect(center=(self.ancho // 2, 180))
         self.screen.blit(instruccion, instruccion_rect)
@@ -224,11 +213,7 @@ class PantallaSalonFama:
 
         # Botón volver
         self.btn_volver = Boton(
-            self.ancho // 2 - 100,
-            self.alto - 80,
-            200,
-            50,
-            "Volver"
+            self.ancho // 2 - 100, self.alto - 80, 200, 50, "Volver"
         )
 
     def dibujar(self):
@@ -245,8 +230,7 @@ class PantallaSalonFama:
 
         if not registros:
             texto = self.font_header.render(
-                "No hay registros todavía",
-                True, (150, 150, 150)
+                "No hay registros todavía", True, (150, 150, 150)
             )
             texto_rect = texto.get_rect(center=(self.ancho // 2, 300))
             self.screen.blit(texto, texto_rect)
@@ -271,7 +255,7 @@ class PantallaSalonFama:
                     f"{i + 1}",
                     reg["nombre_jugador"][:15],
                     str(reg["puntaje"]),
-                    reg["laberinto"][:12]
+                    reg["laberinto"][:12],
                 ]
 
                 for dato, x in zip(datos, x_positions):
@@ -319,29 +303,13 @@ class PantallaAdministracion:
 
         # Input de clave
         self.input_clave = InputTexto(
-            self.ancho // 2 - 200,
-            250,
-            400,
-            50,
-            "Ingresa la clave"
+            self.ancho // 2 - 200, 250, 400, 50, "Ingresa la clave"
         )
 
         # Botones
-        self.btn_ingresar = Boton(
-            self.ancho // 2 - 100,
-            350,
-            200,
-            50,
-            "Ingresar"
-        )
+        self.btn_ingresar = Boton(self.ancho // 2 - 100, 350, 200, 50, "Ingresar")
 
-        self.btn_volver = Boton(
-            self.ancho // 2 - 100,
-            420,
-            200,
-            50,
-            "Volver"
-        )
+        self.btn_volver = Boton(self.ancho // 2 - 100, 420, 200, 50, "Volver")
 
     def dibujar(self):
         """Dibuja la pantalla"""
@@ -354,8 +322,7 @@ class PantallaAdministracion:
 
         # Instrucción
         instruccion = self.font_texto.render(
-            "Ingresa la clave de administrador:",
-            True, (200, 200, 200)
+            "Ingresa la clave de administrador:", True, (200, 200, 200)
         )
         instruccion_rect = instruccion.get_rect(center=(self.ancho // 2, 180))
         self.screen.blit(instruccion, instruccion_rect)
@@ -369,8 +336,7 @@ class PantallaAdministracion:
 
         # Hint
         hint = pygame.font.Font(None, 20).render(
-            "Clave por defecto: admin123",
-            True, (100, 100, 120)
+            "Clave por defecto: admin123", True, (100, 100, 120)
         )
         hint_rect = hint.get_rect(center=(self.ancho // 2, self.alto - 30))
         self.screen.blit(hint, hint_rect)
@@ -424,20 +390,14 @@ class MensajeModal:
         self.font_mensaje = pygame.font.Font(None, 32)
 
         # Botón OK
-        self.btn_ok = Boton(
-            self.ancho // 2 - 75,
-            self.alto // 2 + 60,
-            150,
-            50,
-            "OK"
-        )
+        self.btn_ok = Boton(self.ancho // 2 - 75, self.alto // 2 + 60, 150, 50, "OK")
 
         # Colores según tipo
         colores = {
             "info": (0, 150, 255),
             "success": (0, 200, 100),
             "error": (255, 50, 50),
-            "warning": (255, 200, 0)
+            "warning": (255, 200, 0),
         }
         self.color_acento = colores.get(tipo, colores["info"])
 
@@ -450,23 +410,24 @@ class MensajeModal:
         self.screen.blit(overlay, (0, 0))
 
         # Caja del modal
-        modal_rect = pygame.Rect(
-            self.ancho // 2 - 250,
-            self.alto // 2 - 100,
-            500,
-            200
-        )
+        modal_rect = pygame.Rect(self.ancho // 2 - 250, self.alto // 2 - 100, 500, 200)
         pygame.draw.rect(self.screen, (40, 40, 60), modal_rect, border_radius=15)
-        pygame.draw.rect(self.screen, self.color_acento, modal_rect, 3, border_radius=15)
+        pygame.draw.rect(
+            self.screen, self.color_acento, modal_rect, 3, border_radius=15
+        )
 
         # Título
         titulo_surface = self.font_titulo.render(self.titulo, True, self.color_acento)
-        titulo_rect = titulo_surface.get_rect(center=(self.ancho // 2, self.alto // 2 - 50))
+        titulo_rect = titulo_surface.get_rect(
+            center=(self.ancho // 2, self.alto // 2 - 50)
+        )
         self.screen.blit(titulo_surface, titulo_rect)
 
         # Mensaje
         mensaje_surface = self.font_mensaje.render(self.mensaje, True, (255, 255, 255))
-        mensaje_rect = mensaje_surface.get_rect(center=(self.ancho // 2, self.alto // 2))
+        mensaje_rect = mensaje_surface.get_rect(
+            center=(self.ancho // 2, self.alto // 2)
+        )
         self.screen.blit(mensaje_surface, mensaje_rect)
 
         # Botón
