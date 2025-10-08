@@ -1,5 +1,5 @@
-from src.models.laberinto import Laberinto
-from src.models.salon_fama import SalonFama
+from .laberinto import Laberinto
+from .salon_fama import SalonFama
 
 
 class Administrador:
