@@ -9,7 +9,7 @@ from game.juego import Juego
 
 def main():
     juego = Juego()
-    juego.iniciar("Jugador1")
+    juego.iniciar("Marcos")
 
 
 if __name__ == "__main__":
