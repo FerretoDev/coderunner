@@ -1,3 +1,9 @@
+import os
+import sys
+
+# Agregar el directorio src al path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from game.juego import Juego
 
 
