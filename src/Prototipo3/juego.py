@@ -1,16 +1,19 @@
-import pygame
 import sys
-from laberinto import *
-from jugador import *
+
+import pygame
+
+from .jugador import Jugador
+from .laberinto import Laberinto
 
 ANCHO = 640
 ALTO = 480
-NEGRO = (0,0,0)
+NEGRO = (0, 0, 0)
+
 
 class Juego:
     def __init__(self):
         pygame.init()
-        self.pantalla = pygame.display.set_mode((ANCHO,ALTO))
+        self.pantalla = pygame.display.set_mode((ANCHO, ALTO))
         self.bucle = True
         self.reloj = pygame.time.Clock()
         self.jugador_principal = Jugador(32, 32, 16)
@@ -47,6 +50,7 @@ class Juego:
 
             self.reloj.tick(60)
             pygame.display.flip()
+
 
 juego = Juego()
 juego.bucle_principal()

@@ -61,13 +61,17 @@ class Juego:
 
                 if nombre:
                     # TODO: Iniciar el juego
-                    modal = MensajeModal(
-                        screen,
-                        "Próximamente",
-                        "El juego se implementará pronto",
-                        "info",
-                    )
-                    modal.ejecutar()
+                    # modal = MensajeModal(
+                    #    screen,
+                    #    "Próximamente",
+                    #    "El juego se implementará pronto",
+                    #    "info",
+                    # )
+                    # modal.ejecutar()
+                    from Prototipo3.juego import Juego
+
+                    juego = Juego()
+                    juego.bucle_principal()
 
             elif opcion == 2:  # Salón de la Fama
                 pantalla_salon = PantallaSalonFama(screen, salon_fama)

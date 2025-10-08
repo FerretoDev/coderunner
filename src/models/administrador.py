@@ -10,9 +10,9 @@ class Administrador:
     def __init__(self, clave: str):
         self._clave = clave
 
-        def autenticar(self, clave: str) -> bool:
-            """Autentica al administrador con la clave proporcionada."""
-            return self._clave == clave
+    def autenticar(self, clave: str) -> bool:
+        """Autentica al administrador con la clave proporcionada."""
+        return self._clave == clave
 
     def cargar_laberinto(self, ruta_archivo: str) -> Laberinto:
         """Carga un laberinto desde un archivo."""

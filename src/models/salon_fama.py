@@ -16,10 +16,13 @@ class SalonFama:
 
     def mostrar_mejores(self) -> list:
         """Devuelve los puntajes en orden descendente"""
-        ...
+        # TODO
+        lista: list = []
+        return lista
 
     def cargar_datos(self):
         """Carga los registros desde archivo al iniciar el programa"""
+        # TODO
         ...
 
     def guardar_datos(self):
