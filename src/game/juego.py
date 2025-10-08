@@ -6,6 +6,14 @@ import pygame
 # Agregar el directorio src al path para las importaciones
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from game.interfaz import (
+    MensajeModal,
+    MenuPrincipal,
+    PantallaAdministracion,
+    PantallaIniciarJuego,
+    PantallaSalonFama,
+)
+from models.administrador import Administrador
 from models.salon_fama import SalonFama
 from models.sistema_sonido import SistemaSonido
 
@@ -27,41 +35,68 @@ class Juego:
         self.screen = None
         self.clock = pygame.time.Clock()
 
-    def iniciar(self, nombre: str):
-        """Arranca el juego con un jugador, crea los objetos iniciales"""
-        print(f"🎮 Iniciando juego para: {nombre}")
-
-        # Inicializar pygame
+    def iniciar(self):
+        # Inicializar Pygame
         pygame.init()
-        self.screen = pygame.display.set_mode((800, 600))
+
+        # Crear ventana
+        screen = pygame.display.set_mode((800, 600))
         pygame.display.set_caption("CodeRunner")
 
-        # Crear jugador básico
-        self._jugador = {"nombre": nombre, "puntaje": 0, "vidas": 3}
+        # Instancias
+        salon_fama = SalonFama()
+        admin = Administrador("casa")
 
-        # Loop principal del juego
-        running = True
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        running = False
+        # Loop principal
+        ejecutando = True
 
-            # Limpiar pantalla
-            self.screen.fill((0, 0, 0))
+        while ejecutando:
+            # Mostrar menú principal
+            menu = MenuPrincipal(screen)
+            opcion = menu.ejecutar()
 
-            # Mostrar información básica
-            font = pygame.font.Font(None, 36)
-            texto = font.render(f"Jugador: {nombre}", True, (255, 255, 255))
-            self.screen.blit(texto, (10, 10))
+            if opcion == 1:  # Iniciar Juego
+                pantalla_inicio = PantallaIniciarJuego(screen)
+                nombre = pantalla_inicio.ejecutar()
 
-            texto2 = font.render("Presiona ESC para salir", True, (255, 255, 255))
-            self.screen.blit(texto2, (10, 50))
+                if nombre:
+                    # TODO: Iniciar el juego
+                    modal = MensajeModal(
+                        screen,
+                        "Próximamente",
+                        "El juego se implementará pronto",
+                        "info",
+                    )
+                    modal.ejecutar()
 
-            pygame.display.flip()
-            self.clock.tick(60)
+            elif opcion == 2:  # Salón de la Fama
+                pantalla_salon = PantallaSalonFama(screen, salon_fama)
+                pantalla_salon.ejecutar()
+
+            elif opcion == 3:  # Administración
+                pantalla_admin = PantallaAdministracion(screen)
+                clave = pantalla_admin.ejecutar()
+
+                if clave and admin.autenticar(clave):
+                    modal = MensajeModal(
+                        screen,
+                        "✅ Acceso Concedido",
+                        "Bienvenido Administrador",
+                        "success",
+                    )
+                    modal.ejecutar()
+                    # TODO: Panel de admin
+                elif clave:
+                    modal = MensajeModal(
+                        screen, "❌ Error", "Clave incorrecta", "error"
+                    )
+                    modal.ejecutar()
+
+            elif opcion == 4:  # Salir
+                ejecutando = False
+
+        pygame.quit()
+        sys.exit()
 
         self.terminar()
 
