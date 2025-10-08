@@ -1,11 +1,11 @@
 import pygame
-from models.sistema_sonido import SistemaSonido
 
-from models.computadora import Computadora
-from models.jugador import Jugador
-from models.laberinto import Laberinto
-from models.registro import Registro
-from models.salon_fama import SalonFama
+# from src.models.computadora import Computadora
+# from src.models.jugador import Jugador
+# from src.models.laberinto import Laberinto
+# from src.models.registro import Registro
+from src.models.salon_fama import SalonFama
+from src.models.sistema_sonido import SistemaSonido
 
 
 class Juego:
