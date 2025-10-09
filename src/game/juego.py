@@ -27,8 +27,8 @@ class Juego:
         self._jugador = None
         self._computadora = None
         self._laberinto = None
-        self._sonido = SistemaSonido()
-        self._salon_fama = SalonFama()
+        self.sonido = SistemaSonido()
+        self.salon_fama = SalonFama()
         self._estado = "en curso"
 
         # Pygame
@@ -68,7 +68,7 @@ class Juego:
                     #    "info",
                     # )
                     # modal.ejecutar()
-                    from Prototipo3.laberinto_uno import Juego
+                    from .laberinto_uno import Juego
 
                     juego = Juego()
                     juego.bucle_principal()
