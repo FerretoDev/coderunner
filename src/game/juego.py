@@ -25,7 +25,7 @@ class Juego:
 
     def __init__(self):
         self._jugador = None
-        self._enemigo = None
+        self._computadora = None
         self._laberinto = None
         self._sonido = SistemaSonido()
         self._salon_fama = SalonFama()
@@ -68,7 +68,7 @@ class Juego:
                     #    "info",
                     # )
                     # modal.ejecutar()
-                    from Prototipo3.juego import Juego
+                    from Prototipo3.juego import Juegos
 
                     juego = Juego()
                     juego.bucle_principal()

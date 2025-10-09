@@ -1,13 +1,17 @@
 {
     "cSpell.words": [
         "accion",
+        "administracion",
         "Administracion",
         "blit",
         "boton",
+        "colliderect",
         "direccion",
         "instruccion",
         "KEYDOWN",
+        "opcion",
         "posicion",
-        "puntaje"
+        "puntaje",
+        "rectangulos"
     ]
 }

@@ -2,8 +2,9 @@ import sys
 
 import pygame
 
-from .jugador import Jugador
-from .laberinto import Laberinto
+# from .jugador import Jugador
+from models.jugador import Jugador
+from models.laberinto import Laberinto
 
 ANCHO = 640
 ALTO = 480

@@ -1,1 +1,6 @@
-from .interfaz import MenuPrincipal, PantallaIniciarJuego, PantallaSalonFama, PantallaAdministracion, MensajeModal
+from .interfaz import (
+    MenuPrincipal,
+    PantallaAdministracion,
+    PantallaIniciarJuego,
+    PantallaSalonFama,
+)
