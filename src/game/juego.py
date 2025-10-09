@@ -68,7 +68,7 @@ class Juego:
                     #    "info",
                     # )
                     # modal.ejecutar()
-                    from Prototipo3.juego import Juegos
+                    from Prototipo3.laberinto_uno import Juego
 
                     juego = Juego()
                     juego.bucle_principal()
