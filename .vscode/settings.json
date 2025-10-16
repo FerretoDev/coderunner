@@ -15,9 +15,11 @@
         "opcion",
         "posicion",
         "puntaje",
+        "puntajes",
         "rectangulos",
         "Renderiza",
         "renderizar",
         "SRCALPHA"
-    ]
+    ],
+    "cSpell.language": "en,es-ES"
 }
