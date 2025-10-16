@@ -3,15 +3,21 @@
         "accion",
         "administracion",
         "Administracion",
+        "basico",
         "blit",
         "boton",
         "colliderect",
         "direccion",
+        "imagenes",
         "instruccion",
         "KEYDOWN",
+        "Minotauro",
         "opcion",
         "posicion",
         "puntaje",
-        "rectangulos"
+        "rectangulos",
+        "Renderiza",
+        "renderizar",
+        "SRCALPHA"
     ]
 }
