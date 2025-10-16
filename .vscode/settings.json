@@ -12,6 +12,8 @@
         "opcion",
         "posicion",
         "puntaje",
+        "puntajes",
         "rectangulos"
-    ]
+    ],
+    "cSpell.language": "en,es-ES"
 }
