@@ -1,7 +1,6 @@
 # from game.pruebas_pacman.juego import Juego
+from game.juego import Juego
 from game.pantalla_juego import PantallaJuego
-
-# from game.juego import Juego
 
 # from Prototipo3.juego import Juego
 

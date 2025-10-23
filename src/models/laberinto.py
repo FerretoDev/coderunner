@@ -10,7 +10,7 @@ AZUL = (0, 0, 255)  # Color de los muros del laberinto
 class Laberinto:
     """
     Clase que representa el laberinto del juego.
-    
+
     El laberinto está compuesto por:
         Muros: Paredes que el jugador no puede atravesar
         Pasillos: Espacios por donde el jugador puede moverse
@@ -20,12 +20,11 @@ class Laberinto:
     def __init__(
         self,
     ):
-        
         """
         Inicializa un nuevo laberinto vacío.
         Las listas de muros, pasillos y obsequios se llenarán al cargar el nivel.
         """
-        
+
         self._muros = list[tuple[int, int]]
         self._pasillos = list[tuple[int, int]]
         self._obsequios = list[tuple[int, int]]

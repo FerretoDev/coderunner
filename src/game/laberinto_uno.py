@@ -29,7 +29,7 @@ laberinto = [
 
 ANCHO = 640
 ALTO = 480
-NEGRO = (0, 0, 0)
+NEGRO = (12, 0, 0)
 
 
 class Juego:

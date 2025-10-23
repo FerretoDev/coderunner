@@ -382,7 +382,11 @@ class PantallaJuego:
         """Dibuja el HUD superior"""
         # Panel superior
         panel_rect = pygame.Rect(0, 0, self.ANCHO, 80)
-        pygame.draw.rect(self.screen, self.COLORES["hud_fondo"], panel_rect)
+        pygame.draw.rect(
+            self.screen,
+            self.COLORES["hud_fondo"],
+            panel_rect,
+        )
         pygame.draw.line(
             self.screen, self.COLORES["acento"], (0, 80), (self.ANCHO, 80), 2
         )
