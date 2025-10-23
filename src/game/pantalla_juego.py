@@ -78,19 +78,43 @@ class PantallaJuego:
 
         # Crear personajes
         # Radio visual más pequeño que el tamaño del rect para mejor colisión
-        self.jugador = Jugador(3 * self.tam_celda, 3 * self.tam_celda, 12)
+        # Centrar en las celdas iniciales
+        radio_jugador = 12
+        radio_compu = 12
+
+        # Calcular posición centrada en la celda (3, 3) para el jugador
+        celda_jugador_x = 3
+        celda_jugador_y = 3
+        pos_x_jugador = (
+            celda_jugador_x * self.tam_celda + (self.tam_celda - radio_jugador * 2) // 2
+        )
+        pos_y_jugador = (
+            celda_jugador_y * self.tam_celda + (self.tam_celda - radio_jugador * 2) // 2
+        )
+
+        # Calcular posición centrada en la celda (18, 12) para la computadora
+        celda_compu_x = 18
+        celda_compu_y = 12
+        pos_x_compu = (
+            celda_compu_x * self.tam_celda + (self.tam_celda - radio_compu * 2) // 2
+        )
+        pos_y_compu = (
+            celda_compu_y * self.tam_celda + (self.tam_celda - radio_compu * 2) // 2
+        )
+
+        self.jugador = Jugador(pos_x_jugador, pos_y_jugador, radio_jugador)
         self.computadora = Computadora(
-            18 * self.tam_celda,
-            12 * self.tam_celda,
-            12,
+            pos_x_compu,
+            pos_y_compu,
+            radio_compu,
             1.5,  # Velocidad reducida para mejor balance
         )
 
         # Guardar posiciones iniciales para respawn
-        self.jugador_spawn_x = 3 * self.tam_celda
-        self.jugador_spawn_y = 3 * self.tam_celda
-        self.computadora_spawn_x = 18 * self.tam_celda
-        self.computadora_spawn_y = 12 * self.tam_celda
+        self.jugador_spawn_x = pos_x_jugador
+        self.jugador_spawn_y = pos_y_jugador
+        self.computadora_spawn_x = pos_x_compu
+        self.computadora_spawn_y = pos_y_compu
 
         # Posiciones anteriores para revertir movimientos
         self.pos_anterior_x = self.jugador.jugador_principal.x
@@ -255,6 +279,21 @@ class PantallaJuego:
                 self.jugador.jugador_principal.y -= self.jugador.velocidad
             if teclas[pygame.K_DOWN]:
                 self.jugador.jugador_principal.y += self.jugador.velocidad
+
+            # Aplicar límites del mapa
+            limite_x = (
+                len(self.mapa[0]) * self.tam_celda
+                - self.jugador.jugador_principal.width
+            )
+            limite_y = (
+                len(self.mapa) * self.tam_celda - self.jugador.jugador_principal.height
+            )
+            self.jugador.jugador_principal.x = max(
+                0, min(self.jugador.jugador_principal.x, limite_x)
+            )
+            self.jugador.jugador_principal.y = max(
+                0, min(self.jugador.jugador_principal.y, limite_y)
+            )
 
             # Verificar colisiones del jugador
             if not self._detectar_colisiones():

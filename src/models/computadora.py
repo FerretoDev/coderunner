@@ -7,7 +7,7 @@ from .personaje import Personaje
 
 
 class Computadora(Personaje):
-    """Enemiga que persigue al jugador con IA mejorada"""
+    """Enemigo que persigue al jugador"""
 
     def __init__(self, x: int, y: int, radio: int = 10, velocidad: float = 2.5):
         super().__init__(x, y, radio, velocidad)

@@ -20,7 +20,7 @@ def main():
     # También aca
     """
     try:
-        # Iniciar Pygame
+        ## Iniciar Pygame
         pygame.init()
 
         # crear y correr juego
