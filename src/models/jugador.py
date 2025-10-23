@@ -14,7 +14,11 @@ class Jugador(Personaje):
         self._vidas = 3
         self._puntaje = 0
         self.color = (255, 0, 0)
-        self.jugador_principal = pygame.Rect(x, y, radio * 2, radio * 2)
+        # Rect de colisión más ajustado al círculo visual
+        # Usamos radio*1.8 en vez de radio*2 para mejor precisión
+        size = int(radio * 1.8)
+        offset = (radio * 2 - size) // 2
+        self.jugador_principal = pygame.Rect(x + offset, y + offset, size, size)
 
     def mover(self, teclas) -> None:
         """Mueve al jugador en la dirección especificada."""

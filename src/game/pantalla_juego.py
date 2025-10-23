@@ -1,5 +1,4 @@
 import math
-import sys
 
 import pygame
 
@@ -78,13 +77,20 @@ class PantallaJuego:
         self.muros = self._generar_muros()
 
         # Crear personajes
-        self.jugador = Jugador(3 * self.tam_celda, 3 * self.tam_celda, 16)
+        # Radio visual más pequeño que el tamaño del rect para mejor colisión
+        self.jugador = Jugador(3 * self.tam_celda, 3 * self.tam_celda, 12)
         self.computadora = Computadora(
             18 * self.tam_celda,
             12 * self.tam_celda,
-            16,
+            12,
             1.5,  # Velocidad reducida para mejor balance
         )
+
+        # Guardar posiciones iniciales para respawn
+        self.jugador_spawn_x = 3 * self.tam_celda
+        self.jugador_spawn_y = 3 * self.tam_celda
+        self.computadora_spawn_x = 18 * self.tam_celda
+        self.computadora_spawn_y = 12 * self.tam_celda
 
         # Posiciones anteriores para revertir movimientos
         self.pos_anterior_x = self.jugador.jugador_principal.x
@@ -216,11 +222,14 @@ class PantallaJuego:
                 self.game_over = True
                 return True
 
-            # Reiniciar posiciones
-            self.jugador.jugador_principal.x = 100
-            self.jugador.jugador_principal.y = 100
-            self.computadora.computadora_principal.x = 600
-            self.computadora.computadora_principal.y = 300
+            # Reiniciar posiciones a las posiciones iniciales de spawn
+            self.jugador.jugador_principal.x = self.jugador_spawn_x
+            self.jugador.jugador_principal.y = self.jugador_spawn_y
+            self.computadora.computadora_principal.x = self.computadora_spawn_x
+            self.computadora.computadora_principal.y = self.computadora_spawn_y
+
+            # Limpiar el camino BFS de la computadora para recalcular
+            self.computadora._bfs_camino = None
 
         return False
 
@@ -251,9 +260,8 @@ class PantallaJuego:
             if not self._detectar_colisiones():
                 self._revertir_posicion()
 
-        # Actualizar cache de muros y perseguir al jugador
-        self.computadora.actualizar_muros_cache(self.muros)
-        self.computadora.perseguir(self.jugador)
+        # Perseguir al jugador usando BFS sobre el grid
+        self.computadora.perseguir_bfs(self.jugador, self.mapa, self.tam_celda)
 
         # Verificar captura
         self._verificar_captura()

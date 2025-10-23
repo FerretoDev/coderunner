@@ -1,4 +1,5 @@
 import math
+from collections import deque
 
 import pygame
 
@@ -11,71 +12,143 @@ class Computadora(Personaje):
     def __init__(self, x: int, y: int, radio: int = 10, velocidad: float = 2.5):
         super().__init__(x, y, radio, velocidad)
         self.color = (255, 50, 50)
-        self.computadora_principal = pygame.Rect(x, y, radio * 2, radio * 2)
+        # Rect de colisión más ajustado al círculo visual
+        # Usamos radio*1.8 en vez de radio*2 para mejor precisión
+        size = int(radio * 1.8)
+        offset = (radio * 2 - size) // 2
+        self.computadora_principal = pygame.Rect(x + offset, y + offset, size, size)
+        # Estado para BFS
+        self._bfs_camino: list[tuple[int, int]] | None = None
+        self._bfs_target_cell: tuple[int, int] | None = None
+        self._bfs_recalc_cooldown = 0
 
-    def perseguir(self, jugador, laberinto=None):
+    def _cell_from_pos(self, x_px: int, y_px: int, tam_celda: int) -> tuple[int, int]:
+        col = max(0, x_px // tam_celda)
+        fila = max(0, y_px // tam_celda)
+        return int(fila), int(col)
+
+    def _pos_center_of_cell(
+        self, fila: int, col: int, tam_celda: int
+    ) -> tuple[int, int]:
+        cx = col * tam_celda + tam_celda // 2
+        cy = fila * tam_celda + tam_celda // 2
+        return cx, cy
+
+    def _calcular_camino_bfs(
+        self, mapa: list[list[int]], start: tuple[int, int], goal: tuple[int, int]
+    ):
+        max_filas = len(mapa)
+        max_cols = len(mapa[0]) if max_filas > 0 else 0
+
+        def vecinos(c):
+            f, c0 = c
+            for df, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nf, nc = f + df, c0 + dc
+                if 0 <= nf < max_filas and 0 <= nc < max_cols and mapa[nf][nc] != 1:
+                    yield (nf, nc)
+
+        cola = deque([start])
+        visitado: dict[tuple[int, int], tuple[int, int] | None] = {start: None}
+
+        while cola:
+            actual = cola.popleft()
+            if actual == goal:
+                break
+            for v in vecinos(actual):
+                if v not in visitado:
+                    visitado[v] = actual
+                    cola.append(v)
+
+        if goal not in visitado:
+            return None
+
+        # Reconstruir camino del goal al start
+        camino: list[tuple[int, int]] = []
+        cur: tuple[int, int] | None = goal
+        while cur is not None:
+            camino.append(cur)
+            cur = visitado[cur]
+        camino.reverse()
+        return camino
+
+    def perseguir_bfs(
+        self, jugador, mapa: list[list[int]], tam_celda: int, recalc_every: int = 6
+    ):
+        """Persigue al jugador usando BFS sobre el grid del laberinto.
+        - Recalcula camino si el objetivo cambia de celda o cada `recalc_every` frames.
+        - Se mueve suavemente hacia el centro de la siguiente celda.
         """
-        Persigue al jugador con IA mejorada que evita obstáculos
-        """
-        # Obtener posición del jugador
-        objetivo_x = jugador.jugador_principal.centerx
-        objetivo_y = jugador.jugador_principal.centery
+        # Celda actual de la compu y del jugador (usar centro)
+        comp_cx, comp_cy = self.computadora_principal.center
+        fila_c, col_c = self._cell_from_pos(comp_cx, comp_cy, tam_celda)
+        jug_cx, jug_cy = jugador.jugador_principal.center
+        fila_j, col_j = self._cell_from_pos(jug_cx, jug_cy, tam_celda)
 
-        # Posición actual de la computadora
-        actual_x = self.computadora_principal.centerx
-        actual_y = self.computadora_principal.centery
+        objetivo = (fila_j, col_j)
 
-        # Calcular diferencia
-        dx = objetivo_x - actual_x
-        dy = objetivo_y - actual_y
+        # Recalcular cuando sea necesario
+        self._bfs_recalc_cooldown = max(0, self._bfs_recalc_cooldown - 1)
+        if (
+            self._bfs_camino is None
+            or self._bfs_target_cell != objetivo
+            or self._bfs_recalc_cooldown == 0
+        ):
+            start = (fila_c, col_c)
+            path = self._calcular_camino_bfs(mapa, start, objetivo)
+            self._bfs_camino = path
+            self._bfs_target_cell = objetivo
+            self._bfs_recalc_cooldown = recalc_every
 
-        # Calcular distancia total
-        distancia = (dx**2 + dy**2) ** 0.5
+        if not self._bfs_camino or len(self._bfs_camino) <= 1:
+            return  # ya estamos en la celda objetivo o no hay camino
 
-        if distancia > 0:
-            # Normalizar el movimiento
-            velocidad_x = (dx / distancia) * self.velocidad
-            velocidad_y = (dy / distancia) * self.velocidad
+        # Siguiente celda a la que debemos ir (omitir la celda actual que es [0])
+        siguiente_celda = self._bfs_camino[1]
+        target_px = self._pos_center_of_cell(*siguiente_celda, tam_celda)
 
-            # Intentar movimiento directo primero
-            nueva_x = self.computadora_principal.x + velocidad_x
-            nueva_y = self.computadora_principal.y + velocidad_y
+        # Mover suavemente hacia el centro de la siguiente celda
+        ax, ay = self.computadora_principal.center
+        tx, ty = target_px
+        dx, dy = tx - ax, ty - ay
+        dist = math.hypot(dx, dy)
+        if dist > 0:
+            ux, uy = dx / dist, dy / dist
+            paso_x = ux * self.velocidad
+            paso_y = uy * self.velocidad
+            nuevo_cx = ax + paso_x
+            nuevo_cy = ay + paso_y
 
-            # Crear rectángulo temporal para probar colisiones
-            temp_rect = pygame.Rect(
-                nueva_x,
-                nueva_y,
-                self.computadora_principal.width,
-                self.computadora_principal.height,
-            )
+            # Aplicar en top-left con casteo a int (Rect usa enteros)
+            self.computadora_principal.centerx = int(nuevo_cx)
+            self.computadora_principal.centery = int(nuevo_cy)
+            self.x = self.computadora_principal.x
+            self.y = self.computadora_principal.y
 
-            # Verificar si hay colisión con la nueva posición
-            hay_colision = False
-            for muro in getattr(self, "_muros_cache", []):
-                if temp_rect.colliderect(muro):
-                    hay_colision = True
-                    break
-
-            if not hay_colision:
-                # Movimiento directo exitoso
-                self._aplicar_movimiento(nueva_x, nueva_y)
-            else:
-                # Hay colisión, intentar movimientos alternativos
-                self._mover_rodeando_obstaculos(velocidad_x, velocidad_y)
+        # Si estamos muy cerca del centro de la siguiente celda, avanzar en la ruta
+        ax2, ay2 = self.computadora_principal.center
+        if math.hypot(tx - ax2, ty - ay2) <= self.velocidad + 0.5:
+            # Alinear exacto al centro de la celda y avanzar
+            self.computadora_principal.centerx = int(tx)
+            self.computadora_principal.centery = int(ty)
+            self.x = self.computadora_principal.x
+            self.y = self.computadora_principal.y
+            # Consumir el primer paso (la celda actual) para ir a la siguiente
+            if self._bfs_camino and len(self._bfs_camino) > 1:
+                self._bfs_camino.pop(0)
 
     def _aplicar_movimiento(self, nueva_x, nueva_y):
         """Aplica el movimiento validando límites"""
-        # Validar límites del mapa
-        limite_x = (20 * 32) - self.radio * 2
-        limite_y = (15 * 32) - self.radio * 2
+        # Validar límites del mapa (asumiendo 20x15 celdas de 32px)
+        limite_x = (20 * 32) - self.computadora_principal.width
+        limite_y = (15 * 32) - self.computadora_principal.height
 
         # Mantener dentro de los límites
         nueva_x = max(0, min(nueva_x, limite_x))
         nueva_y = max(0, min(nueva_y, limite_y))
 
         # Aplicar el movimiento
-        self.computadora_principal.x = nueva_x
-        self.computadora_principal.y = nueva_y
+        self.computadora_principal.x = int(nueva_x)
+        self.computadora_principal.y = int(nueva_y)
 
         # Actualizar coordenadas internas
         self.x = self.computadora_principal.x
@@ -103,8 +176,8 @@ class Computadora(Personaje):
 
             # Crear rectángulo temporal
             temp_rect = pygame.Rect(
-                nueva_x,
-                nueva_y,
+                int(nueva_x),
+                int(nueva_y),
                 self.computadora_principal.width,
                 self.computadora_principal.height,
             )
@@ -170,7 +243,9 @@ class Computadora(Personaje):
 
     def mover(self, direccion: str) -> None:
         """Movimiento simple (no usado en persecución)"""
-        paso = self.velocidad
+        paso = int(round(self.velocidad))
+        if paso <= 0:
+            paso = 1
         if direccion == "arriba":
             self.computadora_principal.y -= paso
         elif direccion == "abajo":
