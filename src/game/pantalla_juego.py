@@ -691,9 +691,12 @@ class PantallaJuego:
         )
         self.screen.blit(tiempo_texto, tiempo_rect)
 
-        # Mostrar velocidad final del enemigo
+        # Mostrar velocidad final del enemigo (calculado como multiplicador)
+        nivel_dificultad_final = (
+            self.computadora.velocidad / self.velocidad_inicial_enemigo
+        )
         velocidad_texto = self.fuente_pequena.render(
-            f"Nivel de dificultad: {self.computadora.velocidad:.1f}x",
+            f"Nivel de dificultad: {nivel_dificultad_final:.1f}x",
             True,
             (200, 200, 200),
         )
