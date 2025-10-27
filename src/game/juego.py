@@ -13,6 +13,7 @@ from game.interfaz import (
     PantallaIniciarJuego,
     PantallaSalonFama,
 )
+from game.pantalla_juego import PantallaJuego
 from models.administrador import Administrador
 from models.salon_fama import SalonFama
 from models.sistema_sonido import SistemaSonido
@@ -51,6 +52,10 @@ class Juego:
         ejecutando = True
 
         while ejecutando:
+            # Asegurar que la ventana está en el tamaño correcto para el menú
+            screen = pygame.display.set_mode((800, 600))
+            pygame.display.set_caption("CodeRunner")
+
             # Mostrar menú principal
             menu = MenuPrincipal(screen)
             opcion = menu.ejecutar()
@@ -68,10 +73,12 @@ class Juego:
                     #    "info",
                     # )
                     # modal.ejecutar()
-                    from .laberinto_uno import Juego
+                    # from .laberinto_uno import Juego
 
-                    juego = Juego()
-                    juego.bucle_principal()
+                    # juego = Juego()
+                    # juego.bucle_principal()
+                    pantalla = PantallaJuego("Jugador 1")
+                    pantalla.ejecutar()
 
             elif opcion == 2:  # Salón de la Fama
                 pantalla_salon = PantallaSalonFama(screen, salon_fama)

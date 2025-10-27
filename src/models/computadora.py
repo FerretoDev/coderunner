@@ -22,16 +22,22 @@ class Computadora(Personaje):
         self._bfs_target_cell: tuple[int, int] | None = None
         self._bfs_recalc_cooldown = 0
 
-    def _cell_from_pos(self, x_px: int, y_px: int, tam_celda: int) -> tuple[int, int]:
-        col = max(0, x_px // tam_celda)
-        fila = max(0, y_px // tam_celda)
+    def _cell_from_pos(
+        self, x_px: int, y_px: int, tam_celda: int, offset_x: int = 0, offset_y: int = 0
+    ) -> tuple[int, int]:
+        # Restar offsets para obtener coordenadas relativas al laberinto
+        x_rel = x_px - offset_x
+        y_rel = y_px - offset_y
+        col = max(0, x_rel // tam_celda)
+        fila = max(0, y_rel // tam_celda)
         return int(fila), int(col)
 
     def _pos_center_of_cell(
-        self, fila: int, col: int, tam_celda: int
+        self, fila: int, col: int, tam_celda: int, offset_x: int = 0, offset_y: int = 0
     ) -> tuple[int, int]:
-        cx = col * tam_celda + tam_celda // 2
-        cy = fila * tam_celda + tam_celda // 2
+        # Calcular centro en espacio del laberinto y agregar offsets
+        cx = col * tam_celda + tam_celda // 2 + offset_x
+        cy = fila * tam_celda + tam_celda // 2 + offset_y
         return cx, cy
 
     def _calcular_camino_bfs(
@@ -72,7 +78,13 @@ class Computadora(Personaje):
         return camino
 
     def perseguir_bfs(
-        self, jugador, mapa: list[list[int]], tam_celda: int, recalc_every: int = 6
+        self,
+        jugador,
+        mapa: list[list[int]],
+        tam_celda: int,
+        offset_x: int = 0,
+        offset_y: int = 0,
+        recalc_every: int = 6,
     ):
         """Persigue al jugador usando BFS sobre el grid del laberinto.
         - Recalcula camino si el objetivo cambia de celda o cada `recalc_every` frames.
@@ -80,9 +92,13 @@ class Computadora(Personaje):
         """
         # Celda actual de la compu y del jugador (usar centro)
         comp_cx, comp_cy = self.computadora_principal.center
-        fila_c, col_c = self._cell_from_pos(comp_cx, comp_cy, tam_celda)
+        fila_c, col_c = self._cell_from_pos(
+            comp_cx, comp_cy, tam_celda, offset_x, offset_y
+        )
         jug_cx, jug_cy = jugador.jugador_principal.center
-        fila_j, col_j = self._cell_from_pos(jug_cx, jug_cy, tam_celda)
+        fila_j, col_j = self._cell_from_pos(
+            jug_cx, jug_cy, tam_celda, offset_x, offset_y
+        )
 
         objetivo = (fila_j, col_j)
 
@@ -104,7 +120,9 @@ class Computadora(Personaje):
 
         # Siguiente celda a la que debemos ir (omitir la celda actual que es [0])
         siguiente_celda = self._bfs_camino[1]
-        target_px = self._pos_center_of_cell(*siguiente_celda, tam_celda)
+        target_px = self._pos_center_of_cell(
+            *siguiente_celda, tam_celda, offset_x, offset_y
+        )
 
         # Mover suavemente hacia el centro de la siguiente celda
         ax, ay = self.computadora_principal.center

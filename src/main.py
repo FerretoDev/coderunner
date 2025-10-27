@@ -6,17 +6,15 @@ from game.pantalla_juego import PantallaJuego
 
 
 def main():
-    # juego = Juego()
-    # juego.iniciar()
+    juego = Juego()
+    juego.iniciar()
 
     # ------
     # from game.pantalla_juego import PantallaJuego
 
     # ----
     # Test (please no tocar)
-    pantalla = PantallaJuego("Jugador 1")
-    pantalla.ejecutar()
-    # También aca
+
     """
     try:
         ## Iniciar Pygame
