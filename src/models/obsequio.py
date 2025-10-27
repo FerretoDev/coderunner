@@ -2,6 +2,7 @@ class Obsequio:
     def __init__(self, posicion: tuple[int, int], valor: int = 10):
         self._posicion = posicion
         self._valor = valor
+        self._activo = True
 
     @property
     def valor(self):
@@ -29,5 +30,7 @@ class Obsequio:
 
     def recolectar(self) -> int:
         """Retorna los puntos que aporta y desactiva el obsequio"""
-
+        if self._activo:
+            self._activo = False
+            return self._valor
         return 0

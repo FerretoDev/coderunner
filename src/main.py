@@ -1,26 +1,23 @@
 # from game.pruebas_pacman.juego import Juego
+from game.juego import Juego
 from game.pantalla_juego import PantallaJuego
-
-# from game.juego import Juego
 
 # from Prototipo3.juego import Juego
 
 
 def main():
-    # juego = Juego()
-    # juego.iniciar()
+    juego = Juego()
+    juego.iniciar()
 
     # ------
     # from game.pantalla_juego import PantallaJuego
 
     # ----
     # Test (please no tocar)
-    pantalla = PantallaJuego("Jugador 1")
-    pantalla.ejecutar()
-    # También aca
+
     """
     try:
-        # Iniciar Pygame
+        ## Iniciar Pygame
         pygame.init()
 
         # crear y correr juego

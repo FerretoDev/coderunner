@@ -6,8 +6,11 @@
         "basico",
         "blit",
         "boton",
+        "centerx",
         "colliderect",
+        "compu",
         "direccion",
+        "hardcodeado",
         "imagenes",
         "instruccion",
         "KEYDOWN",
@@ -16,9 +19,11 @@
         "posicion",
         "puntaje",
         "puntajes",
+        "recalcular",
         "rectangulos",
         "Renderiza",
         "renderizar",
+        "respawn",
         "SRCALPHA"
     ],
     "cSpell.language": "en,es-ES"
