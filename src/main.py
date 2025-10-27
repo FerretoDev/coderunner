@@ -12,24 +12,6 @@ def main():
     # ------
     # from game.pantalla_juego import PantallaJuego
 
-    # ----
-    # Test (please no tocar)
-
-    """
-    try:
-        ## Iniciar Pygame
-        pygame.init()nto clas
-
-        # crear y correr juego
-        game = Juego()
-        game.run()
-    except Exception as e:
-        print(f"Error: {e}")
-        sys.exit(1)
-    finally:
-        pygame.quit()
-        sys.exit()"""
-
 
 if __name__ == "__main__":
     main()
