@@ -9,7 +9,7 @@ from .personaje import Personaje
 class Computadora(Personaje):
     """Enemigo que persigue al jugador"""
 
-    def __init__(self, x: int, y: int, radio: int = 10, velocidad: float = 2.5):
+    def __init__(self, x: int, y: int, radio: int = 10, velocidad: float = 0):
         super().__init__(x, y, radio, velocidad)
         self.color = (255, 50, 50)
         # Rect de colisión más ajustado al círculo visual

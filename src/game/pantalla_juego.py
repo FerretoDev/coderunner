@@ -693,7 +693,7 @@ class PantallaJuego:
 
         # Mostrar velocidad final del enemigo
         velocidad_texto = self.fuente_pequena.render(
-            f"Nivel de dificultad: {self.computadora.velocidad:.1f - 1.7}x",
+            f"Nivel de dificultad: {self.computadora.velocidad:.1f}x",
             True,
             (200, 200, 200),
         )
