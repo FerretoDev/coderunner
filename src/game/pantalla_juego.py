@@ -460,9 +460,9 @@ class PantallaJuego:
             and self.tiempo_transcurrido > 0
         ):
             self.computadora.velocidad += self.incremento_velocidad
-            print(
-                f"¡Dificultad aumentada! Velocidad enemigo: {self.computadora.velocidad:.2f}"
-            )
+            # print(
+            #    f"¡Dificultad aumentada! Velocidad enemigo: {self.computadora.velocidad:.2f}"
+            # )
 
     def _renderizar(self):
         """Renderiza todo el juego"""
