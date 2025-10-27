@@ -85,11 +85,11 @@ cd coderunner
 
 ```bash
 # En Windows
-python -m venv venv
+python -m venv .venv
 venv\Scripts\activate
 
 # En Linux/Mac
-python3 -m venv venv
+python3 -m venv .venv
 source venv/bin/activate
 ```
 
