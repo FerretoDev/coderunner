@@ -59,6 +59,10 @@ class PantallaJuego:
         self.mostrar_distancia = False
         self.nombre_jugador = nombre_jugador
 
+        # Timer para Game Over (esperar 5 segundos antes de permitir salir)
+        self.game_over_timer = 0
+        self.game_over_espera = 300  # 5 segundos a 60 FPS
+
         # Sistema de obsequios con tiempo límite
         self.tiempo_vida_obsequio = 600  # 10 segundos a 60 FPS
         self.obsequios_timers = {}  # {(col, fila): frames_restantes}
@@ -316,7 +320,13 @@ class PantallaJuego:
 
     def _actualizar(self):
         """Actualiza la lógica del juego"""
-        if self.pausado or self.game_over:  # Removido victoria
+        # Si está en game over, solo incrementar el timer
+        if self.game_over:
+            if self.game_over_timer < self.game_over_espera:
+                self.game_over_timer += 1
+            return
+
+        if self.pausado:
             return
 
         self.frame_count += 1
@@ -705,9 +715,22 @@ class PantallaJuego:
         )
         self.screen.blit(velocidad_texto, velocidad_rect)
 
-        instruccion = self.fuente_pequena.render(
-            "Presiona cualquier tecla para volver", True, (150, 150, 150)
+        # Mostrar mensaje dependiendo del timer
+        segundos_restantes = max(
+            0, (self.game_over_espera - self.game_over_timer) // 60
         )
+        if self.game_over_timer < self.game_over_espera:
+            # Aún en espera
+            instruccion = self.fuente_pequena.render(
+                f"Espera {segundos_restantes + 1} segundos...",
+                True,
+                (255, 150, 150),
+            )
+        else:
+            # Ya puede salir
+            instruccion = self.fuente_pequena.render(
+                "Presiona cualquier tecla para volver", True, (150, 255, 150)
+            )
         instruccion_rect = instruccion.get_rect(
             center=(self.ANCHO // 2, self.ALTO // 2 + 120)
         )
@@ -796,8 +819,12 @@ class PantallaJuego:
                     modo = "Celdas" if self.movimiento_por_celdas else "Píxeles"
                     print(f"Modo de movimiento cambiado a: {modo}")
 
-                # Salir cuando termina el juego (solo game over)
-                if self.game_over and evento.key != pygame.K_p:
+                # Salir cuando termina el juego (solo si han pasado 5 segundos)
+                if (
+                    self.game_over
+                    and evento.key != pygame.K_p
+                    and self.game_over_timer >= self.game_over_espera
+                ):
                     return "salir"
 
         return None
