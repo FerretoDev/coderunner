@@ -86,11 +86,11 @@ cd coderunner
 ```bash
 # En Windows
 python -m venv .venv
-venv\Scripts\activate
+.venv\Scripts\activate
 
 # En Linux/Mac
 python3 -m venv .venv
-source venv/bin/activate
+source .venv/bin/activate
 ```
 
 ### 3. Instalar dependencias
