@@ -264,14 +264,15 @@ class PantallaJuego:
         keys = pygame.key.get_pressed()
 
         # Detectar tecla presionada y mover si el cooldown llegó a 0
+        # Soporta tanto flechas como WASD
         tecla_actual = None
-        if keys[pygame.K_UP]:
+        if keys[pygame.K_UP] or keys[pygame.K_w]:
             tecla_actual = "up"
-        elif keys[pygame.K_DOWN]:
+        elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
             tecla_actual = "down"
-        elif keys[pygame.K_LEFT]:
+        elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
             tecla_actual = "left"
-        elif keys[pygame.K_RIGHT]:
+        elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             tecla_actual = "right"
 
         # Mover si hay una tecla presionada y el cooldown está en 0
@@ -481,8 +482,8 @@ class PantallaJuego:
         self.computadora.dibujar_computadora_principal(self.screen)
 
         # Debug: dibujar distancia
-        if self.mostrar_distancia:
-            self._dibujar_linea_distancia()
+        # if self.mostrar_distancia:
+        # self._dibujar_linea_distancia()
 
         # Dibujar HUD
         self._dibujar_hud()
@@ -628,7 +629,7 @@ class PantallaJuego:
 
         # Controles
         controles_surf = self.fuente_pequena.render(
-            "Flechas: Mover | P: Pausa | ESC: Salir | D: Debug", True, (150, 150, 150)
+            "WASD/Flechas: Mover | P: Pausa | ESC: Salir", True, (150, 150, 150)
         )
         controles_rect = controles_surf.get_rect(right=self.ANCHO - 20, centery=40)
         self.screen.blit(controles_surf, controles_rect)
