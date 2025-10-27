@@ -1,457 +1,459 @@
-import sys
+import sys  # Permite salir de la app y manejar argumentos si hiciera falta [web:21]
 
-import pygame
+import pygame  # Motor para eventos, fuentes, dibujo y tiempo del loop [web:47]
 
-from .componentes.input_texto import Boton, InputTexto
+from .componentes.input_texto import Boton, InputTexto  # Componentes reutilizables de UI (botón e input) [web:21]
 
 
 class MenuPrincipal:
-    """Menú principal con botones horizontales"""
+    """Menú principal con botones horizontales.
+
+    Muestra el título y cuatro botones: Iniciar, Salón de la Fama, Administración y Salir.
+    Devuelve un número según la opción elegida para que el llamador actúe.
+    """
 
     def __init__(self, screen):
-        self.screen = screen
-        self.ancho = screen.get_width()
-        self.alto = screen.get_height()
+        self.screen = screen  # Superficie principal donde se dibuja el menú [web:47]
+        self.ancho = screen.get_width()  # Ancho actual de la ventana (útil para centrar) [web:47]
+        self.alto = screen.get_height()  # Alto actual de la ventana [web:47]
 
-        # Colores
+        # Paleta de colores del menú
         self.COLORES = {
-            "fondo": (20, 20, 30),
-            "texto": (255, 255, 255),
-            "acento": (0, 150, 255),
+            "fondo": (20, 20, 30),    # Fondo oscuro para resaltar texto [web:21]
+            "texto": (255, 255, 255), # Texto principal en blanco [web:47]
+            "acento": (0, 150, 255),  # Color de acento para líneas y detalles [web:21]
         }
 
-        # Fuentes
-        self.font_titulo = pygame.font.Font(None, 72)
-        self.font_subtitulo = pygame.font.Font(None, 24)
+        # Fuentes para título y subtítulos
+        self.font_titulo = pygame.font.Font(None, 72)  # Tamaño grande para el título [web:47]
+        self.font_subtitulo = pygame.font.Font(None, 24)  # Tamaño pequeño para mensajes [web:47]
 
-        # Crear botones
-        self._crear_botones()
+        # Crear los botones alineados de forma horizontal
+        self._crear_botones()  # Delega la creación para mantener __init__ limpio [web:21]
 
     def _crear_botones(self):
-        """Crea los botones del menú"""
-        ancho_boton = 180
-        alto_boton = 60
-        espacio = 20
+        """Calcula posiciones y crea los botones del menú."""
+        ancho_boton = 180  # Ancho uniforme para consistencia visual [web:21]
+        alto_boton = 60  # Alto cómodo para hacer click [web:21]
+        espacio = 20  # Separación entre botones [web:21]
 
-        num_botones = 4
-        ancho_total = (ancho_boton * num_botones) + (espacio * (num_botones - 1))
-        inicio_x = (self.ancho - ancho_total) // 2
-        y = 350
+        num_botones = 4  # Iniciar, Salón, Admin, Salir [web:21]
+        ancho_total = (ancho_boton * num_botones) + (espacio * (num_botones - 1))  # Total para centrar [web:47]
+        inicio_x = (self.ancho - ancho_total) // 2  # Punto de inicio para que el grupo quede centrado [web:47]
+        y = 350  # Altura a la que se dibujan los botones [web:21]
 
-        self.botones = []
-        textos = ["Iniciar Juego", "Salón de la Fama", "Administración", "Salir"]
+        self.botones = []  # Lista de instancias de Boton para iterar y dibujar [web:21]
+        textos = ["Iniciar Juego", "Salón de la Fama", "Administración", "Salir"]  # Etiquetas de cada botón [web:21]
 
-        for i, texto in enumerate(textos):
-            x = inicio_x + (ancho_boton + espacio) * i
+        for i, texto in enumerate(textos):  # Recorre cada botón con su índice [web:21]
+            x = inicio_x + (ancho_boton + espacio) * i  # Posiciona cada botón uno al lado del otro [web:47]
             self.botones.append(
-                Boton(x, y, ancho_boton, alto_boton, texto, accion=i + 1)
-            )
+                Boton(x, y, ancho_boton, alto_boton, texto, accion=i + 1)  # accion=i+1 para devolver 1..4 [web:21]
+            )  # Se usa accion para identificar qué opción eligió el usuario [web:21]
 
     def dibujar(self):
-        """Dibuja el menú"""
-        self.screen.fill(self.COLORES["fondo"])
+        """Pinta el fondo, título, línea decorativa, subtítulo, botones y footer."""
+        self.screen.fill(self.COLORES["fondo"])  # Limpia el frame con fondo oscuro [web:47]
 
-        # Título
-        titulo = self.font_titulo.render("CodeRunner", True, self.COLORES["texto"])
-        sombra = self.font_titulo.render("CodeRunner", True, (10, 10, 20))
+        # Título con pequeña sombra para contraste
+        titulo = self.font_titulo.render("CodeRunner", True, self.COLORES["texto"])  # Texto principal [web:47]
+        sombra = self.font_titulo.render("CodeRunner", True, (10, 10, 20))  # Sombra tenue [web:47]
 
-        sombra_rect = sombra.get_rect(center=(self.ancho // 2 + 3, 103))
-        titulo_rect = titulo.get_rect(center=(self.ancho // 2, 100))
+        sombra_rect = sombra.get_rect(center=(self.ancho // 2 + 3, 103))  # Desfase leve para efecto sombra [web:47]
+        titulo_rect = titulo.get_rect(center=(self.ancho // 2, 100))  # Centrado horizontal [web:47]
 
-        self.screen.blit(sombra, sombra_rect)
-        self.screen.blit(titulo, titulo_rect)
+        self.screen.blit(sombra, sombra_rect)  # Dibuja sombra primero [web:47]
+        self.screen.blit(titulo, titulo_rect)  # Luego el título encima [web:47]
 
-        # Línea decorativa
+        # Línea decorativa bajo el título para separar visualmente
         pygame.draw.line(
             self.screen,
             self.COLORES["acento"],
             (self.ancho // 2 - 150, 150),
             (self.ancho // 2 + 150, 150),
             3,
-        )
+        )  # Línea central de acento para estética [web:47]
 
-        # Subtítulo
+        # Subtítulo con instrucciones del juego
         subtitulo = self.font_subtitulo.render(
             "Escapa del laberinto · Recolecta obsequios · Evita al enemigo",
             True,
             (150, 150, 150),
-        )
-        subtitulo_rect = subtitulo.get_rect(center=(self.ancho // 2, 180))
-        self.screen.blit(subtitulo, subtitulo_rect)
+        )  # Texto aclaratorio y motivacional [web:21]
+        subtitulo_rect = subtitulo.get_rect(center=(self.ancho // 2, 180))  # Centrado bajo la línea [web:47]
+        self.screen.blit(subtitulo, subtitulo_rect)  # Dibuja subtítulo [web:47]
 
-        # Botones
-        for boton in self.botones:
-            boton.dibujar(self.screen)
+        # Botones del menú
+        for boton in self.botones:  # Recorre y dibuja cada botón [web:21]
+            boton.dibujar(self.screen)  # Cada botón decide su color según hover/presionado [web:47]
 
-        # Footer
+        # Footer con indicación de uso del mouse
         footer = self.font_subtitulo.render(
             "Usa el mouse para seleccionar", True, (100, 100, 120)
-        )
-        footer_rect = footer.get_rect(center=(self.ancho // 2, self.alto - 30))
-        self.screen.blit(footer, footer_rect)
+        )  # Ayuda contextual [web:21]
+        footer_rect = footer.get_rect(center=(self.ancho // 2, self.alto - 30))  # Ubicado al fondo [web:47]
+        self.screen.blit(footer, footer_rect)  # Dibuja el footer [web:47]
 
-        pygame.display.flip()
+        pygame.display.flip()  # Actualiza la ventana con todo lo dibujado en este frame [web:47]
 
     def ejecutar(self):
-        """Loop del menú"""
-        clock = pygame.time.Clock()
+        """Loop del menú: procesa eventos y devuelve la opción elegida."""
+        clock = pygame.time.Clock()  # Controla los FPS del menú para fluidez [web:47]
 
-        while True:
-            clock.tick(60)
-            mouse_pos = pygame.mouse.get_pos()
+        while True:  # Permanece hasta que el usuario elija o cierre [web:47]
+            clock.tick(60)  # Limita a 60 FPS para no consumir CPU de más [web:47]
+            mouse_pos = pygame.mouse.get_pos()  # Posición del mouse para hover/clics [web:47]
 
-            for evento in pygame.event.get():
-                if evento.type == pygame.QUIT:
-                    return 4
+            for evento in pygame.event.get():  # Lee eventos del sistema y usuario [web:47]
+                if evento.type == pygame.QUIT:  # Cerrar ventana [web:47]
+                    return 4  # Equivalente a “Salir” para el llamador [web:21]
 
-                if evento.type == pygame.KEYDOWN:
-                    if evento.key == pygame.K_ESCAPE:
-                        return 4
+                if evento.type == pygame.KEYDOWN:  # Alguna tecla presionada [web:47]
+                    if evento.key == pygame.K_ESCAPE:  # Escape como atajo para salir [web:47]
+                        return 4  # Devuelve “Salir” [web:21]
 
-                # Verificar clicks en botones
-                for boton in self.botones:
-                    if boton.manejar_evento(evento, mouse_pos):
-                        return boton.accion
+                # Verifica si algún botón recibió un click válido
+                for boton in self.botones:  # Itera todos los botones [web:21]
+                    if boton.manejar_evento(evento, mouse_pos):  # Detecta click down sobre el botón [web:47]
+                        return boton.accion  # Devuelve 1..4 según el botón elegido [web:21]
 
-            self.dibujar()
+            self.dibujar()  # Redibuja cada frame para feedback visual (hover, etc.) [web:47]
 
 
 class PantallaIniciarJuego:
-    """Pantalla para ingresar nombre (TODO VISUAL)"""
+    """Pantalla para ingresar nombre del jugador y continuar o volver."""
 
     def __init__(self, screen):
-        self.screen = screen
-        self.ancho = screen.get_width()
-        self.alto = screen.get_height()
+        self.screen = screen  # Superficie de dibujo [web:47]
+        self.ancho = screen.get_width()  # Ancho de ventana [web:47]
+        self.alto = screen.get_height()  # Alto de ventana [web:47]
 
-        self.font_titulo = pygame.font.Font(None, 56)
-        self.font_texto = pygame.font.Font(None, 32)
+        self.font_titulo = pygame.font.Font(None, 56)  # Fuente grande para título [web:47]
+        self.font_texto = pygame.font.Font(None, 32)  # Fuente media para textos [web:47]
 
-        # Input de nombre
+        # Campo de texto para el nombre con placeholder
         self.input_nombre = InputTexto(
             self.ancho // 2 - 200, 250, 400, 50, "Ingresa tu nombre"
-        )
+        )  # Input centrado con ancho cómodo [web:21]
 
-        # Botones
-        self.btn_continuar = Boton(self.ancho // 2 - 100, 350, 200, 50, "Continuar")
-
-        self.btn_volver = Boton(self.ancho // 2 - 100, 420, 200, 50, "Volver")
+        # Botones de acción
+        self.btn_continuar = Boton(self.ancho // 2 - 100, 350, 200, 50, "Continuar")  # Continúa si hay nombre [web:21]
+        self.btn_volver = Boton(self.ancho // 2 - 100, 420, 200, 50, "Volver")  # Regresa al menú principal [web:21]
 
     def dibujar(self):
-        """Dibuja la pantalla"""
-        self.screen.fill((20, 20, 30))
+        """Dibuja fondo, textos, input y botones."""
+        self.screen.fill((20, 20, 30))  # Fondo oscuro [web:47]
 
         # Título
-        titulo = self.font_titulo.render("Nuevo Juego", True, (255, 255, 255))
-        titulo_rect = titulo.get_rect(center=(self.ancho // 2, 100))
-        self.screen.blit(titulo, titulo_rect)
+        titulo = self.font_titulo.render("Nuevo Juego", True, (255, 255, 255))  # Título claro [web:47]
+        titulo_rect = titulo.get_rect(center=(self.ancho // 2, 100))  # Centrado arriba [web:47]
+        self.screen.blit(titulo, titulo_rect)  # Dibuja el título [web:47]
 
         # Instrucción
         instruccion = self.font_texto.render(
             "Ingresa tu nombre para comenzar:", True, (200, 200, 200)
-        )
-        instruccion_rect = instruccion.get_rect(center=(self.ancho // 2, 180))
-        self.screen.blit(instruccion, instruccion_rect)
+        )  # Indicación simple [web:21]
+        instruccion_rect = instruccion.get_rect(center=(self.ancho // 2, 180))  # Bajo el título [web:47]
+        self.screen.blit(instruccion, instruccion_rect)  # Dibuja instrucción [web:47]
 
-        # Input
-        self.input_nombre.dibujar(self.screen)
+        # Input de nombre
+        self.input_nombre.dibujar(self.screen)  # Renderiza input con su estado y cursor [web:47]
 
         # Botones
-        self.btn_continuar.dibujar(self.screen)
-        self.btn_volver.dibujar(self.screen)
+        self.btn_continuar.dibujar(self.screen)  # Botón principal [web:47]
+        self.btn_volver.dibujar(self.screen)  # Botón para volver [web:47]
 
-        pygame.display.flip()
+        pygame.display.flip()  # Actualiza pantalla [web:47]
 
     def ejecutar(self):
-        """Loop de la pantalla"""
-        clock = pygame.time.Clock()
+        """Loop: recoge nombre por Enter o botón, o vuelve con Escape/Volver."""
+        clock = pygame.time.Clock()  # Control de FPS [web:47]
 
-        while True:
-            clock.tick(60)
-            mouse_pos = pygame.mouse.get_pos()
+        while True:  # Permanece hasta confirmar o volver [web:47]
+            clock.tick(60)  # Suavidad y bajo consumo [web:47]
+            mouse_pos = pygame.mouse.get_pos()  # Para hover y clics en botones [web:47]
 
-            for evento in pygame.event.get():
-                if evento.type == pygame.QUIT:
-                    return None
+            for evento in pygame.event.get():  # Manejo de eventos [web:47]
+                if evento.type == pygame.QUIT:  # Cerrar ventana [web:47]
+                    return None  # Señal al llamador de que se abortó [web:21]
 
-                if evento.type == pygame.KEYDOWN:
-                    if evento.key == pygame.K_ESCAPE:
-                        return None
+                if evento.type == pygame.KEYDOWN:  # Tecla presionada [web:47]
+                    if evento.key == pygame.K_ESCAPE:  # Atajo para volver [web:47]
+                        return None  # Sale sin nombre [web:21]
 
-                # Input
-                if self.input_nombre.manejar_evento(evento):
-                    # Enter presionado
-                    nombre = self.input_nombre.obtener_texto()
-                    if nombre:
-                        return nombre
+                # Input: si manejar_evento devuelve True, se presionó Enter
+                if self.input_nombre.manejar_evento(evento):  # Procesa teclas y clicks del input [web:47]
+                    nombre = self.input_nombre.obtener_texto()  # Lee el texto limpio [web:21]
+                    if nombre:  # Solo acepta si no está vacío [web:21]
+                        return nombre  # Confirma el nombre [web:21]
 
-                # Botones
-                if self.btn_continuar.manejar_evento(evento, mouse_pos):
-                    nombre = self.input_nombre.obtener_texto()
-                    if nombre:
-                        return nombre
+                # Botón Continuar: intenta confirmar el nombre
+                if self.btn_continuar.manejar_evento(evento, mouse_pos):  # Click en Continuar [web:47]
+                    nombre = self.input_nombre.obtener_texto()  # Lee el texto [web:21]
+                    if nombre:  # Valida no vacío [web:21]
+                        return nombre  # Devuelve el nombre [web:21]
 
-                if self.btn_volver.manejar_evento(evento, mouse_pos):
-                    return None
+                # Botón Volver: regresa sin nombre
+                if self.btn_volver.manejar_evento(evento, mouse_pos):  # Click en Volver [web:47]
+                    return None  # Señal de cancelar [web:21]
 
-            self.dibujar()
+            self.dibujar()  # Redibuja cada frame [web:47]
 
 
 class PantallaSalonFama:
-    """Pantalla del salón de la fama"""
+    """Muestra los mejores puntajes con un listado sencillo."""
 
     def __init__(self, screen, salon_fama):
-        self.screen = screen
-        self.ancho = screen.get_width()
-        self.alto = screen.get_height()
-        self.salon_fama = salon_fama
+        self.screen = screen  # Superficie de dibujo [web:47]
+        self.ancho = screen.get_width()  # Ancho ventana [web:47]
+        self.alto = screen.get_height()  # Alto ventana [web:47]
+        self.salon_fama = salon_fama  # Fuente de datos de récords [web:21]
 
-        self.font_titulo = pygame.font.Font(None, 56)
-        self.font_header = pygame.font.Font(None, 32)
-        self.font_data = pygame.font.Font(None, 28)
-        self.font_info = pygame.font.Font(None, 24)
+        # Fuentes
+        self.font_titulo = pygame.font.Font(None, 56)  # Título [web:47]
+        self.font_header = pygame.font.Font(None, 32)  # Encabezados de tabla [web:47]
+        self.font_data = pygame.font.Font(None, 28)  # Filas de datos [web:47]
+        self.font_info = pygame.font.Font(None, 24)  # Mensajes informativos [web:47]
 
-        # Botón volver
+        # Botón volver centrado al fondo
         self.btn_volver = Boton(
             self.ancho // 2 - 100, self.alto - 80, 200, 50, "Volver"
-        )
+        )  # Permite regresar al menú principal [web:21]
 
     def dibujar(self):
-        """Dibuja la pantalla"""
-        self.screen.fill((20, 20, 30))
+        """Dibuja título, encabezados, registros si hay, y el botón volver."""
+        self.screen.fill((20, 20, 30))  # Fondo [web:47]
 
-        # Título
-        titulo = self.font_titulo.render("🏆 Salón de la Fama", True, (255, 215, 0))
-        titulo_rect = titulo.get_rect(center=(self.ancho // 2, 60))
-        self.screen.blit(titulo, titulo_rect)
+        # Título con emoji de trofeo
+        titulo = self.font_titulo.render("🏆 Salón de la Fama", True, (255, 215, 0))  # Color dorado [web:21]
+        titulo_rect = titulo.get_rect(center=(self.ancho // 2, 60))  # Centrado arriba [web:47]
+        self.screen.blit(titulo, titulo_rect)  # Dibuja [web:47]
 
-        # Obtener registros
-        registros = self.salon_fama.mostrar_mejores()
+        # Pide registros al modelo del salón de la fama
+        registros = self.salon_fama.mostrar_mejores()  # Lista de dict con nombre, puntaje y laberinto [web:21]
 
-        if not registros:
+        if not registros:  # Si no hay datos aún [web:21]
             texto = self.font_header.render(
                 "No hay registros todavía", True, (150, 150, 150)
-            )
-            texto_rect = texto.get_rect(center=(self.ancho // 2, 300))
-            self.screen.blit(texto, texto_rect)
+            )  # Mensaje gris suave [web:21]
+            texto_rect = texto.get_rect(center=(self.ancho // 2, 300))  # Centrado [web:47]
+            self.screen.blit(texto, texto_rect)  # Dibuja [web:47]
         else:
-            # Encabezados
-            headers = ["#", "Jugador", "Puntaje", "Laberinto"]
-            x_positions = [100, 200, 450, 600]
+            # Encabezados de la “tabla” y sus posiciones x
+            headers = ["#", "Jugador", "Puntaje", "Laberinto"]  # Columnas [web:21]
+            x_positions = [100, 200, 450, 600]  # Posiciones x para alinear columnas [web:47]
 
-            for header, x in zip(headers, x_positions):
-                texto = self.font_header.render(header, True, (150, 150, 150))
-                self.screen.blit(texto, (x, 130))
+            for header, x in zip(headers, x_positions):  # Dibuja cada título de columna [web:21]
+                texto = self.font_header.render(header, True, (150, 150, 150))  # Gris [web:21]
+                self.screen.blit(texto, (x, 130))  # Posición de encabezados [web:47]
 
-            # Línea
-            pygame.draw.line(self.screen, (100, 100, 120), (80, 160), (720, 160), 2)
+            # Línea separadora entre encabezados y datos
+            pygame.draw.line(self.screen, (100, 100, 120), (80, 160), (720, 160), 2)  # Separador [web:47]
 
-            # Datos
-            for i, reg in enumerate(registros[:10]):
-                y_pos = 180 + i * 35
-                color = (255, 215, 0) if i < 3 else (200, 200, 200)
+            # Muestra hasta 10 registros con color dorado para los 3 primeros
+            for i, reg in enumerate(registros[:10]):  # Top 10 [web:21]
+                y_pos = 180 + i * 35  # Cada fila separada 35 px [web:47]
+                color = (255, 215, 0) if i < 3 else (200, 200, 200)  # Destaca podio [web:21]
 
                 datos = [
-                    f"{i + 1}",
-                    reg["nombre_jugador"][:15],
-                    str(reg["puntaje"]),
-                    reg["laberinto"][:12],
-                ]
+                    f"{i + 1}",  # Posición [web:21]
+                    reg["nombre_jugador"][:15],  # Nombre acotado a 15 caracteres [web:21]
+                    str(reg["puntaje"]),  # Puntaje en texto [web:21]
+                    reg["laberinto"][:12],  # Laberinto acotado [web:21]
+                ]  # Prepara la fila visible [web:21]
 
-                for dato, x in zip(datos, x_positions):
-                    texto = self.font_data.render(dato, True, color)
-                    self.screen.blit(texto, (x, y_pos))
+                for dato, x in zip(datos, x_positions):  # Dibuja cada celda en su columna [web:21]
+                    texto = self.font_data.render(dato, True, color)  # Usa color según podio/otros [web:21]
+                    self.screen.blit(texto, (x, y_pos))  # Dibuja dato [web:47]
 
         # Botón volver
-        self.btn_volver.dibujar(self.screen)
+        self.btn_volver.dibujar(self.screen)  # Botón visible al final [web:47]
 
-        pygame.display.flip()
+        pygame.display.flip()  # Actualiza pantalla [web:47]
 
     def ejecutar(self):
-        """Loop de la pantalla"""
-        clock = pygame.time.Clock()
+        """Loop de lectura: cierra con Volver, Escape o al cerrar ventana."""
+        clock = pygame.time.Clock()  # Control FPS [web:47]
 
-        while True:
-            clock.tick(60)
-            mouse_pos = pygame.mouse.get_pos()
+        while True:  # Permanece hasta acción de salida [web:47]
+            clock.tick(60)  # Suave y eficiente [web:47]
+            mouse_pos = pygame.mouse.get_pos()  # Para hover y clicks [web:47]
 
-            for evento in pygame.event.get():
-                if evento.type == pygame.QUIT:
-                    return
+            for evento in pygame.event.get():  # Manejo de eventos [web:47]
+                if evento.type == pygame.QUIT:  # Cerrar ventana [web:47]
+                    return  # Sale al llamador (menú) [web:21]
 
-                if evento.type == pygame.KEYDOWN:
-                    if evento.key == pygame.K_ESCAPE:
-                        return
+                if evento.type == pygame.KEYDOWN:  # Teclas [web:47]
+                    if evento.key == pygame.K_ESCAPE:  # Atajo de salida [web:47]
+                        return  # Vuelve al menú [web:21]
 
-                if self.btn_volver.manejar_evento(evento, mouse_pos):
-                    return
+                if self.btn_volver.manejar_evento(evento, mouse_pos):  # Click en Volver [web:47]
+                    return  # Sale [web:21]
 
-            self.dibujar()
+            self.dibujar()  # Redibuja [web:47]
 
 
 class PantallaAdministracion:
-    """Pantalla de administración"""
+    """Solicita la clave de administrador y la devuelve para validarla afuera."""
 
     def __init__(self, screen):
-        self.screen = screen
-        self.ancho = screen.get_width()
-        self.alto = screen.get_height()
-        self.autenticado = False
+        self.screen = screen  # Superficie de dibujo [web:47]
+        self.ancho = screen.get_width()  # Ancho de la ventana [web:47]
+        self.alto = screen.get_height()  # Alto de la ventana [web:47]
+        self.autenticado = False  # Bandera local por si se usa en el futuro [web:21]
 
-        self.font_titulo = pygame.font.Font(None, 56)
-        self.font_texto = pygame.font.Font(None, 32)
+        self.font_titulo = pygame.font.Font(None, 56)  # Título [web:47]
+        self.font_texto = pygame.font.Font(None, 32)  # Texto [web:47]
 
-        # Input de clave
+        # Input de clave con placeholder
         self.input_clave = InputTexto(
             self.ancho // 2 - 200, 250, 400, 50, "Ingresa la clave"
-        )
+        )  # Centrado y tamaño cómodo [web:21]
 
         # Botones
-        self.btn_ingresar = Boton(self.ancho // 2 - 100, 350, 200, 50, "Ingresar")
-
-        self.btn_volver = Boton(self.ancho // 2 - 100, 420, 200, 50, "Volver")
+        self.btn_ingresar = Boton(self.ancho // 2 - 100, 350, 200, 50, "Ingresar")  # Aceptar [web:21]
+        self.btn_volver = Boton(self.ancho // 2 - 100, 420, 200, 50, "Volver")  # Cancelar [web:21]
 
     def dibujar(self):
-        """Dibuja la pantalla"""
-        self.screen.fill((20, 20, 30))
+        """Dibuja la pantalla de autenticación con input, botones y un hint."""
+        self.screen.fill((20, 20, 30))  # Fondo [web:47]
 
         # Título
-        titulo = self.font_titulo.render("🔐 Administración", True, (255, 255, 255))
-        titulo_rect = titulo.get_rect(center=(self.ancho // 2, 100))
-        self.screen.blit(titulo, titulo_rect)
+        titulo = self.font_titulo.render("🔐 Administración", True, (255, 255, 255))  # Título claro [web:47]
+        titulo_rect = titulo.get_rect(center=(self.ancho // 2, 100))  # Centrado [web:47]
+        self.screen.blit(titulo, titulo_rect)  # Dibuja [web:47]
 
         # Instrucción
         instruccion = self.font_texto.render(
             "Ingresa la clave de administrador:", True, (200, 200, 200)
-        )
-        instruccion_rect = instruccion.get_rect(center=(self.ancho // 2, 180))
-        self.screen.blit(instruccion, instruccion_rect)
+        )  # Texto guía [web:21]
+        instruccion_rect = instruccion.get_rect(center=(self.ancho // 2, 180))  # Ubicación [web:47]
+        self.screen.blit(instruccion, instruccion_rect)  # Dibuja [web:47]
 
-        # Input
-        self.input_clave.dibujar(self.screen)
+        # Input y botones
+        self.input_clave.dibujar(self.screen)  # Campo de texto [web:47]
+        self.btn_ingresar.dibujar(self.screen)  # Botón aceptar [web:47]
+        self.btn_volver.dibujar(self.screen)  # Botón volver [web:47]
 
-        # Botones
-        self.btn_ingresar.dibujar(self.screen)
-        self.btn_volver.dibujar(self.screen)
-
-        # Hint
+        # Hint visible al pie de pantalla
         hint = pygame.font.Font(None, 20).render(
             "Clave por defecto: admin123", True, (100, 100, 120)
-        )
-        hint_rect = hint.get_rect(center=(self.ancho // 2, self.alto - 30))
-        self.screen.blit(hint, hint_rect)
+        )  # Mensaje de ayuda [web:21]
+        hint_rect = hint.get_rect(center=(self.ancho // 2, self.alto - 30))  # Posición [web:47]
+        self.screen.blit(hint, hint_rect)  # Dibuja [web:47]
 
-        pygame.display.flip()
+        pygame.display.flip()  # Actualiza [web:47]
 
     def ejecutar(self):
-        """Loop de la pantalla"""
-        clock = pygame.time.Clock()
+        """Loop: devuelve la clave con Enter o Ingresar, o None al volver/salir."""
+        clock = pygame.time.Clock()  # Control FPS [web:47]
 
-        while True:
-            clock.tick(60)
-            mouse_pos = pygame.mouse.get_pos()
+        while True:  # Espera interacción del usuario [web:47]
+            clock.tick(60)  # Suaviza y limita consumo [web:47]
+            mouse_pos = pygame.mouse.get_pos()  # Posición del mouse [web:47]
 
-            for evento in pygame.event.get():
-                if evento.type == pygame.QUIT:
-                    return None
+            for evento in pygame.event.get():  # Procesa eventos [web:47]
+                if evento.type == pygame.QUIT:  # Cerrar ventana [web:47]
+                    return None  # Señal de cancelar [web:21]
 
-                if evento.type == pygame.KEYDOWN:
-                    if evento.key == pygame.K_ESCAPE:
-                        return None
+                if evento.type == pygame.KEYDOWN:  # Teclas [web:47]
+                    if evento.key == pygame.K_ESCAPE:  # Atajo de cancelar [web:47]
+                        return None  # Sale [web:21]
 
-                # Input
-                if self.input_clave.manejar_evento(evento):
-                    clave = self.input_clave.obtener_texto()
-                    return clave
+                # Input: Enter devuelve inmediatamente la clave
+                if self.input_clave.manejar_evento(evento):  # Procesa tecla/Click [web:47]
+                    clave = self.input_clave.obtener_texto()  # Lee la clave ingresada [web:21]
+                    return clave  # Devuelve para que el llamador la valide [web:21]
 
-                # Botones
-                if self.btn_ingresar.manejar_evento(evento, mouse_pos):
-                    clave = self.input_clave.obtener_texto()
-                    return clave
+                # Botón Ingresar: también devuelve la clave
+                if self.btn_ingresar.manejar_evento(evento, mouse_pos):  # Click en Ingresar [web:47]
+                    clave = self.input_clave.obtener_texto()  # Lee la clave [web:21]
+                    return clave  # Devuelve para validar [web:21]
 
-                if self.btn_volver.manejar_evento(evento, mouse_pos):
-                    return None
+                # Botón Volver
+                if self.btn_volver.manejar_evento(evento, mouse_pos):  # Click en Volver [web:47]
+                    return None  # Cancela [web:21]
 
-            self.dibujar()
+            self.dibujar()  # Redibuja [web:47]
 
 
 class MensajeModal:
-    """Modal para mostrar mensajes (como alert en web)"""
+    """Cuadro de diálogo simple para mostrar mensajes y confirmar con OK."""
 
     def __init__(self, screen, titulo, mensaje, tipo="info"):
-        self.screen = screen
-        self.ancho = screen.get_width()
-        self.alto = screen.get_height()
-        self.titulo = titulo
-        self.mensaje = mensaje
-        self.tipo = tipo
+        self.screen = screen  # Superficie de dibujo [web:47]
+        self.ancho = screen.get_width()  # Ancho de ventana [web:47]
+        self.alto = screen.get_height()  # Alto de ventana [web:47]
+        self.titulo = titulo  # Título del modal (ej. “Acceso Concedido”) [web:21]
+        self.mensaje = mensaje  # Mensaje principal [web:21]
+        self.tipo = tipo  # info, success, error o warning para cambiar color [web:21]
 
-        self.font_titulo = pygame.font.Font(None, 48)
-        self.font_mensaje = pygame.font.Font(None, 32)
+        self.font_titulo = pygame.font.Font(None, 48)  # Fuente para título [web:47]
+        self.font_mensaje = pygame.font.Font(None, 32)  # Fuente para texto [web:47]
 
-        # Botón OK
-        self.btn_ok = Boton(self.ancho // 2 - 75, self.alto // 2 + 60, 150, 50, "OK")
+        # Botón OK centrado bajo el mensaje
+        self.btn_ok = Boton(self.ancho // 2 - 75, self.alto // 2 + 60, 150, 50, "OK")  # Cierra el modal [web:21]
 
-        # Colores según tipo
+        # Colores de acento según el tipo de mensaje
         colores = {
-            "info": (0, 150, 255),
-            "success": (0, 200, 100),
-            "error": (255, 50, 50),
-            "warning": (255, 200, 0),
-        }
-        self.color_acento = colores.get(tipo, colores["info"])
+            "info": (0, 150, 255),    # Azul informativo [web:21]
+            "success": (0, 200, 100), # Verde de éxito [web:21]
+            "error": (255, 50, 50),   # Rojo de error [web:21]
+            "warning": (255, 200, 0), # Amarillo de advertencia [web:21]
+        }  # Mapa simple para estilo visual del modal [web:21]
+        self.color_acento = colores.get(tipo, colores["info"])  # Por defecto “info” [web:21]
 
     def dibujar(self):
-        """Dibuja el modal"""
-        # Fondo semitransparente
-        overlay = pygame.Surface((self.ancho, self.alto))
-        overlay.set_alpha(200)
-        overlay.fill((0, 0, 0))
-        self.screen.blit(overlay, (0, 0))
+        """Dibuja fondo translúcido, caja con borde, textos y el botón OK."""
+        # Fondo semitransparente para centrar la atención
+        overlay = pygame.Surface((self.ancho, self.alto))  # Capa del tamaño de la ventana [web:47]
+        overlay.set_alpha(200)  # Opacidad para oscurecer el fondo [web:47]
+        overlay.fill((0, 0, 0))  # Negro [web:47]
+        self.screen.blit(overlay, (0, 0))  # Dibuja la capa [web:47]
 
-        # Caja del modal
-        modal_rect = pygame.Rect(self.ancho // 2 - 250, self.alto // 2 - 100, 500, 200)
-        pygame.draw.rect(self.screen, (40, 40, 60), modal_rect, border_radius=15)
+        # Caja central del modal
+        modal_rect = pygame.Rect(self.ancho // 2 - 250, self.alto // 2 - 100, 500, 200)  # Caja de 500x200 [web:47]
+        pygame.draw.rect(self.screen, (40, 40, 60), modal_rect, border_radius=15)  # Fondo de la caja [web:47]
         pygame.draw.rect(
             self.screen, self.color_acento, modal_rect, 3, border_radius=15
-        )
+        )  # Borde con color de acento [web:47]
 
-        # Título
-        titulo_surface = self.font_titulo.render(self.titulo, True, self.color_acento)
+        # Título centrado
+        titulo_surface = self.font_titulo.render(self.titulo, True, self.color_acento)  # Texto del título [web:47]
         titulo_rect = titulo_surface.get_rect(
             center=(self.ancho // 2, self.alto // 2 - 50)
-        )
-        self.screen.blit(titulo_surface, titulo_rect)
+        )  # Posición superior de la caja [web:47]
+        self.screen.blit(titulo_surface, titulo_rect)  # Dibuja título [web:47]
 
-        # Mensaje
-        mensaje_surface = self.font_mensaje.render(self.mensaje, True, (255, 255, 255))
+        # Mensaje principal
+        mensaje_surface = self.font_mensaje.render(self.mensaje, True, (255, 255, 255))  # Texto blanco [web:47]
         mensaje_rect = mensaje_surface.get_rect(
             center=(self.ancho // 2, self.alto // 2)
-        )
-        self.screen.blit(mensaje_surface, mensaje_rect)
+        )  # Centro de la caja [web:47]
+        self.screen.blit(mensaje_surface, mensaje_rect)  # Dibuja mensaje [web:47]
 
-        # Botón
-        self.btn_ok.dibujar(self.screen)
+        # Botón OK
+        self.btn_ok.dibujar(self.screen)  # Dibuja el botón [web:47]
 
-        pygame.display.flip()
+        pygame.display.flip()  # Actualiza pantalla [web:47]
 
     def ejecutar(self):
-        """Loop del modal"""
-        clock = pygame.time.Clock()
+        """Loop del modal: se cierra con OK, Enter/Escape o al cerrar la ventana."""
+        clock = pygame.time.Clock()  # Control de FPS para fluidez [web:47]
 
-        while True:
-            clock.tick(60)
-            mouse_pos = pygame.mouse.get_pos()
+        while True:  # Espera una acción de cierre [web:47]
+            clock.tick(60)  # Establece 60 FPS [web:47]
+            mouse_pos = pygame.mouse.get_pos()  # Para hover/click en OK [web:47]
 
-            for evento in pygame.event.get():
-                if evento.type == pygame.QUIT:
-                    return
+            for evento in pygame.event.get():  # Revisa eventos [web:47]
+                if evento.type == pygame.QUIT:  # Cerrar ventana [web:47]
+                    return  # Sale al llamador [web:21]
 
-                if evento.type == pygame.KEYDOWN:
-                    if evento.key in [pygame.K_RETURN, pygame.K_ESCAPE]:
-                        return
+                if evento.type == pygame.KEYDOWN:  # Teclas [web:47]
+                    if evento.key in [pygame.K_RETURN, pygame.K_ESCAPE]:  # Enter/Escape [web:47]
+                        return  # Cierra el modal [web:21]
 
-                if self.btn_ok.manejar_evento(evento, mouse_pos):
-                    return
+                if self.btn_ok.manejar_evento(evento, mouse_pos):  # Click en OK [web:47]
+                    return  # Cierra [web:21]
 
-            self.dibujar()
+            self.dibujar()  # Sigue dibujando hasta cerrar [web:47]
