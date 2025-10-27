@@ -84,9 +84,9 @@ class Laberinto:
                     posicion = (col, fila)
                     self._obsequios[posicion] = Obsequio(posicion, valor)
 
-            print(f"Laberinto '{self.nombre}' cargado exitosamente")
-            print(f"Dimensiones: {len(self.laberinto[0])}x{len(self.laberinto)}")
-            print(f"Obsequios: {len(self._obsequios)}")
+            # print(f"Laberinto '{self.nombre}' cargado exitosamente")
+            # print(f"Dimensiones: {len(self.laberinto[0])}x{len(self.laberinto)}")
+            # print(f"Obsequios: {len(self._obsequios)}")
 
         except FileNotFoundError:
             raise FileNotFoundError(
