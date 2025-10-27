@@ -9,9 +9,6 @@ def main():
     juego = Juego()
     juego.iniciar()
 
-    # ------
-    # from game.pantalla_juego import PantallaJuego
-
 
 if __name__ == "__main__":
     main()
