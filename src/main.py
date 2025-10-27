@@ -18,7 +18,7 @@ def main():
     """
     try:
         ## Iniciar Pygame
-        pygame.init()nto clas
+        pygame.init()nto class
 
         # crear y correr juego
         game = Juego()
