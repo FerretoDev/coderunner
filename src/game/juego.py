@@ -65,19 +65,8 @@ class Juego:
                 nombre = pantalla_inicio.ejecutar()
 
                 if nombre:
-                    # TODO: Iniciar el juego
-                    # modal = MensajeModal(
-                    #    screen,
-                    #    "Próximamente",
-                    #    "El juego se implementará pronto",
-                    #    "info",
-                    # )
-                    # modal.ejecutar()
-                    # from .laberinto_uno import Juego
-
-                    # juego = Juego()
-                    # juego.bucle_principal()
-                    pantalla = PantallaJuego("Jugador 1")
+                    # Iniciar el juego con el nombre ingresado
+                    pantalla = PantallaJuego(nombre)
                     pantalla.ejecutar()
 
             elif opcion == 2:  # Salón de la Fama

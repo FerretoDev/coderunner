@@ -566,17 +566,50 @@ class PantallaJuego:
         )
         self.screen.blit(nombre_surf, (20, 15))
 
-        # Vidas
-        vidas_surf = self.fuente_hud.render(
-            f"❤ × {self.jugador._vidas}", True, self.COLORES["vidas"]
-        )
-        self.screen.blit(vidas_surf, (20, 45))
+        # Vidas (dibujar corazones como iconos)
+        x_vidas = 20
+        y_vidas = 45
+        for i in range(self.jugador._vidas):
+            # Dibujar un corazón simple con pygame
+            corazon_x = x_vidas + (i * 35)
+            # Dibujar dos círculos arriba
+            pygame.draw.circle(
+                self.screen, self.COLORES["vidas"], (corazon_x + 5, y_vidas + 5), 5
+            )
+            pygame.draw.circle(
+                self.screen, self.COLORES["vidas"], (corazon_x + 15, y_vidas + 5), 5
+            )
+            # Dibujar triángulo abajo
+            puntos = [
+                (corazon_x, y_vidas + 6),
+                (corazon_x + 20, y_vidas + 6),
+                (corazon_x + 10, y_vidas + 18),
+            ]
+            pygame.draw.polygon(self.screen, self.COLORES["vidas"], puntos)
 
-        # Puntaje
+        # Puntaje con estrella dibujada
+        x_puntaje = 200
+        y_puntaje = 45
+
+        # Dibujar estrella
+        import math
+
+        radio_ext = 12
+        radio_int = 5
+        puntos_estrella = []
+        for i in range(10):
+            angulo = math.pi / 2 + (i * math.pi / 5)
+            radio = radio_ext if i % 2 == 0 else radio_int
+            px = x_puntaje + radio * math.cos(angulo)
+            py = y_puntaje + 10 - radio * math.sin(angulo)
+            puntos_estrella.append((px, py))
+        pygame.draw.polygon(self.screen, self.COLORES["puntaje"], puntos_estrella)
+
+        # Texto del puntaje
         puntaje_surf = self.fuente_hud.render(
-            f"★ {self.jugador._puntaje}", True, self.COLORES["puntaje"]
+            f"{self.jugador._puntaje}", True, self.COLORES["puntaje"]
         )
-        self.screen.blit(puntaje_surf, (200, 45))
+        self.screen.blit(puntaje_surf, (x_puntaje + 20, y_puntaje))
 
         # Velocidad del enemigo (nivel de dificultad)
         nivel_dificultad = self.computadora.velocidad / self.velocidad_inicial_enemigo
