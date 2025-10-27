@@ -725,9 +725,9 @@ class PantallaJuego:
         )
 
         salon.guardar_puntaje(registro)
-        print(
-            f"Puntaje guardado en el Salón de la Fama: {self.jugador._puntaje} puntos"
-        )
+        # print(
+        #    f"Puntaje guardado en el Salón de la Fama: {self.jugador._puntaje} puntos"
+        # )
 
     def _dibujar_victoria(self):
         """Dibuja overlay de victoria"""
