@@ -27,7 +27,13 @@ class Jugador(Personaje):
         self._nombre = ""
         self._vidas = 3
         self._puntaje = 0
-        self.color = (255, 0, 0)
+        #self.color = (255, 0, 0)
+
+        # Cargar imagen del jugador
+        self.imagen = pygame.image.load("src/data/ImagenJugadorPrincipal.png").convert_alpha()
+
+        self.imagen = pygame.transform.scale(self.imagen, (64, 64))
+
         # Rect de colisión más ajustado al círculo visual
         # Usamos radio*1.8 en vez de radio*2 para mejor precisión
         size = int(radio * 1.8)
@@ -83,5 +89,18 @@ class Jugador(Personaje):
         Parámetros:
             pantalla: Superficie de pygame donde se dibujará el jugador
         """
-        centro = self.jugador_principal.center
-        pygame.draw.circle(pantalla, self.color, centro, self.radio)
+        #centro = self.jugador_principal.center
+        #pygame.draw.circle(pantalla, self.color, centro, self.radio)
+
+        """
+        Dibuja al jugador en la pantalla con su imagen.
+        Si no se carga correctamente, dibuja un círculo rojo como respaldo.
+        """
+        try:
+            # Obtener la posición donde se dibujará (centrando la imagen)
+            centro = self.jugador_principal.center
+            rect_imagen = self.imagen.get_rect(center=centro)
+            pantalla.blit(self.imagen, rect_imagen)
+        except AttributeError:
+            # En caso de error o si no hay imagen, dibujar círculo
+            pygame.draw.circle(pantalla, self.color, self.jugador_principal.center, self.radio)

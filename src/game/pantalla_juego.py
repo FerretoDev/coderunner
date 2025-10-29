@@ -5,6 +5,7 @@ import pygame
 from models.computadora import Computadora
 from models.jugador import Jugador
 from models.laberinto import Laberinto
+from models.sistema_sonido import SistemaSonido
 
 
 class PantallaJuego:
@@ -167,6 +168,11 @@ class PantallaJuego:
 
         # Inicializar timers de obsequios
         self._inicializar_timers_obsequios()
+
+        #Musica Perrona
+        musica_perrona = SistemaSonido()
+        musica_perrona.musica_perrona()
+
 
     def _inicializar_timers_obsequios(self):
         """Inicializa los timers para cada obsequio activo"""
