@@ -80,7 +80,7 @@ class Juego:
                 if clave and admin.autenticar(clave):
                     modal = MensajeModal(
                         screen,
-                        "✅ Acceso Concedido",
+                        "Acceso Concedido",
                         "Bienvenido Administrador",
                         "success",
                     )
@@ -88,7 +88,7 @@ class Juego:
                     # TODO: Panel de admin
                 elif clave:
                     modal = MensajeModal(
-                        screen, "❌ Error", "Clave incorrecta", "error"
+                        screen, "Error", "Clave incorrecta", "error"
                     )
                     modal.ejecutar()
 
@@ -113,7 +113,7 @@ class Juego:
 
     def terminar(self):
         """Cierra el juego y guarda en el Salón de la Fama"""
-        print("🎮 Juego terminado")
+        print("Juego terminado")
         if self._jugador:
             print(f"Puntaje final: {self._jugador['puntaje']}")
         pygame.quit()
