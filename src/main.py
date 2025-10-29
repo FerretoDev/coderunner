@@ -1,8 +1,4 @@
-# from game.pruebas_pacman.juego import Juego
 from game.juego import Juego
-from game.pantalla_juego import PantallaJuego
-
-# from Prototipo3.juego import Juego
 
 
 def main():
