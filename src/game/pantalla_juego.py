@@ -14,6 +14,7 @@ class PantallaJuego:
     ALTO = 800
     TAM_CELDA = 32
 
+    # Diccionario de colores predefinidos para la interfaz del juego en rgb
     COLORES = {
         "fondo": (20, 20, 30),
         "hud_fondo": (30, 30, 50),
