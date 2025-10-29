@@ -1,9 +1,12 @@
 import json
 import os
+from re import A
 
 import pygame
 
 from .obsequio import Obsequio
+
+AZUL = (0, 0, 255)
 
 
 class Laberinto:
@@ -321,4 +324,5 @@ class Laberinto:
             )
 
             # Capa 4: Punto de luz superior izquierdo (destello)
+            pygame.draw.circle(pantalla, (255, 255, 255), (x - 2, y - 2), 2)
             pygame.draw.circle(pantalla, (255, 255, 255), (x - 2, y - 2), 2)
