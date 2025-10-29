@@ -44,7 +44,7 @@ class Computadora(Personaje):
     def _calcular_camino_bfs(
         self, mapa: list[list[int]], start: tuple[int, int], goal: tuple[int, int]
     ):
-        """Calcula el camino más corto usando Breadth-First Search (BFS)"""
+        """Calcula el camino más corto usando Busqueda de Amplitud (BFS)"""
         max_filas = len(mapa)
         max_cols = len(mapa[0]) if max_filas > 0 else 0
 
