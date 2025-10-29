@@ -55,8 +55,16 @@ class Obsequio:
         self._posicion = nueva_posicion
 
     def recolectar(self) -> int:
-        """Retorna los puntos que aporta y desactiva el obsequio"""
+        """
+        Recolecta el obsequio y retorna su valor.
+
+        Este método marca el obsequio como inactivo y retorna los puntos
+        que otorga. Si ya había sido recolectado, retorna 0.
+
+        Returns:
+            int: Valor en puntos del obsequio (0 si ya estaba inactivo)
+        """
         if self._activo:
-            self._activo = False
+            self._activo = False  # Marcar como recolectado
             return self._valor
-        return 0
+        return 0  # Ya fue recolectado antes
