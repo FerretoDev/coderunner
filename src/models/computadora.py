@@ -170,15 +170,30 @@ class Computadora(Personaje):
         offset_y: int = 0,
         recalc_every: int = 6,
     ):
-        """Persigue al jugador usando BFS sobre el grid del laberinto.
-        - Recalcula camino si el objetivo cambia de celda o cada `recalc_every` frames.
-        - Se mueve suavemente hacia el centro de la siguiente celda.
         """
-        # Celda actual de la compu y del jugador (usar centro)
+        Persigue al jugador usando BFS sobre el grid del laberinto.
+
+        Este es el método principal de la IA que:
+        1. Obtiene las posiciones actuales del enemigo y jugador en celdas
+        2. Calcula o actualiza el camino más corto usando BFS
+        3. Mueve al enemigo suavemente hacia la siguiente celda del camino
+
+        Args:
+            jugador: Instancia del jugador a perseguir
+            mapa: Matriz 2D del laberinto
+            tam_celda: Tamaño de cada celda en píxeles
+            offset_x: Desplazamiento horizontal del laberinto
+            offset_y: Desplazamiento vertical del laberinto
+            recalc_every: Cada cuántos frames recalcular el camino (optimización)
+        """
+        # === PASO 1: Obtener posiciones actuales en el grid ===
+        # Celda actual de la computadora (usar centro del hitbox)
         comp_cx, comp_cy = self.computadora_principal.center
         fila_c, col_c = self._cell_from_pos(
             comp_cx, comp_cy, tam_celda, offset_x, offset_y
         )
+
+        # Celda actual del jugador (usar centro del hitbox)
         jug_cx, jug_cy = jugador.jugador_principal.center
         fila_j, col_j = self._cell_from_pos(
             jug_cx, jug_cy, tam_celda, offset_x, offset_y
@@ -186,8 +201,14 @@ class Computadora(Personaje):
 
         objetivo = (fila_j, col_j)
 
-        # Recalcular cuando sea necesario
+        # === PASO 2: Decidir si recalcular el camino ===
+        # Reducir cooldown cada frame
         self._bfs_recalc_cooldown = max(0, self._bfs_recalc_cooldown - 1)
+
+        # Recalcular cuando:
+        # - No hay camino calculado aún
+        # - El jugador cambió de celda
+        # - El cooldown llegó a 0 (cada N frames para adaptarse a cambios)
         if (
             self._bfs_camino is None
             or self._bfs_target_cell != objetivo
@@ -199,42 +220,50 @@ class Computadora(Personaje):
             self._bfs_target_cell = objetivo
             self._bfs_recalc_cooldown = recalc_every
 
+        # Si no hay camino válido o ya estamos en el objetivo, no hacer nada
         if not self._bfs_camino or len(self._bfs_camino) <= 1:
-            return  # ya estamos en la celda objetivo o no hay camino
+            return
 
+        # === PASO 3: Moverse hacia la siguiente celda del camino ===
         # Siguiente celda a la que debemos ir (omitir la celda actual que es [0])
         siguiente_celda = self._bfs_camino[1]
         target_px = self._pos_center_of_cell(
             *siguiente_celda, tam_celda, offset_x, offset_y
         )
 
-        # Mover suavemente hacia el centro de la siguiente celda
+        # Calcular vector de movimiento hacia el centro de la siguiente celda
         ax, ay = self.computadora_principal.center
         tx, ty = target_px
         dx, dy = tx - ax, ty - ay
-        dist = math.hypot(dx, dy)
+        dist = math.hypot(dx, dy)  # Distancia euclidiana
+
         if dist > 0:
+            # Normalizar el vector de dirección
             ux, uy = dx / dist, dy / dist
+
+            # Calcular el paso a dar (velocidad * dirección)
             paso_x = ux * self.velocidad
             paso_y = uy * self.velocidad
             nuevo_cx = ax + paso_x
             nuevo_cy = ay + paso_y
 
-            # Aplicar en top-left con casteo a int (Rect usa enteros)
+            # Aplicar movimiento (convertir a enteros para pygame.Rect)
             self.computadora_principal.centerx = int(nuevo_cx)
             self.computadora_principal.centery = int(nuevo_cy)
             self.x = self.computadora_principal.x
             self.y = self.computadora_principal.y
 
+        # === PASO 4: Verificar si llegamos a la celda objetivo ===
         # Si estamos muy cerca del centro de la siguiente celda, avanzar en la ruta
         ax2, ay2 = self.computadora_principal.center
         if math.hypot(tx - ax2, ty - ay2) <= self.velocidad + 0.5:
-            # Alinear exacto al centro de la celda y avanzar
+            # Alinear exactamente al centro de la celda
             self.computadora_principal.centerx = int(tx)
             self.computadora_principal.centery = int(ty)
             self.x = self.computadora_principal.x
             self.y = self.computadora_principal.y
-            # Consumir el primer paso (la celda actual) para ir a la siguiente
+
+            # Consumir el primer elemento del camino (celda actual) para avanzar a la siguiente
             if self._bfs_camino and len(self._bfs_camino) > 1:
                 self._bfs_camino.pop(0)
 
