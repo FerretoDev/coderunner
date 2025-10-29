@@ -339,31 +339,43 @@ class Computadora(Personaje):
         return False  # Ya no necesitamos hacer nada aquí
 
     def dibujar_computadora_principal(self, screen):
-        """Dibuja a la computadora con efecto de peligro dinámico"""
+        """
+        Dibuja a la computadora con efectos visuales dinámicos.
+
+        Efectos aplicados:
+        - Pulsación: El tamaño del enemigo varía ligeramente
+        - Color variable: La intensidad del rojo cambia para dar sensación de peligro
+        - Detalles visuales: Borde blanco, centro oscuro y "ojos" para hacerlo más visible
+
+        Args:
+            screen: Superficie de pygame donde se dibujará el enemigo
+        """
         centro = self.computadora_principal.center
 
-        # Efecto pulsante basado en frame count
+        # Mantener contador de frames para animaciones
         frame_count = getattr(self, "_frame_count", 0)
         self._frame_count = frame_count + 1
 
-        # Crear efecto de pulsación
-        pulso = abs(math.sin(frame_count * 0.2)) * 3
+        # === Efecto 1: Pulsación ===
+        # Crear efecto de pulsación usando función seno
+        pulso = abs(math.sin(frame_count * 0.2)) * 3  # Varía entre 0 y 3
         radio_pulso = self.radio + pulso
 
-        # Color que varía con la pulsación
+        # === Efecto 2: Color variable ===
+        # El rojo del enemigo varía para dar sensación de amenaza
         intensidad = int(200 + 55 * abs(math.sin(frame_count * 0.15)))
         color_principal = (intensidad, 50, 50)
 
-        # Dibujar círculo principal con pulsación
+        # === Capa 1: Círculo principal con pulsación ===
         pygame.draw.circle(screen, color_principal, centro, int(radio_pulso))
 
-        # Borde blanco
+        # === Capa 2: Borde blanco para mejor visibilidad ===
         pygame.draw.circle(screen, (255, 255, 255), centro, int(radio_pulso), 2)
 
-        # Centro más oscuro para definir mejor la forma
+        # === Capa 3: Centro más oscuro para dar profundidad ===
         pygame.draw.circle(screen, (180, 30, 30), centro, int(self.radio * 0.6))
 
-        # Pequeños "ojos" o puntos brillantes para hacerla más visible
+        # === Capa 4: "Ojos" blancos para dar personalidad ===
         ojo_offset = 4
         pygame.draw.circle(
             screen, (255, 255, 255), (centro[0] - ojo_offset, centro[1] - 2), 2
