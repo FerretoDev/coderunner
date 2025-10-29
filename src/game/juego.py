@@ -54,7 +54,7 @@ class Juego:
         while ejecutando:
             # Asegurar que la ventana está en el tamaño correcto para el menú
             screen = pygame.display.set_mode((800, 600))
-            pygame.display.set_caption("CodeRunner")
+            pygame.display.set_caption("Theseus Runner")
 
             # Mostrar menú principal
             menu = MenuPrincipal(screen)
