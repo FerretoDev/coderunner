@@ -1,8 +1,28 @@
 class Obsequio:
+    """
+    Representa un item coleccionable en el laberinto.
+
+    Los obsequios son elementos que el jugador puede recolectar para sumar puntos.
+    Cada obsequio tiene:
+    - Una posición fija en el grid del laberinto
+    - Un valor en puntos (por defecto 10)
+    - Un estado activo/inactivo
+
+    Los obsequios se renderizan como círculos dorados con efecto pulsante
+    y tienen un tiempo de vida limitado (10 segundos) antes de reposicionarse.
+    """
+
     def __init__(self, posicion: tuple[int, int], valor: int = 10):
-        self._posicion = posicion
-        self._valor = valor
-        self._activo = True
+        """
+        Crea un nuevo obsequio.
+
+        Args:
+            posicion: Tupla (columna, fila) indicando la celda del laberinto
+            valor: Puntos que otorga al ser recolectado (default: 10)
+        """
+        self._posicion = posicion  # Celda (col, fila) donde está ubicado
+        self._valor = valor  # Puntos que otorga
+        self._activo = True  # Si está disponible para recolectar
 
     @property
     def valor(self):
