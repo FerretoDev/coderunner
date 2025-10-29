@@ -35,6 +35,7 @@ class Jugador(Personaje):
         self.jugador_principal = pygame.Rect(x + offset, y + offset, size, size)
 
     def mover(self, teclas) -> None:
+        # ya no se usa, se una en pantalla_juego.py
         """
         Controla el movimiento del jugador según las teclas presionadas.
 
@@ -59,7 +60,7 @@ class Jugador(Personaje):
         """
         self._puntaje += puntos
 
-    def perder_vida(self) -> None:
+    def perder_vida(self):
         """
         Reduce una vida del jugador cuando es atrapado.
         Solo se ejecuta si el jugador tiene vidas disponibles.

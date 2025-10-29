@@ -7,27 +7,69 @@ from .personaje import Personaje
 
 
 class Computadora(Personaje):
-    """Enemigo que persigue al jugador"""
+    """
+    Enemigo que persigue al jugador usando inteligencia artificial.
+
+    Utiliza el algoritmo BFS (Breadth-First Search) para encontrar
+    el camino más corto hacia el jugador evitando paredes.
+    """
 
     def __init__(self, x: int, y: int, radio: int = 10, velocidad: float = 0):
+        """
+        Inicializa el enemigo controlado por IA.
+
+        Args:
+            x: Posición inicial en el eje X
+            y: Posición inicial en el eje Y
+            radio: Tamaño del círculo que representa al enemigo
+            velocidad: Velocidad de movimiento (aumenta con la dificultad)
+        """
         super().__init__(x, y, radio, velocidad)
-        self.color = (255, 50, 50)
+        self.color = (255, 50, 50)  # Color rojo para identificar al enemigo
+
         # Rect de colisión más ajustado al círculo visual
-        # Usamos radio*1.8 en vez de radio*2 para mejor precisión
+        # Usamos radio*1.8 en vez de radio*2 para mejor precisión en colisiones
         size = int(radio * 1.8)
         offset = (radio * 2 - size) // 2
         self.computadora_principal = pygame.Rect(x + offset, y + offset, size, size)
-        # Estado para BFS
-        self._bfs_camino: list[tuple[int, int]] | None = None
-        self._bfs_target_cell: tuple[int, int] | None = None
-        self._bfs_recalc_cooldown = 0
+
+        # Estado para el algoritmo BFS (Breadth-First Search)
+        self._bfs_camino: list[tuple[int, int]] | None = (
+            None  # Lista de celdas del camino calculado
+        )
+        self._bfs_target_cell: tuple[int, int] | None = (
+            None  # Celda objetivo actual (donde está el jugador)
+        )
+        self._bfs_recalc_cooldown = (
+            0  # Contador para evitar recalcular el camino cada frame
+        )
 
     def _cell_from_pos(
-        self, x_px: int, y_px: int, tam_celda: int, offset_x: int = 0, offset_y: int = 0
+        self,
+        x_px: int,
+        y_px: int,
+        tam_celda: int,
+        offset_x: int = 0,
+        offset_y: int = 0,
     ) -> tuple[int, int]:
+        """
+        Convierte coordenadas de píxeles a coordenadas de celda en el grid.
+
+        Args:
+            x_px: Posición X en píxeles en la pantalla
+            y_px: Posición Y en píxeles en la pantalla
+            tam_celda: Tamaño de cada celda del laberinto
+            offset_x: Desplazamiento horizontal del laberinto (para centrado)
+            offset_y: Desplazamiento vertical del laberinto (para centrado)
+
+        Returns:
+            Tupla (fila, columna) de la celda en el grid del laberinto
+        """
         # Restar offsets para obtener coordenadas relativas al laberinto
         x_rel = x_px - offset_x
         y_rel = y_px - offset_y
+
+        # Dividir por tamaño de celda para obtener índice de celda
         col = max(0, x_rel // tam_celda)
         fila = max(0, y_rel // tam_celda)
         return int(fila), int(col)
@@ -35,6 +77,19 @@ class Computadora(Personaje):
     def _pos_center_of_cell(
         self, fila: int, col: int, tam_celda: int, offset_x: int = 0, offset_y: int = 0
     ) -> tuple[int, int]:
+        """
+        Convierte coordenadas de celda a coordenadas de píxeles (centro de la celda).
+
+        Args:
+            fila: Índice de fila en el grid
+            col: Índice de columna en el grid
+            tam_celda: Tamaño de cada celda del laberinto
+            offset_x: Desplazamiento horizontal del laberinto
+            offset_y: Desplazamiento vertical del laberinto
+
+        Returns:
+            Tupla (x, y) con las coordenadas en píxeles del centro de la celda
+        """
         # Calcular centro en espacio del laberinto y agregar offsets
         cx = col * tam_celda + tam_celda // 2 + offset_x
         cy = fila * tam_celda + tam_celda // 2 + offset_y
@@ -43,37 +98,66 @@ class Computadora(Personaje):
     def _calcular_camino_bfs(
         self, mapa: list[list[int]], start: tuple[int, int], goal: tuple[int, int]
     ):
+        """
+        Calcula el camino más corto usando el algoritmo BFS (Breadth-First Search).
+
+        BFS explora el laberinto capa por capa desde el inicio hasta encontrar el objetivo,
+        garantizando que el camino encontrado sea el más corto posible.
+
+        Args:
+            mapa: Matriz 2D del laberinto (0=pasillo, 1=pared)
+            start: Tupla (fila, col) de la celda inicial (posición del enemigo)
+            goal: Tupla (fila, col) de la celda objetivo (posición del jugador)
+
+        Returns:
+            Lista de tuplas (fila, col) representando el camino desde start hasta goal,
+            o None si no existe un camino válido.
+        """
         max_filas = len(mapa)
         max_cols = len(mapa[0]) if max_filas > 0 else 0
 
         def vecinos(c):
+            """Genera las celdas vecinas válidas (arriba, abajo, izquierda, derecha)"""
             f, c0 = c
+            # Explorar en 4 direcciones: abajo, arriba, derecha, izquierda
             for df, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
                 nf, nc = f + df, c0 + dc
+                # Verificar que esté dentro de los límites y que no sea una pared
                 if 0 <= nf < max_filas and 0 <= nc < max_cols and mapa[nf][nc] != 1:
                     yield (nf, nc)
 
+        # Inicializar cola BFS con la celda inicial
         cola = deque([start])
+        # Diccionario para rastrear celdas visitadas y reconstruir el camino
+        # Clave: celda visitada, Valor: celda previa en el camino
         visitado: dict[tuple[int, int], tuple[int, int] | None] = {start: None}
 
+        # Explorar mientras haya celdas en la cola
         while cola:
             actual = cola.popleft()
+
+            # Si llegamos al objetivo, terminar la búsqueda
             if actual == goal:
                 break
+
+            # Explorar todos los vecinos de la celda actual
             for v in vecinos(actual):
                 if v not in visitado:
-                    visitado[v] = actual
-                    cola.append(v)
+                    visitado[v] = actual  # Guardar de dónde venimos
+                    cola.append(v)  # Agregar a la cola para explorar
 
+        # Si el objetivo no fue alcanzado, no hay camino
         if goal not in visitado:
             return None
 
-        # Reconstruir camino del goal al start
+        # Reconstruir camino del goal al start siguiendo los predecesores
         camino: list[tuple[int, int]] = []
         cur: tuple[int, int] | None = goal
         while cur is not None:
             camino.append(cur)
             cur = visitado[cur]
+
+        # Invertir el camino para que vaya de start a goal
         camino.reverse()
         return camino
 
