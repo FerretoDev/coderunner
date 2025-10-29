@@ -26,26 +26,32 @@ class Obsequio:
 
     @property
     def valor(self):
+        """Obtiene el valor en puntos del obsequio."""
         return self._valor
 
     @valor.setter
     def valor(self, nuevo_valor: int) -> None:
+        """Establece un nuevo valor en puntos para el obsequio."""
         self._valor = nuevo_valor
 
     @property
     def activo(self) -> bool:
+        """Indica si el obsequio está disponible para ser recolectado."""
         return self._activo
 
     @activo.setter
     def activo(self, estado: bool) -> None:
+        """Activa o desactiva el obsequio."""
         self._activo = estado
 
     @property
     def posicion(self):
+        """Obtiene la posición (columna, fila) del obsequio en el grid."""
         return self._posicion
 
     @posicion.setter
     def posicion(self, nueva_posicion):
+        """Cambia la posición del obsequio a una nueva celda."""
         self._posicion = nueva_posicion
 
     def recolectar(self) -> int:
