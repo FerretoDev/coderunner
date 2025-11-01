@@ -16,12 +16,12 @@ class SistemaSonido:
     def reproducir_movimiento(self):
         # Si los sonidos están activados, muestra un mensaje de movimiento.
         if self.sonidos_activos:
-            print("🔊 Movimiento", end="\r")
+            print("Movimiento", end="\r")
 
     def reproducir_captura(self):
         # Si los sonidos están activados, muestra un mensaje de captura.
         if self.sonidos_activos:
-            print("🔊 Captura")
+            print("Captura")
 
     def desactivar_sonidos(self):
         # Desactiva todos los sonidos del sistema.

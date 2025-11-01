@@ -1,4 +1,4 @@
-# 🎮 CodeRunner
+# 🎮 Theseus Runner
 
 **Juego educativo de laberinto desarrollado en Python con Pygame**
 
