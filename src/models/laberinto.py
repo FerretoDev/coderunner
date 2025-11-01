@@ -61,6 +61,10 @@ class Laberinto:
         self.jugador_inicio: tuple[int, int] = (1, 1)
         self.computadora_inicio: tuple[int, int] = (18, 12)
 
+        ruta_imagen_pasillo = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "pasillos.jpg")
+        self.imagen_pasillo = pygame.image.load(ruta_imagen_pasillo).convert_alpha()
+        self.imagen_pasillo = pygame.transform.scale(self.imagen_pasillo, (self.TAM_CELDA, self.TAM_CELDA))
+
         if isinstance(archivo_json_o_datos, dict):
             self._cargar_desde_diccionario(archivo_json_o_datos)
         elif isinstance(archivo_json_o_datos, str):
@@ -303,6 +307,9 @@ class Laberinto:
                     pygame.draw.rect(
                         pantalla, AZUL, (x, y, self.TAM_CELDA, self.TAM_CELDA)
                     )
+                else:
+                    # Dibuja pasillo con imagen
+                    pantalla.blit(self.imagen_pasillo, (x, y))
 
     def dibujar_obsequios(
         self, pantalla, frame_count=0, tam_celda=None, offset_x=0, offset_y=0

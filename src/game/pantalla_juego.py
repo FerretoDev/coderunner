@@ -1,6 +1,7 @@
 import math
 
 import pygame
+import os
 
 from models.computadora import Computadora
 from models.jugador import Jugador
@@ -16,19 +17,19 @@ class PantallaJuego:
     TAM_CELDA = 32
 
     # Diccionario de colores predefinidos para la interfaz del juego en rgb
-    COLORES = {
-        "fondo": (20, 20, 30),
-        "hud_fondo": (30, 30, 50),
-        "texto": (255, 255, 255),
-        "vidas": (255, 100, 100),
-        "puntaje": (255, 215, 0),
-        "acento": (0, 150, 255),
-        "pared": (50, 50, 70),
-        "piso": (180, 180, 200),
-        "jugador": (0, 150, 255),
-        "enemigo": (255, 50, 50),
-        "obsequio": (255, 215, 0),
-    }
+    #COLORES = {
+    #    "fondo": (20, 20, 30),
+    #    "hud_fondo": (30, 30, 50),
+    #    "texto": (255, 255, 255),
+    #    "vidas": (255, 100, 100),
+    #    "puntaje": (255, 215, 0),
+    #    "acento": (0, 150, 255),
+    #    "pared": (50, 50, 70),
+    #    "piso": (180, 180, 200),
+    #    "jugador": (0, 150, 255),
+    #    "enemigo": (255, 50, 50),
+    #    "obsequio": (255, 215, 0),
+    #}
 
     def __init__(self, nombre_jugador="Jugador"):
         """Inicializa la pantalla de juego"""
@@ -174,6 +175,10 @@ class PantallaJuego:
         musica_perrona = SistemaSonido()
         musica_perrona.musica_perrona()
 
+        ruta_imagen_pasillo = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "pasillos.jpg")
+        self.imagen_pasillo = pygame.image.load(ruta_imagen_pasillo).convert_alpha()
+        self.imagen_pasillo = pygame.transform.scale(self.imagen_pasillo, (64, 64))
+
 
     def _inicializar_timers_obsequios(self):
         """Inicializa los timers para cada obsequio activo"""
@@ -191,6 +196,8 @@ class PantallaJuego:
                     rect = pygame.Rect(x, y, self.tam_celda, self.tam_celda)
                     muros.append(rect)
         return muros
+
+        #return self.laberinto.obtener_rectangulos()
 
     def _guardar_posicion_anterior(self):
         """Guarda la posición anterior del jugador"""
@@ -545,7 +552,7 @@ class PantallaJuego:
             for col in range(len(self.mapa[0])):
                 x = col * self.tam_celda + self.offset_x
                 y = fila * self.tam_celda + self.offset_y
-
+        
                 if self.mapa[fila][col] == 1:
                     pygame.draw.rect(
                         self.screen,
@@ -553,17 +560,20 @@ class PantallaJuego:
                         (x, y, self.tam_celda, self.tam_celda),
                     )
                 else:
-                    pygame.draw.rect(
-                        self.screen,
-                        self.COLORES["piso"],
-                        (x, y, self.tam_celda, self.tam_celda),
-                    )
+                    #pygame.draw.rect(
+                    #    self.screen,
+                    #    self.COLORES["piso"],
+                    #   (x, y, self.tam_celda, self.tam_celda),
+                    #)
+                    self.screen.blit(self.imagen_pasillo, (x, y))
+
                     pygame.draw.rect(
                         self.screen,
                         (100, 100, 120),
                         (x, y, self.tam_celda, self.tam_celda),
                         1,
                     )
+
 
     def _dibujar_hud(self):
         """Dibuja el HUD superior"""

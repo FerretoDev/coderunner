@@ -1,0 +1,1 @@
+pantalla.blit(self.imagen_pasillo, (x, y))
