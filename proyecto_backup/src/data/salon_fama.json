@@ -1,0 +1,24 @@
+{
+  "registros": [
+    {
+      "nombre_jugador": "mar",
+      "puntaje": 40,
+      "laberinto": "laberinto1"
+    },
+    {
+      "nombre_jugador": "mar",
+      "puntaje": 40,
+      "laberinto": "laberinto1"
+    },
+    {
+      "nombre_jugador": "mar",
+      "puntaje": 40,
+      "laberinto": "laberinto1"
+    },
+    {
+      "nombre_jugador": "mar",
+      "puntaje": 40,
+      "laberinto": "laberinto1"
+    }
+  ]
+}
