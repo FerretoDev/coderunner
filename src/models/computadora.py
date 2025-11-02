@@ -31,7 +31,7 @@ class Computadora(Personaje):
         y_rel = y_px - offset_y
         col = max(0, x_rel // tam_celda)
         fila = max(0, y_rel // tam_celda)
-        return int(fila), int(col)  
+        return int(fila), int(col)
 
     def _pos_center_of_cell(
         self, fila: int, col: int, tam_celda: int, offset_x: int = 0, offset_y: int = 0
