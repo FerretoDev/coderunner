@@ -48,8 +48,8 @@ class MenuPrincipal:
         for i, texto in enumerate(textos):  # Recorre cada botón con su índice [web:21]
             x = inicio_x + (ancho_boton + espacio) * i  # Posiciona cada botón uno al lado del otro [web:47]
             self.botones.append(
-                Boton(x, y, ancho_boton, alto_boton, texto, accion=i + 1)  # accion=i+1 para devolver 1..4 [web:21]
-            )  # Se usa accion para identificar qué opción eligió el usuario [web:21]
+                Boton(x, y, ancho_boton, alto_boton, texto, accion=i + 1)  # acción=i+1 para devolver 1..4 [web:21]
+            )  # Se usa acción para identificar qué opción eligió el usuario [web:21]
 
     def dibujar(self):
         """Pinta el fondo, título, línea decorativa, subtítulo, botones y footer."""
