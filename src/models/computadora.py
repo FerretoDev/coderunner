@@ -31,7 +31,7 @@ class Computadora(Personaje):
         y_rel = y_px - offset_y
         col = max(0, x_rel // tam_celda)
         fila = max(0, y_rel // tam_celda)
-        return int(fila), int(col)
+        return int(fila), int(col)  
 
     def _pos_center_of_cell(
         self, fila: int, col: int, tam_celda: int, offset_x: int = 0, offset_y: int = 0
@@ -44,7 +44,7 @@ class Computadora(Personaje):
     def _calcular_camino_bfs(
         self, mapa: list[list[int]], start: tuple[int, int], goal: tuple[int, int]
     ):
-        """Calcula el camino más corto usando Busqueda de Amplitud (BFS)"""
+        """Calcula el camino más corto usando Búsqueda de Amplitud (BFS)"""
         max_filas = len(mapa)
         max_cols = len(mapa[0]) if max_filas > 0 else 0
 
