@@ -467,9 +467,9 @@ class PantallaJuego:
         self.jugador.dibujar_jugador_principal(self.screen)
         self.computadora.dibujar_computadora_principal(self.screen)
 
-        # Debug opcional
-        if self.mostrar_distancia:
-            self._dibujar_linea_distancia()
+        # Debug opcional (eliminar a futuro, es irrelevante, ya que lo usaba cuando intente implementar pathfinding usando trigonometría)
+        # if self.mostrar_distancia:
+        #    self._dibujar_linea_distancia()
 
         # HUD y overlays
         self._dibujar_hud()
@@ -480,6 +480,7 @@ class PantallaJuego:
 
         pygame.display.flip()  # Presenta el frame
 
+    # funcion irrelevante, eliminar a futuro
     def _dibujar_linea_distancia(self):
         """Para depurar: línea entre jugador y enemigo y texto con distancia."""
         pos_jugador = self.jugador.jugador_principal.center
