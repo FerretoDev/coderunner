@@ -12,7 +12,7 @@ class ConfigJuego:
     ANCHO_VENTANA = 1200
     ALTO_VENTANA = 800
     FPS = 60
-    TITULO = "CodeRunner"
+    TITULO = "Theseus Runner"
 
     # === LABERINTO ===
     TAM_CELDA = 32  # Tamaño de cada celda en píxeles
