@@ -12,6 +12,7 @@
         "compu",
         "cooldown",
         "direccion",
+        "estadisticas",
         "hardcodeado",
         "imagenes",
         "instruccion",
@@ -32,6 +33,7 @@
         "rectangulos",
         "Renderiza",
         "renderizar",
+        "resetear",
         "respawn",
         "SRCALPHA"
     ],

@@ -179,7 +179,7 @@ class SalonFama:
             "jugador_top": mejor_registro.nombre_jugador,
         }
 
-    def obtener_ranking_por_jugador(self, nombre_jugador: str) -> list[dict]:
+    def obtener_ranking_por_jugador(self, nombre_jugador: str):
         """
         Obtiene todas las partidas de un jugador específico.
 
