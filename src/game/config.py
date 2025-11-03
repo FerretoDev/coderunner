@@ -98,7 +98,12 @@ class Direcciones:
     DERECHA = "derecha"
 
     # Delta de movimiento (dx, dy) para cada dirección
-    DELTAS = {ARRIBA: (0, -1), ABAJO: (0, 1), IZQUIERDA: (-1, 0), DERECHA: (1, 0)}
+    DELTAS: dict[str, tuple[int, int]] = {
+        ARRIBA: (0, -1),
+        ABAJO: (0, 1),
+        IZQUIERDA: (-1, 0),
+        DERECHA: (1, 0),
+    }
 
     @classmethod
     def obtener_delta(cls, direccion: str) -> tuple[int, int]:
