@@ -56,6 +56,9 @@ class PantallaJuego:
         # Estados y métricas de juego
         self.pausado = False
         self.game_over = False
+        self.game_over_timer = (
+            0  # Timer para espera de 5 segundos en game over (300 frames a 60 FPS)
+        )
         self.frame_count = 0  # Frames acumulados (útil para animaciones HUD)
         self.tiempo_transcurrido = 0  # En frames; se muestra como mm:ss en HUD
         self.mostrar_distancia = False  # Overlay opcional para depurar
@@ -257,16 +260,17 @@ class PantallaJuego:
             self.cooldown_movimiento -= 1
             return
 
-        keys = pygame.key.get_pressed()  # Estado de flechas
+        keys = pygame.key.get_pressed()  # Estado de flechas y WASD
 
         tecla_actual = None
-        if keys[pygame.K_UP]:
+        # Flechas
+        if keys[pygame.K_UP] or keys[pygame.K_w]:
             tecla_actual = "up"
-        elif keys[pygame.K_DOWN]:
+        elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
             tecla_actual = "down"
-        elif keys[pygame.K_LEFT]:
+        elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
             tecla_actual = "left"
-        elif keys[pygame.K_RIGHT]:
+        elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             tecla_actual = "right"
 
         if tecla_actual:  # Mueve una celda y activa cooldown
@@ -292,6 +296,7 @@ class PantallaJuego:
             self.jugador.perder_vida()
             if not self.jugador.esta_vivo():
                 self.game_over = True
+                self.game_over_timer = 300  # 5 segundos a 60 FPS
                 return True
 
             # Respawn en los puntos iniciales
@@ -307,7 +312,13 @@ class PantallaJuego:
 
     def _actualizar(self):
         """Actualiza movimiento, IA, obsequios, dificultad y tiempo, si no está pausado o en game over."""
-        if self.pausado or self.game_over:
+        if self.pausado:
+            return
+
+        # En game over, solo actualizar el timer de espera
+        if self.game_over:
+            if self.game_over_timer > 0:
+                self.game_over_timer -= 1
             return
 
         self.frame_count += 1  # Avanza contador de frames
@@ -316,16 +327,16 @@ class PantallaJuego:
         if self.movimiento_por_celdas:
             self._procesar_eventos_teclado()
         else:
-            # Modo “legacy”: movimiento suave pixel a pixel con límites y colisión
+            # Modo "legacy": movimiento suave pixel a pixel con límites y colisión
             self._guardar_posicion_anterior()
             teclas = pygame.key.get_pressed()
-            if teclas[pygame.K_LEFT]:
+            if teclas[pygame.K_LEFT] or teclas[pygame.K_a]:
                 self.jugador.jugador_principal.x -= self.jugador.velocidad
-            if teclas[pygame.K_RIGHT]:
+            if teclas[pygame.K_RIGHT] or teclas[pygame.K_d]:
                 self.jugador.jugador_principal.x += self.jugador.velocidad
-            if teclas[pygame.K_UP]:
+            if teclas[pygame.K_UP] or teclas[pygame.K_w]:
                 self.jugador.jugador_principal.y -= self.jugador.velocidad
-            if teclas[pygame.K_DOWN]:
+            if teclas[pygame.K_DOWN] or teclas[pygame.K_s]:
                 self.jugador.jugador_principal.y += self.jugador.velocidad
 
             # Aplica límites según el área del laberinto (considera offset y tamaño del rect)
@@ -581,7 +592,9 @@ class PantallaJuego:
 
         # Controles de ayuda al usuario
         controles_surf = self.fuente_pequena.render(
-            "Flechas: Mover | P: Pausa | ESC: Salir | D: Debug", True, (150, 150, 150)
+            "WASD/Flechas: Mover | P: Pausa | ESC: Salir | D: Debug",
+            True,
+            (150, 150, 150),
         )
         controles_rect = controles_surf.get_rect(right=self.ANCHO - 20, centery=40)
         self.screen.blit(controles_surf, controles_rect)
@@ -651,9 +664,16 @@ class PantallaJuego:
         )
         self.screen.blit(velocidad_texto, velocidad_rect)
 
-        instruccion = self.fuente_pequena.render(
-            "Presiona cualquier tecla para volver", True, (150, 150, 150)
-        )
+        # Mostrar mensaje según si puede salir o no
+        if self.game_over_timer > 0:
+            segundos_restantes = (self.game_over_timer // 60) + 1
+            instruccion = self.fuente_pequena.render(
+                f"Espera {segundos_restantes} segundos...", True, (150, 150, 150)
+            )
+        else:
+            instruccion = self.fuente_pequena.render(
+                "Presiona cualquier tecla para volver", True, (150, 150, 150)
+            )
         instruccion_rect = instruccion.get_rect(
             center=(self.ANCHO // 2, self.ALTO // 2 + 120)
         )
@@ -736,8 +756,12 @@ class PantallaJuego:
                     modo = "Celdas" if self.movimiento_por_celdas else "Píxeles"
                     print(f"Modo de movimiento cambiado a: {modo}")
 
-                # En game over, cualquier tecla (menos 'p') sale
-                if self.game_over and evento.key != pygame.K_p:
+                # En game over, cualquier tecla (menos 'p') sale SOLO si pasaron los 5 segundos
+                if (
+                    self.game_over
+                    and evento.key != pygame.K_p
+                    and self.game_over_timer == 0
+                ):
                     return "salir"
 
         return None  # No hay acción global
