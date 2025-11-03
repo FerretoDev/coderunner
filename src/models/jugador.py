@@ -27,10 +27,12 @@ class Jugador(Personaje):
         self._nombre = ""
         self._vidas = 3
         self._puntaje = 0
-        #self.color = (255, 0, 0)
+        # self.color = (255, 0, 0)
 
         # Cargar imagen del jugador
-        self.imagen = pygame.image.load("src/data/ImagenJugadorPrincipal.png").convert_alpha()
+        self.imagen = pygame.image.load(
+            "src/data/ImagenJugadorPrincipal.png"
+        ).convert_alpha()
 
         self.imagen = pygame.transform.scale(self.imagen, (64, 64))
 
@@ -59,6 +61,30 @@ class Jugador(Personaje):
             self.jugador_principal.y -= self.velocidad
         if teclas[pygame.K_DOWN]:
             self.jugador_principal.y += self.velocidad
+
+    # === PROPERTIES PARA ENCAPSULACIÓN ===
+
+    @property
+    def vidas(self) -> int:
+        """Obtiene el número de vidas restantes"""
+        return self._vidas
+
+    @property
+    def puntaje(self) -> int:
+        """Obtiene el puntaje actual"""
+        return self._puntaje
+
+    @property
+    def nombre(self) -> str:
+        """Obtiene el nombre del jugador"""
+        return self._nombre
+
+    @nombre.setter
+    def nombre(self, valor: str) -> None:
+        """Establece el nombre del jugador"""
+        self._nombre = valor
+
+    # === MÉTODOS DE JUEGO ===
 
     def sumar_puntos(self, puntos: int) -> None:
         """
@@ -90,8 +116,8 @@ class Jugador(Personaje):
         Parámetros:
             pantalla: Superficie de pygame donde se dibujará el jugador
         """
-        #centro = self.jugador_principal.center
-        #pygame.draw.circle(pantalla, self.color, centro, self.radio)
+        # centro = self.jugador_principal.center
+        # pygame.draw.circle(pantalla, self.color, centro, self.radio)
 
         """
         Dibuja al jugador en la pantalla con su imagen.
@@ -104,4 +130,6 @@ class Jugador(Personaje):
             pantalla.blit(self.imagen, rect_imagen)
         except AttributeError:
             # En caso de error o si no hay imagen, dibujar círculo
-            pygame.draw.circle(pantalla, self.color, self.jugador_principal.center, self.radio)
+            pygame.draw.circle(
+                pantalla, self.color, self.jugador_principal.center, self.radio
+            )

@@ -8,70 +8,41 @@ from models.jugador import Jugador
 from models.laberinto import Laberinto
 from models.sistema_sonido import SistemaSonido
 
+from .config import Colores, ConfigJuego
+
 
 class PantallaJuego:
     """Pantalla principal del juego en modo laberinto, con HUD y dificultad progresiva."""
 
-    ANCHO = 1200  # Tamaño de ventana por defecto (ancho)
-    ALTO = 800  # Tamaño de ventana por defecto (alto)
-    TAM_CELDA = 32  # Tamaño base de celda (se recalcula para ajustar al área visible)
-
-    # Diccionario de colores predefinidos para la interfaz del juego en rgb
-    # COLORES = {
-    #    "fondo": (20, 20, 30),
-    #    "hud_fondo": (30, 30, 50),
-    #    "texto": (255, 255, 255),
-    #    "vidas": (255, 100, 100),
-    #    "puntaje": (255, 215, 0),
-    #    "acento": (0, 150, 255),
-    #    "pared": (50, 50, 70),
-    #    "piso": (180, 180, 200),
-    #    "jugador": (0, 150, 255),
-    #    "enemigo": (255, 50, 50),
-    #    "obsequio": (255, 215, 0),
-    # }
-
     def __init__(self, nombre_jugador="Jugador"):
         """Configura pantalla, colores, estados, laberinto, actores y timers."""
-        # Configuración de pantalla y reloj
-        self.ANCHO = 1200
-        self.ALTO = 800
+        # Configuración de pantalla y reloj usando config centralizada
+        self.ANCHO = ConfigJuego.ANCHO_VENTANA
+        self.ALTO = ConfigJuego.ALTO_VENTANA
         self.screen = None
         self.reloj = pygame.time.Clock()
-
-        # Colores con un esquema ligeramente distinto para esta pantalla
-        self.COLORES = {
-            "fondo": (20, 25, 40),
-            "pared": (60, 70, 90),
-            "piso": (35, 40, 55),
-            "jugador": (50, 150, 255),
-            "computadora": (255, 50, 50),
-            "hud_fondo": (15, 20, 35),
-            "texto": (220, 220, 220),
-            "acento": (100, 150, 255),
-            "vidas": (255, 100, 100),
-            "puntaje": (255, 200, 50),
-        }
 
         # Estados y métricas de juego
         self.pausado = False
         self.game_over = False
-        self.game_over_timer = (
-            0  # Timer para espera de 5 segundos en game over (300 frames a 60 FPS)
-        )
+        self.game_over_timer = 0  # Timer para espera en game over
         self.frame_count = 0  # Frames acumulados (útil para animaciones HUD)
         self.tiempo_transcurrido = 0  # En frames; se muestra como mm:ss en HUD
         self.mostrar_distancia = False  # Overlay opcional para depurar
         self.nombre_jugador = nombre_jugador
 
         # Obsequios con vencimiento (desaparecen y reaparecen)
-        self.tiempo_vida_obsequio = 600  # 10s a 60 FPS
+        self.tiempo_vida_obsequio = ConfigJuego.segundos_a_frames(
+            ConfigJuego.SEGUNDOS_VIDA_OBSEQUIO
+        )
         self.obsequios_timers = {}  # {(col, fila): frames_restantes}
 
         # Dificultad progresiva (aumenta velocidad del enemigo cada cierto tiempo)
-        self.velocidad_inicial_enemigo = 1.5
-        self.tiempo_incremento_velocidad = 600  # Cada 10s
-        self.incremento_velocidad = 0.2  # Aumento por escalón
+        self.velocidad_inicial_enemigo = ConfigJuego.VELOCIDAD_INICIAL_ENEMIGO
+        self.tiempo_incremento_velocidad = ConfigJuego.segundos_a_frames(
+            ConfigJuego.SEGUNDOS_INCREMENTO_VELOCIDAD
+        )
+        self.incremento_velocidad = ConfigJuego.INCREMENTO_VELOCIDAD
 
         # Carga del laberinto desde archivo JSON y acceso a la matriz
         self.laberinto = Laberinto("laberinto1.json")  # Carga mapa, spawns y obsequios
@@ -93,7 +64,7 @@ class PantallaJuego:
             (self.ALTO - alto_laberinto) // 2
         ) + 40  # Bajar un poco por el HUD
 
-        # Movimiento por celdas con cooldown (estilo “paso a paso”)
+        # Movimiento por celdas con cooldown (estilo "paso a paso")
         self.movimiento_por_celdas = True  # Si es False, usa movimiento pixel a pixel
         self.teclas_presionadas = {
             "up": False,
@@ -103,14 +74,14 @@ class PantallaJuego:
         }
         self.ultima_tecla_presionada = None
         self.cooldown_movimiento = 0  # Frames que faltan para permitir otra celda
-        self.frames_por_movimiento = 8  # Ajusta la “velocidad” del paso
+        self.frames_por_movimiento = ConfigJuego.FRAMES_COOLDOWN_MOVIMIENTO
 
         # Muros como Rects para colisiones rápidas
         self.muros = self._generar_muros()
 
-        # Radios menores al rect para colisiones más amigables
-        radio_jugador = 12
-        radio_compu = 12
+        # Radios de personajes desde config
+        radio_jugador = ConfigJuego.RADIO_JUGADOR
+        radio_compu = ConfigJuego.RADIO_ENEMIGO
 
         # Posiciones de spawn leídas del JSON y convertidas a píxeles + offset
         celda_jugador_x, celda_jugador_y = self.laberinto.jugador_inicio
@@ -291,12 +262,17 @@ class PantallaJuego:
         )
         distancia = math.sqrt(dx**2 + dy**2)
 
-        # Radio de captura con holgura de 5 px
-        if distancia < self.jugador.radio + self.computadora.radio + 5:
+        # Radio de captura con holgura configurada
+        if (
+            distancia
+            < self.jugador.radio + self.computadora.radio + ConfigJuego.MARGEN_CAPTURA
+        ):
             self.jugador.perder_vida()
             if not self.jugador.esta_vivo():
                 self.game_over = True
-                self.game_over_timer = 300  # 5 segundos a 60 FPS
+                self.game_over_timer = ConfigJuego.segundos_a_frames(
+                    ConfigJuego.SEGUNDOS_ESPERA_GAME_OVER
+                )
                 return True
 
             # Respawn en los puntos iniciales
@@ -453,7 +429,7 @@ class PantallaJuego:
 
     def _renderizar(self):
         """Dibuja laberinto, obsequios, actores, overlays y HUD; luego actualiza pantalla."""
-        self.screen.fill(self.COLORES["fondo"])
+        self.screen.fill(Colores.FONDO)
 
         # Laberinto
         self._dibujar_laberinto()
@@ -506,20 +482,14 @@ class PantallaJuego:
                 if self.mapa[fila][col] == 1:
                     pygame.draw.rect(
                         self.screen,
-                        self.COLORES["pared"],
+                        Colores.PARED,
                         (x, y, self.tam_celda, self.tam_celda),
                     )
                 else:
-                    # pygame.draw.rect(
-                    #    self.screen,
-                    #    self.COLORES["piso"],
-                    #   (x, y, self.tam_celda, self.tam_celda),
-                    # )
                     self.screen.blit(self.imagen_pasillo, (x, y))
-
                     pygame.draw.rect(
                         self.screen,
-                        (100, 100, 120),
+                        Colores.BORDE_CELDA,
                         (x, y, self.tam_celda, self.tam_celda),
                         1,
                     )
@@ -528,34 +498,28 @@ class PantallaJuego:
         """Panel superior con nombre, vidas, puntaje, dificultad, tiempo y controles."""
         # Panel base y línea inferior
         panel_rect = pygame.Rect(0, 0, self.ANCHO, 80)
-        pygame.draw.rect(self.screen, self.COLORES["hud_fondo"], panel_rect)
-        pygame.draw.line(
-            self.screen, self.COLORES["acento"], (0, 80), (self.ANCHO, 80), 2
-        )
+        pygame.draw.rect(self.screen, Colores.HUD_FONDO, panel_rect)
+        pygame.draw.line(self.screen, Colores.ACENTO, (0, 80), (self.ANCHO, 80), 2)
 
         # Nombre del jugador
         nombre_surf = self.fuente_pequena.render(
-            f"Jugador: {self.nombre_jugador}", True, self.COLORES["texto"]
+            f"Jugador: {self.nombre_jugador}", True, Colores.TEXTO
         )
         self.screen.blit(nombre_surf, (20, 15))
 
         # Vidas dibujadas como corazones simples
         x_vidas = 20
         y_vidas = 45
-        for i in range(self.jugador._vidas):
+        for i in range(self.jugador.vidas):  # Usando property en vez de _vidas
             cx = x_vidas + (i * 35)
-            pygame.draw.circle(
-                self.screen, self.COLORES["vidas"], (cx + 5, y_vidas + 5), 5
-            )
-            pygame.draw.circle(
-                self.screen, self.COLORES["vidas"], (cx + 15, y_vidas + 5), 5
-            )
+            pygame.draw.circle(self.screen, Colores.VIDAS, (cx + 5, y_vidas + 5), 5)
+            pygame.draw.circle(self.screen, Colores.VIDAS, (cx + 15, y_vidas + 5), 5)
             puntos = [
                 (cx, y_vidas + 6),
                 (cx + 20, y_vidas + 6),
                 (cx + 10, y_vidas + 18),
             ]
-            pygame.draw.polygon(self.screen, self.COLORES["vidas"], puntos)
+            pygame.draw.polygon(self.screen, Colores.VIDAS, puntos)
 
         # Puntaje con estrella dibujada a mano
         x_puntaje = 200
@@ -569,17 +533,17 @@ class PantallaJuego:
             px = x_puntaje + radio * math.cos(angulo)
             py = y_puntaje + 10 - radio * math.sin(angulo)
             puntos_estrella.append((px, py))
-        pygame.draw.polygon(self.screen, self.COLORES["puntaje"], puntos_estrella)
+        pygame.draw.polygon(self.screen, Colores.PUNTAJE, puntos_estrella)
 
         puntaje_surf = self.fuente_hud.render(
-            f"{self.jugador._puntaje}", True, self.COLORES["puntaje"]
+            f"{self.jugador.puntaje}", True, Colores.PUNTAJE  # Usando property
         )
         self.screen.blit(puntaje_surf, (x_puntaje + 20, y_puntaje))
 
         # Dificultad relativa (velocidad / velocidad inicial)
         nivel_dificultad = self.computadora.velocidad / self.velocidad_inicial_enemigo
         dificultad_surf = self.fuente_pequena.render(
-            f"Dificultad: {nivel_dificultad:.1f}x", True, (255, 100, 100)
+            f"Dificultad: {nivel_dificultad:.1f}x", True, Colores.ENEMIGO
         )
         self.screen.blit(dificultad_surf, (400, 15))
 
@@ -587,7 +551,7 @@ class PantallaJuego:
         tiempo_min = self.tiempo_transcurrido // 3600
         tiempo_seg = (self.tiempo_transcurrido % 3600) // 60
         tiempo_surf = self.fuente_pequena.render(
-            f"Tiempo: {tiempo_min:02d}:{tiempo_seg:02d}", True, self.COLORES["texto"]
+            f"Tiempo: {tiempo_min:02d}:{tiempo_seg:02d}", True, Colores.TEXTO
         )
         self.screen.blit(tiempo_surf, (400, 45))
 
@@ -595,7 +559,7 @@ class PantallaJuego:
         controles_surf = self.fuente_pequena.render(
             "WASD/Flechas: Mover | P: Pausa | ESC: Salir | D: Debug",
             True,
-            (150, 150, 150),
+            Colores.TEXTO_SECUNDARIO,
         )
         controles_rect = controles_surf.get_rect(right=self.ANCHO - 20, centery=40)
         self.screen.blit(controles_surf, controles_rect)
@@ -604,15 +568,15 @@ class PantallaJuego:
         """Overlay translúcido y texto de pausa."""
         overlay = pygame.Surface((self.ANCHO, self.ALTO))
         overlay.set_alpha(180)
-        overlay.fill((0, 0, 0))
+        overlay.fill(Colores.OVERLAY_OSCURO)
         self.screen.blit(overlay, (0, 0))
 
-        titulo = self.fuente_titulo.render("PAUSA", True, self.COLORES["texto"])
+        titulo = self.fuente_titulo.render("PAUSA", True, Colores.TEXTO)
         titulo_rect = titulo.get_rect(center=(self.ANCHO // 2, self.ALTO // 2 - 50))
         self.screen.blit(titulo, titulo_rect)
 
         instruccion = self.fuente_hud.render(
-            "Presiona P para continuar", True, (200, 200, 200)
+            "Presiona P para continuar", True, Colores.TEXTO_SECUNDARIO
         )
         instruccion_rect = instruccion.get_rect(
             center=(self.ANCHO // 2, self.ALTO // 2 + 30)
@@ -627,28 +591,26 @@ class PantallaJuego:
 
         overlay = pygame.Surface((self.ANCHO, self.ALTO))
         overlay.set_alpha(200)
-        overlay.fill((0, 0, 0))
+        overlay.fill(Colores.OVERLAY_OSCURO)
         self.screen.blit(overlay, (0, 0))
 
         caja_rect = pygame.Rect(self.ANCHO // 2 - 300, self.ALTO // 2 - 200, 600, 400)
         pygame.draw.rect(self.screen, (40, 40, 60), caja_rect, border_radius=15)
-        pygame.draw.rect(
-            self.screen, self.COLORES["vidas"], caja_rect, 3, border_radius=15
-        )
+        pygame.draw.rect(self.screen, Colores.VIDAS, caja_rect, 3, border_radius=15)
 
-        titulo = self.fuente_titulo.render("GAME OVER", True, self.COLORES["vidas"])
+        titulo = self.fuente_titulo.render("GAME OVER", True, Colores.VIDAS)
         titulo_rect = titulo.get_rect(center=(self.ANCHO // 2, self.ALTO // 2 - 120))
         self.screen.blit(titulo, titulo_rect)
 
         puntaje = self.fuente_hud.render(
-            f"Puntaje Final: {self.jugador._puntaje}", True, self.COLORES["puntaje"]
+            f"Puntaje Final: {self.jugador.puntaje}", True, Colores.PUNTAJE
         )
         puntaje_rect = puntaje.get_rect(center=(self.ANCHO // 2, self.ALTO // 2 - 40))
         self.screen.blit(puntaje, puntaje_rect)
 
         tiempo_segundos = self.tiempo_transcurrido // 60
         tiempo_texto = self.fuente_pequena.render(
-            f"Tiempo: {tiempo_segundos} segundos", True, (200, 200, 200)
+            f"Tiempo: {tiempo_segundos} segundos", True, Colores.TEXTO_SECUNDARIO
         )
         tiempo_rect = tiempo_texto.get_rect(
             center=(self.ANCHO // 2, self.ALTO // 2 + 10)
@@ -658,7 +620,7 @@ class PantallaJuego:
         velocidad_texto = self.fuente_pequena.render(
             f"Nivel de dificultad: {self.computadora.velocidad:.1f}x",
             True,
-            (200, 200, 200),
+            Colores.TEXTO_SECUNDARIO,
         )
         velocidad_rect = velocidad_texto.get_rect(
             center=(self.ANCHO // 2, self.ALTO // 2 + 50)
@@ -667,13 +629,15 @@ class PantallaJuego:
 
         # Mostrar mensaje según si puede salir o no
         if self.game_over_timer > 0:
-            segundos_restantes = (self.game_over_timer // 60) + 1
+            segundos_restantes = ConfigJuego.frames_a_segundos(self.game_over_timer) + 1
             instruccion = self.fuente_pequena.render(
-                f"Espera {segundos_restantes} segundos...", True, (150, 150, 150)
+                f"Espera {segundos_restantes} segundos...",
+                True,
+                Colores.TEXTO_SECUNDARIO,
             )
         else:
             instruccion = self.fuente_pequena.render(
-                "Presiona cualquier tecla para volver", True, (150, 150, 150)
+                "Presiona cualquier tecla para volver", True, Colores.TEXTO_SECUNDARIO
             )
         instruccion_rect = instruccion.get_rect(
             center=(self.ANCHO // 2, self.ALTO // 2 + 120)
@@ -692,9 +656,7 @@ class PantallaJuego:
             laberinto=self.laberinto.nombre,
         )
         salon.guardar_puntaje(registro)
-        print(
-            f"Puntaje guardado en el Salón de la Fama: {self.jugador._puntaje} puntos"
-        )
+        print(f"Puntaje guardado en el Salón de la Fama: {self.jugador.puntaje} puntos")
 
     def _dibujar_victoria(self):
         """Overlay de victoria (no se usa en modo infinito, se deja por si se activa)."""
@@ -773,7 +735,7 @@ class PantallaJuego:
             pygame.init()
 
         self.screen = pygame.display.set_mode((self.ANCHO, self.ALTO))
-        pygame.display.set_caption("CodeRunner - Modo Laberinto")
+        pygame.display.set_caption(ConfigJuego.TITULO + " - Modo Laberinto")
 
         # Fuentes para títulos y HUD
         self.fuente_titulo = pygame.font.Font(None, 48)
@@ -782,7 +744,7 @@ class PantallaJuego:
 
         ejecutando = True
         while ejecutando:
-            self.reloj.tick(60)  # 60 FPS
+            self.reloj.tick(ConfigJuego.FPS)  # Usar FPS de config
             resultado = self.manejar_eventos()
             if resultado == "salir":
                 ejecutando = False
