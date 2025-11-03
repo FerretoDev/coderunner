@@ -557,7 +557,7 @@ class PantallaJuego:
 
         # Controles de ayuda al usuario
         controles_surf = self.fuente_pequena.render(
-            "WASD/Flechas: Mover | P: Pausa | ESC: Salir | D: Debug",
+            "WASD/Flechas: Mover | P: Pausa | ESC: Salir",
             True,
             Colores.TEXTO_SECUNDARIO,
         )
