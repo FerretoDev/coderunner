@@ -27,11 +27,11 @@ class Laberinto:
 
     TAM_CELDA = 32  # Tamaño predeterminado de cada celda en píxeles
 
-    def __init__(self, archivo_json: str):
+    def __init__(self, archivo_json_o_datos: str | dict):
         """
-        Inicializa un nuevo laberinto cargando desde un archivo JSON.
+        Inicializa un nuevo laberinto cargando desde un archivo JSON o directamente desde un diccionario de datos.
 
-        El archivo JSON debe tener la estructura:
+        El archivo JSON o el diccionario debe tener la estructura:
         {
             "nombre": "Nombre del laberinto",
             "dificultad": "normal",
@@ -42,7 +42,8 @@ class Laberinto:
         }
 
         Args:
-            archivo_json: Ruta al archivo JSON con el laberinto (relativa a /data)
+            archivo_json_o_datos: Ruta al archivo JSON con el laberinto (relativa a /data)
+                                  o un diccionario con los datos del laberinto.
         """
         # Estructuras de datos principales
         self._muros: list[tuple[int, int]] = []  # Lista de posiciones de muros
@@ -60,10 +61,20 @@ class Laberinto:
         self.jugador_inicio: tuple[int, int] = (1, 1)
         self.computadora_inicio: tuple[int, int] = (18, 12)
 
-        # Cargar todo desde el archivo JSON
-        self.cargar_desde_archivo(archivo_json)
+        ruta_imagen_pasillo = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "pasillos.jpg")
+        self.imagen_pasillo = pygame.image.load(ruta_imagen_pasillo).convert_alpha()
+        self.imagen_pasillo = pygame.transform.scale(self.imagen_pasillo, (self.TAM_CELDA, self.TAM_CELDA))
 
-    def cargar_desde_archivo(self, archivo: str) -> None:
+        if isinstance(archivo_json_o_datos, dict):
+            self._cargar_desde_diccionario(archivo_json_o_datos)
+        elif isinstance(archivo_json_o_datos, str):
+            self._cargar_desde_archivo_path(archivo_json_o_datos)
+        else:
+            raise TypeError(
+                "El argumento para Laberinto debe ser una ruta de archivo (str) o un diccionario de datos."
+            )
+
+    def _cargar_desde_archivo_path(self, archivo: str) -> None:
         """
         Carga el laberinto desde un archivo JSON.
 
@@ -95,45 +106,7 @@ class Laberinto:
             with open(archivo, "r", encoding="utf-8") as f:
                 datos = json.load(f)
 
-            # === PASO 3: Validar estructura ===
-            if not self.validar_estructura(datos):
-                raise ValueError("Estructura del archivo JSON inválida")
-
-            # === PASO 4: Cargar datos del laberinto ===
-            # Metadatos
-            self.nombre = datos.get("nombre", "Laberinto")
-            self.dificultad = datos.get("dificultad", "normal")
-
-            # Matriz del mapa (lista 2D con 0=pasillo, 1=muro)
-            self.laberinto = datos["mapa"]
-
-            # Cargar posiciones iniciales (formato [col, fila] en JSON)
-            if "jugador_inicio" in datos:
-                col, fila = datos["jugador_inicio"]
-                self.jugador_inicio = (col, fila)
-
-            if "computadora_inicio" in datos:
-                col, fila = datos["computadora_inicio"]
-                self.computadora_inicio = (col, fila)
-
-            # === PASO 5: Procesar el mapa ===
-            # Identificar qué celdas son muros y cuáles pasillos
-            self._procesar_laberinto()
-
-            # === PASO 6: Cargar obsequios ===
-            if "obsequios" in datos:
-                for obsequio_data in datos["obsequios"]:
-                    col, fila = obsequio_data["posicion"]
-                    valor = obsequio_data.get(
-                        "valor", 10
-                    )  # Valor por defecto: 10 puntos
-                    posicion = (col, fila)
-                    self._obsequios[posicion] = Obsequio(posicion, valor)
-
-            # Debug (comentado para no saturar la consola)
-            # print(f"Laberinto '{self.nombre}' cargado exitosamente")
-            # print(f"Dimensiones: {len(self.laberinto[0])}x{len(self.laberinto)}")
-            # print(f"Obsequios: {len(self._obsequios)}")
+            self._procesar_datos_laberinto(datos)
 
         except FileNotFoundError:
             raise FileNotFoundError(
@@ -143,6 +116,67 @@ class Laberinto:
             raise ValueError(f"El archivo {archivo} no es un JSON válido")
         except Exception as e:
             raise RuntimeError(f"Error inesperado al cargar laberinto: {e}")
+
+    def _cargar_desde_diccionario(self, datos: dict) -> None:
+        """
+        Carga el laberinto directamente desde un diccionario de datos.
+
+        Args:
+            datos: Diccionario con los datos del laberinto.
+
+        Raises:
+            ValueError: Si la estructura del diccionario es inválida.
+            RuntimeError: Si ocurre un error inesperado.
+        """
+        try:
+            self._procesar_datos_laberinto(datos)
+        except Exception as e:
+            raise RuntimeError(f"Error inesperado al cargar laberinto desde diccionario: {e}")
+
+    def _procesar_datos_laberinto(self, datos: dict) -> None:
+        """
+        Procesa los datos del laberinto (común a cargar desde archivo o diccionario).
+
+        Args:
+            datos: Diccionario con los datos parseados del JSON o directamente proporcionados.
+
+        Raises:
+            ValueError: Si la estructura JSON es inválida.
+        """
+        # === PASO 3: Validar estructura ===
+        if not self.validar_estructura(datos):
+            raise ValueError("Estructura del archivo JSON inválida")
+
+        # === PASO 4: Cargar datos del laberinto ===
+        # Metadatos
+        self.nombre = datos.get("nombre", "Laberinto")
+        self.dificultad = datos.get("dificultad", "normal")
+
+        # Matriz del mapa (lista 2D con 0=pasillo, 1=muro)
+        self.laberinto = datos["mapa"]
+
+        # Cargar posiciones iniciales (formato [col, fila] en JSON)
+        if "inicio_jugador" in datos:
+            col, fila = datos["inicio_jugador"].values()
+            self.jugador_inicio = (col, fila)
+
+        if "inicio_computadora" in datos:
+            col, fila = datos["inicio_computadora"].values()
+            self.computadora_inicio = (col, fila)
+        
+        # === PASO 5: Procesar el mapa ===
+        # Identificar qué celdas son muros y cuáles pasillos
+        self._procesar_laberinto()
+
+        # === PASO 6: Cargar obsequios ===
+        if "obsequios" in datos:
+            for obsequio_data in datos["obsequios"]:
+                col, fila = obsequio_data["posicion"]
+                valor = obsequio_data.get(
+                    "valor", 10
+                )  # Valor por defecto: 10 puntos
+                posicion = (col, fila)
+                self._obsequios[posicion] = Obsequio(posicion, valor)
 
     def _procesar_laberinto(self):
         """
@@ -273,6 +307,9 @@ class Laberinto:
                     pygame.draw.rect(
                         pantalla, AZUL, (x, y, self.TAM_CELDA, self.TAM_CELDA)
                     )
+                else:
+                    # Dibuja pasillo con imagen
+                    pantalla.blit(self.imagen_pasillo, (x, y))
 
     def dibujar_obsequios(
         self, pantalla, frame_count=0, tam_celda=None, offset_x=0, offset_y=0
