@@ -1,0 +1,26 @@
+# Configuración básica de Ruff
+# Más info: https://docs.astral.sh/ruff/configuration/
+
+line-length = 88
+target-version = "py311"
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+]
+
+ignore = [
+    "E501",  # line too long (manejado por el formatter)
+]
+
+fixable = ["ALL"]
+unfixable = []
+
+[format]
+quote-style = "double"
+indent-style = "space"
