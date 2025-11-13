@@ -1,26 +1,59 @@
-# Configuración básica de Ruff
-# Más info: https://docs.astral.sh/ruff/configuration/
+[project]
+name = "coderunner"
+version = "0.1.0"
+requires-python = ">=3.11"
 
+# ============ RUFF ============
+[tool.ruff]
 line-length = 88
-target-version = "py311"
+target-version = "py314"
 
-[lint]
+# Reglas a verificar
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
     "F",   # pyflakes
-    "I",   # isort
+    "I",   # isort (imports)
     "B",   # flake8-bugbear
     "C4",  # flake8-comprehensions
 ]
 
+# Reglas a ignorar
 ignore = [
-    "E501",  # line too long (manejado por el formatter)
+    "E501",  # line too long (ya lo maneja el formateador)
 ]
 
-fixable = ["ALL"]
-unfixable = []
+# Excluir directorios
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+]
 
-[format]
-quote-style = "double"
-indent-style = "space"
+# ============ MYPY ============
+[tool.mypy]
+python_version = "3.14"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+check_untyped_defs = true
+
+# Módulos de terceros sin stubs
+ignore_missing_imports = true
+
+# Mostrar códigos de error
+show_error_codes = true
+show_column_numbers = true
+
+# Nivel de strictness
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
+# Configuración específica para tests (opcional)
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
