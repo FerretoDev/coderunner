@@ -4,9 +4,9 @@ Pantalla para cargar archivos de laberinto.
 
 import pygame
 
-from utils.helpers import resolver_ruta_laberinto
+from utilidades.helpers import resolver_ruta_laberinto
 
-from ui.components.input_texto import Boton, InputTexto
+from interfaz.componentes.input_texto import Boton, InputTexto
 
 
 class PantallaCargaLaberinto:

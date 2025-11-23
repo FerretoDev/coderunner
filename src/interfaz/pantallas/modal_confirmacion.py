@@ -4,7 +4,7 @@ Modal de confirmación para acciones críticas.
 
 import pygame
 
-from ui.components.input_texto import Boton
+from interfaz.componentes.input_texto import Boton
 
 
 class ModalConfirmacion:

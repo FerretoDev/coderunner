@@ -4,7 +4,7 @@ from collections import deque
 import pygame
 
 from config.config import ConfigJuego
-from utils.coordenadas import ConversorCoordenadas
+from utilidades.coordenadas import ConversorCoordenadas
 
 from .personaje import Personaje
 

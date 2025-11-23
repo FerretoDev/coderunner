@@ -6,8 +6,8 @@ Verificar que el jugador se mueve correctamente con las teclas de dirección.
 import pygame
 import pytest
 
-from entities.jugador import Jugador
-from world.laberinto import Laberinto
+from personajes.jugador import Jugador
+from mundo.laberinto import Laberinto
 
 
 @pytest.fixture

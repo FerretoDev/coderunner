@@ -5,9 +5,9 @@ Verificar que la computadora persigue al jugador correctamente.
 
 import pytest
 import pygame
-from entities.computadora import Computadora
-from entities.jugador import Jugador
-from world.laberinto import Laberinto
+from personajes.computadora import Computadora
+from personajes.jugador import Jugador
+from mundo.laberinto import Laberinto
 
 
 @pytest.fixture

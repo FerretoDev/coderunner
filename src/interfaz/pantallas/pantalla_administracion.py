@@ -4,7 +4,7 @@ Pantalla de autenticación para el administrador.
 
 import pygame
 
-from ui.components.input_texto import Boton, InputTexto
+from interfaz.componentes.input_texto import Boton, InputTexto
 
 
 class PantallaAdministracion:

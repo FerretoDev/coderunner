@@ -1,5 +1,5 @@
 """
-Módulo de entidades del juego.
+Módulo de personajes del juego.
 
 Contiene las clases que representan a los personajes jugables
 y no jugables del videojuego (Jugador, Computadora).

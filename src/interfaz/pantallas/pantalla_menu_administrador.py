@@ -4,7 +4,7 @@ Menú de opciones administrativas.
 
 import pygame
 
-from ui.components.input_texto import Boton
+from interfaz.componentes.input_texto import Boton
 
 
 class PantallaMenuAdministrador:

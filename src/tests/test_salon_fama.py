@@ -8,8 +8,8 @@ import os
 
 import pytest
 
-from world.registro import Registro
-from world.salon_fama import SalonFama
+from mundo.registro import Registro
+from mundo.salon_fama import SalonFama
 
 
 @pytest.fixture

@@ -3,11 +3,11 @@ import os
 import shutil
 from datetime import datetime
 
-from utils import guardar_json, resolver_ruta_laberinto
+from utilidades.helpers import guardar_json, resolver_ruta_laberinto
 
-from .config_laberinto import ConfigLaberinto
-from .laberinto import Laberinto
-from .salon_fama import SalonFama
+from config.config_laberinto import ConfigLaberinto
+from mundo.laberinto import Laberinto
+from mundo.salon_fama import SalonFama
 
 
 class Administrador:

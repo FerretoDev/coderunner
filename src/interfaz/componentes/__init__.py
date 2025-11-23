@@ -1,5 +1,5 @@
 """
-Módulo de componentes de UI.
+Módulo de componentes de interfaz.
 
 Componentes reutilizables para la interfaz de usuario
 (botones, inputs de texto, etc.).

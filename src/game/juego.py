@@ -23,7 +23,7 @@ sys.path.append(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 )  # Ajuste de ruta robusto y portátil [web:21]
 
-from ui.screens import (
+from interfaz.pantallas import (
     MensajeModal,  # Modal reutilizable para mostrar mensajes (éxito/error)
     MenuPrincipal,  # Menú principal que devuelve la opción elegida
     ModalConfirmacion,  # Modal de confirmación para acciones críticas
@@ -33,16 +33,16 @@ from ui.screens import (
     PantallaMenuAdministrador,  # Menú de opciones administrativas
     PantallaSalonFama,  # Pantalla que muestra los mejores puntajes
 )
-from ui.screens.pantalla_juego import (
+from interfaz.pantallas.pantalla_juego import (
     PantallaJuego,
 )  # Pantalla que corre el juego principal (loop propio) [web:47]
-from services.administrador import (
-    Administrador,
-)  # Lógica de autenticación de administrador [web:21]
-from world.salon_fama import (
+from mundo.salon_fama import (
     SalonFama,
 )  # Modelo para gestionar puntuaciones y récords [web:21]
-from services.sistema_sonido import (
+from servicios.administrador import (
+    Administrador,
+)  # Lógica de autenticación de administrador [web:21]
+from servicios.sistema_sonido import (
     SistemaSonido,
 )  # Sistema centralizado de sonidos [web:47]
 
@@ -170,22 +170,22 @@ class Juego:
         laberinto, mensaje = pantalla_carga.ejecutar()
 
         if laberinto:
-            modal = MensajeModal(screen, "✅ Laberinto Cargado", mensaje, "success")
+            modal = MensajeModal(screen, "Laberinto Cargado", mensaje, "success")
             modal.ejecutar()
         elif mensaje:
-            modal = MensajeModal(screen, "❌ Error", mensaje, "error")
+            modal = MensajeModal(screen, "Error", mensaje, "error")
             modal.ejecutar()
 
     def _manejar_reiniciar_salon(self, screen, admin, salon_fama):
         """Maneja el reinicio del salón de la fama."""
         confirmar = ModalConfirmacion(
             screen,
-            "⚠️ Confirmar Acción",
+            "Confirmar Acción",
             "¿Está seguro de que desea\neliminar todos los registros?",
         )
         if confirmar.ejecutar():
             mensaje = admin.reiniciar_salon_fama(salon_fama)
-            modal = MensajeModal(screen, "✅ Salón Reiniciado", mensaje, "success")
+            modal = MensajeModal(screen, "Salón Reiniciado", mensaje, "success")
             modal.ejecutar()
 
     def _manejar_salir(self, screen):
@@ -196,7 +196,7 @@ class Juego:
         """
         confirmar = ModalConfirmacion(
             screen,
-            "⚠️ Confirmar Salida",
+            "Confirmar Salida",
             "¿Está seguro de que desea\nsalir del juego?",
         )
         return not confirmar.ejecutar()

@@ -6,7 +6,7 @@ Muestra el título y opciones principales del juego.
 
 import pygame
 
-from ui.components.input_texto import Boton
+from interfaz.componentes.input_texto import Boton
 from config.config import ConfigJuego
 
 

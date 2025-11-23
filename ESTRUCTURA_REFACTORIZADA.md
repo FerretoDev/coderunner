@@ -2,35 +2,35 @@
 
 ## ✅ Reorganización Completada
 
-El proyecto ha sido completamente reorganizado siguiendo las mejores prácticas para videojuegos en Python.
+El proyecto ha sido completamente reorganizado siguiendo las mejores prácticas para videojuegos en Python, **con nombres en español** para mayor claridad.
 
 ## 🗂️ Nueva Estructura
 
 ```
 src/
-├── entities/           # Entidades del juego (personajes)
+├── personajes/         # Personajes del juego
 │   ├── personaje.py        # Clase base abstracta
 │   ├── jugador.py          # Jugador controlado por usuario
 │   └── computadora.py      # Enemigo con IA (BFS)
 │
-├── gameplay/           # Mecánicas del juego
-│   └── managers/           # Gestores especializados
+├── jugabilidad/        # Mecánicas del juego
+│   └── gestores/           # Gestores especializados
 │       ├── gestor_movimiento.py    # Movimiento y colisiones
 │       ├── gestor_obsequios.py     # Ciclo de vida de regalos
 │       └── gestor_dificultad.py    # Escalado de dificultad
 │
-├── ui/                 # Interfaz de usuario
-│   ├── screens/            # Pantallas del juego
+├── interfaz/           # Interfaz de usuario
+│   ├── pantallas/          # Pantallas del juego
 │   │   ├── pantalla_base.py
 │   │   ├── pantalla_juego.py
 │   │   ├── menu_principal.py
 │   │   ├── pantalla_salon_fama.py
 │   │   └── ... (8 pantallas más)
 │   │
-│   └── components/         # Componentes reutilizables
+│   └── componentes/        # Componentes reutilizables
 │       └── input_texto.py      # Botones, InputTexto
 │
-├── world/              # Mundo del juego (datos)
+├── mundo/              # Mundo del juego (datos)
 │   ├── laberinto.py        # Estructura del laberinto
 │   ├── obsequio.py         # Objetos recolectables
 │   ├── registro.py         # Registro de puntuación
@@ -41,11 +41,11 @@ src/
 │   ├── constants.py        # PASSWORD y constantes globales
 │   └── config_laberinto.py # Configuración de laberintos
 │
-├── services/           # Servicios globales
+├── servicios/          # Servicios globales
 │   ├── administrador.py    # Autenticación admin
 │   └── sistema_sonido.py   # Sistema de audio
 │
-├── utils/              # Utilidades reutilizables
+├── utilidades/         # Utilidades reutilizables
 │   ├── coordenadas.py      # ConversorCoordenadas
 │   └── helpers.py          # Funciones auxiliares
 │
@@ -68,45 +68,45 @@ src/
 - **Submódulos**: 3 (`gameplay/managers`, `ui/screens`, `ui/components`)
 
 ### Distribución por Módulo
-- `entities/`: 4 archivos (personajes del juego)
-- `gameplay/managers/`: 4 archivos (gestores + __init__)
-- `ui/screens/`: 11 archivos (pantallas)
-- `ui/components/`: 2 archivos (componentes UI)
-- `world/`: 5 archivos (modelos de datos)
+- `personajes/`: 4 archivos (personajes del juego)
+- `jugabilidad/gestores/`: 4 archivos (gestores + __init__)
+- `interfaz/pantallas/`: 11 archivos (pantallas)
+- `interfaz/componentes/`: 2 archivos (componentes UI)
+- `mundo/`: 5 archivos (modelos de datos)
 - `config/`: 4 archivos (configuración)
-- `services/`: 3 archivos (servicios)
-- `utils/`: 3 archivos (utilidades)
+- `servicios/`: 3 archivos (servicios)
+- `utilidades/`: 3 archivos (utilidades)
 - `game/`: 2 archivos (coordinador)
 - `tests/`: 9 archivos (tests unitarios)
 
 ## 🎯 Beneficios de la Nueva Estructura
 
 ### 1. **Separación Clara de Responsabilidades**
-- **entities/**: Solo lógica de personajes
-- **gameplay/**: Solo mecánicas de juego
-- **ui/**: Solo interfaz y visualización
-- **world/**: Solo modelos de datos
+- **personajes/**: Solo lógica de personajes
+- **jugabilidad/**: Solo mecánicas de juego
+- **interfaz/**: Solo interfaz y visualización
+- **mundo/**: Solo modelos de datos
 - **config/**: Solo configuración
-- **services/**: Solo servicios compartidos
-- **utils/**: Solo utilidades reutilizables
+- **servicios/**: Solo servicios compartidos
+- **utilidades/**: Solo utilidades reutilizables
 
 ### 2. **Escalabilidad Mejorada**
-- Fácil agregar nuevas entidades en `entities/`
-- Nuevos gestores en `gameplay/managers/`
-- Nuevas pantallas en `ui/screens/`
-- Nuevos objetos del mundo en `world/`
+- Fácil agregar nuevas entidades en `personajes/`
+- Nuevos gestores en `jugabilidad/gestores/`
+- Nuevas pantallas en `interfaz/pantallas/`
+- Nuevos objetos del mundo en `mundo/`
 
-### 3. **Imports Más Claros**
+### 3. **Imports Más Claros (en Español)**
 ```python
 # Antes (estructura plana)
 from models.jugador import Jugador
 from models.laberinto import Laberinto
 from game.gestor_movimiento import GestorMovimiento
 
-# Después (estructura organizada)
-from entities.jugador import Jugador
-from world.laberinto import Laberinto
-from gameplay.managers.gestor_movimiento import GestorMovimiento
+# Después (estructura organizada en español)
+from personajes.jugador import Jugador
+from mundo.laberinto import Laberinto
+from jugabilidad.gestores.gestor_movimiento import GestorMovimiento
 ```
 
 ### 4. **Mejor Mantenibilidad**
@@ -125,35 +125,35 @@ from gameplay.managers.gestor_movimiento import GestorMovimiento
 
 #### Imports Actualizados
 ```python
-# Entidades
-from entities.jugador import Jugador
-from entities.computadora import Computadora
+# Personajes
+from personajes.jugador import Jugador
+from personajes.computadora import Computadora
 
 # Mundo
-from world.laberinto import Laberinto
-from world.obsequio import Obsequio
-from world.salon_fama import SalonFama
+from mundo.laberinto import Laberinto
+from mundo.obsequio import Obsequio
+from mundo.salon_fama import SalonFama
 
 # Configuración
 from config.config import ConfigJuego, Colores
 from config.constants import PASSWORD
 
 # Gestores
-from gameplay.managers.gestor_movimiento import GestorMovimiento
-from gameplay.managers.gestor_obsequios import GestorObsequios
-from gameplay.managers.gestor_dificultad import GestorDificultad
+from jugabilidad.gestores.gestor_movimiento import GestorMovimiento
+from jugabilidad.gestores.gestor_obsequios import GestorObsequios
+from jugabilidad.gestores.gestor_dificultad import GestorDificultad
 
-# UI
-from ui.screens.pantalla_juego import PantallaJuego
-from ui.components.input_texto import Boton, InputTexto
+# Interfaz
+from interfaz.pantallas.pantalla_juego import PantallaJuego
+from interfaz.componentes.input_texto import Boton, InputTexto
 
 # Servicios
-from services.administrador import Administrador
-from services.sistema_sonido import SistemaSonido
+from servicios.administrador import Administrador
+from servicios.sistema_sonido import SistemaSonido
 
 # Utilidades
-from utils.coordenadas import ConversorCoordenadas
-from utils.helpers import resolver_ruta_laberinto
+from utilidades.coordenadas import ConversorCoordenadas
+from utilidades.helpers import resolver_ruta_laberinto
 ```
 
 ### Ejecución del Proyecto
@@ -189,13 +189,13 @@ El archivo `src/game/juego.py` ya configura el `sys.path` automáticamente.
 
 ## 📚 Convenciones de Nomenclatura
 
-- **entities/**: Clases que representan actores del juego
-- **gameplay/**: Lógica de mecánicas del juego
-- **ui/**: Todo lo relacionado con visualización
-- **world/**: Modelos de datos del mundo del juego
+- **personajes/**: Clases que representan actores del juego
+- **jugabilidad/**: Lógica de mecánicas del juego
+- **interfaz/**: Todo lo relacionado con visualización
+- **mundo/**: Modelos de datos del mundo del juego
 - **config/**: Configuración y constantes
-- **services/**: Servicios singleton o globales
-- **utils/**: Funciones y clases auxiliares sin estado
+- **servicios/**: Servicios singleton o globales
+- **utilidades/**: Funciones y clases auxiliares sin estado
 
 ---
 

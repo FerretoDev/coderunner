@@ -1,5 +1,5 @@
 """
-Módulo de gestores de gameplay.
+Módulo de gestores de jugabilidad.
 
 Contiene los gestores especializados para diferentes aspectos
 del juego (movimiento, obsequios, dificultad).

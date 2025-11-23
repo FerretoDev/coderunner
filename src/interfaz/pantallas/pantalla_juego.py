@@ -3,16 +3,16 @@ import os
 
 import pygame  # Motor de eventos, dibujo y tiempo
 
-from entities.computadora import Computadora
-from entities.jugador import Jugador
-from world.laberinto import Laberinto
-from services.sistema_sonido import SistemaSonido
+from personajes.computadora import Computadora
+from personajes.jugador import Jugador
+from mundo.laberinto import Laberinto
+from servicios.sistema_sonido import SistemaSonido
 
 from config.config import Colores, ConfigJuego
-from utils.coordenadas import ConversorCoordenadas
-from gameplay.managers.gestor_dificultad import GestorDificultad
-from gameplay.managers.gestor_movimiento import GestorMovimiento
-from gameplay.managers.gestor_obsequios import GestorObsequios
+from utilidades.coordenadas import ConversorCoordenadas
+from jugabilidad.gestores.gestor_dificultad import GestorDificultad
+from jugabilidad.gestores.gestor_movimiento import GestorMovimiento
+from jugabilidad.gestores.gestor_obsequios import GestorObsequios
 
 
 class PantallaJuego:
@@ -163,7 +163,11 @@ class PantallaJuego:
         self.sistema_sonido.reproducir_musica_fondo()
 
         ruta_imagen_pasillo = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "..", "data", "pasillos.jpg"
+            os.path.dirname(os.path.abspath(__file__)),
+            "..",
+            "..",
+            "data",
+            "pasillos.jpg",
         )
         self.imagen_pasillo = pygame.image.load(ruta_imagen_pasillo).convert_alpha()
         self.imagen_pasillo = pygame.transform.scale(self.imagen_pasillo, (64, 64))
@@ -495,7 +499,7 @@ class PantallaJuego:
         self.screen.blit(ranking_titulo, ranking_titulo_rect)
 
         # Obtener y mostrar el ranking
-        from world.salon_fama import SalonFama
+        from mundo.salon_fama import SalonFama
 
         salon = SalonFama()
         registros = salon.mostrar_mejores(limite=5)
@@ -567,8 +571,8 @@ class PantallaJuego:
 
     def _guardar_en_salon_fama(self):
         """Crea un registro y lo guarda en el salón de la fama."""
-        from world.registro import Registro
-        from world.salon_fama import SalonFama
+        from mundo.registro import Registro
+        from mundo.salon_fama import SalonFama
 
         salon = SalonFama()
         registro = Registro(
