@@ -81,19 +81,21 @@ class Juego:
             (800, 600)
         )  # Crea la Surface principal donde se dibuja
         pygame.display.set_caption(
-            "CodeRunner"
+            "Theseus Runner"
         )  # Título visible en la barra de la ventana
 
         # Instancias de servicios que se comparten entre pantallas
         salon_fama = (
             SalonFama()
-        )  # Mantiene los récords accesibles desde el menú y su pantalla [web:21]
+        )  # Mantiene los récords accesibles desde el menú y su pantalla
         admin = Administrador(
             PASSWORD
-        )  # Admin con clave por defecto “casa” para pruebas [web:21]
+        )  # Admin con clave por defecto “casa” para pruebas|
 
         # Loop principal de navegación de menús
-        ejecutando = True  # Mientras esté en True, se seguirá mostrando el menú principal [web:47]
+        ejecutando = (
+            True  # Mientras esté en True, se seguirá mostrando el menú principal
+        )
 
         while ejecutando:
             # Asegura las dimensiones y el título del menú cada vez

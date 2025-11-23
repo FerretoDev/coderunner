@@ -5,6 +5,9 @@ Modal de confirmación para acciones críticas.
 import pygame
 
 from interfaz.componentes.input_texto import Boton
+from interfaz.componentes.overlay import Overlay, Panel
+from interfaz.gestor_fuentes import GestorFuentes
+from config.colores import PaletaColores
 
 
 class ModalConfirmacion:
@@ -20,8 +23,23 @@ class ModalConfirmacion:
         self.titulo = titulo
         self.mensaje = mensaje
 
-        self.font_titulo = pygame.font.Font(None, 44)
-        self.font_mensaje = pygame.font.Font(None, 28)
+        # Usar gestor de fuentes compartido
+        fuentes = GestorFuentes()
+        self.font_titulo = fuentes.titulo_mini
+        self.font_mensaje = fuentes.texto_normal
+
+        # Overlay reutilizable
+        self.overlay = Overlay(self.ancho, self.alto, PaletaColores.FONDO_OVERLAY, 220)
+
+        # Panel del modal
+        self.panel = Panel(
+            self.ancho // 2 - 300,
+            self.alto // 2 - 120,
+            600,
+            240,
+            PaletaColores.FONDO_MODAL,
+            PaletaColores.ACENTO_WARNING,
+        )
 
         # Botones
         self.btn_si = Boton(self.ancho // 2 - 160, self.alto // 2 + 50, 140, 50, "✓ Sí")
@@ -29,19 +47,16 @@ class ModalConfirmacion:
 
     def dibujar(self):
         """Dibuja el modal de confirmación."""
-        # Fondo semitransparente
-        overlay = pygame.Surface((self.ancho, self.alto))
-        overlay.set_alpha(220)
-        overlay.fill((0, 0, 0))
-        self.screen.blit(overlay, (0, 0))
+        # Overlay semitransparente
+        self.overlay.dibujar(self.screen)
 
-        # Caja del modal
-        modal_rect = pygame.Rect(self.ancho // 2 - 300, self.alto // 2 - 120, 600, 240)
-        pygame.draw.rect(self.screen, (40, 40, 60), modal_rect, border_radius=15)
-        pygame.draw.rect(self.screen, (255, 200, 0), modal_rect, 3, border_radius=15)
+        # Panel del modal
+        self.panel.dibujar(self.screen)
 
         # Título
-        titulo_surface = self.font_titulo.render(self.titulo, True, (255, 200, 0))
+        titulo_surface = self.font_titulo.render(
+            self.titulo, True, PaletaColores.ACENTO_WARNING
+        )
         titulo_rect = titulo_surface.get_rect(
             center=(self.ancho // 2, self.alto // 2 - 70)
         )
@@ -51,7 +66,9 @@ class ModalConfirmacion:
         lineas = self.mensaje.split("\n")
         y_offset = -20
         for linea in lineas:
-            mensaje_surface = self.font_mensaje.render(linea, True, (255, 255, 255))
+            mensaje_surface = self.font_mensaje.render(
+                linea, True, PaletaColores.TEXTO_PRINCIPAL
+            )
             mensaje_rect = mensaje_surface.get_rect(
                 center=(self.ancho // 2, self.alto // 2 + y_offset)
             )

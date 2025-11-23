@@ -4,7 +4,9 @@ Pantalla del Salón de la Fama que muestra los mejores puntajes.
 
 import pygame
 
+from config.colores import PaletaColores
 from interfaz.componentes.input_texto import Boton
+from interfaz.gestor_fuentes import GestorFuentes
 
 
 class PantallaSalonFama:
@@ -16,12 +18,13 @@ class PantallaSalonFama:
         self.alto = screen.get_height()
         self.salon_fama = salon_fama
 
-        # Fuentes
-        self.font_titulo = pygame.font.Font(None, 56)
-        self.font_header = pygame.font.Font(None, 28)
-        self.font_data = pygame.font.Font(None, 24)
-        self.font_info = pygame.font.Font(None, 20)
-        self.font_stats = pygame.font.Font(None, 22)
+        # Usar gestor de fuentes compartido
+        fuentes = GestorFuentes()
+        self.font_titulo = fuentes.titulo_normal
+        self.font_header = fuentes.texto_normal
+        self.font_data = fuentes.texto_pequeño
+        self.font_info = fuentes.texto_info
+        self.font_stats = fuentes.texto_mini
 
         # Botones
         self.btn_volver = Boton(
@@ -30,10 +33,9 @@ class PantallaSalonFama:
 
     def dibujar(self):
         """Dibuja título, encabezados, registros si hay, y el botón volver."""
-        self.screen.fill((20, 20, 30))
+        self.screen.fill(PaletaColores.FONDO_PRINCIPAL)
 
-        # Título con emoji de trofeo
-        titulo = self.font_titulo.render("🏆 Salón de la Fama", True, (255, 215, 0))
+        titulo = self.font_titulo.render("Salón de la Fama", True, PaletaColores.ORO)
         titulo_rect = titulo.get_rect(center=(self.ancho // 2, 40))
         self.screen.blit(titulo, titulo_rect)
 

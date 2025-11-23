@@ -5,6 +5,9 @@ Modal para mostrar mensajes al usuario.
 import pygame
 
 from interfaz.componentes.input_texto import Boton
+from interfaz.componentes.overlay import Overlay, Panel
+from interfaz.gestor_fuentes import GestorFuentes
+from config.colores import PaletaColores
 
 
 class MensajeModal:
@@ -18,35 +21,37 @@ class MensajeModal:
         self.mensaje = mensaje
         self.tipo = tipo
 
-        self.font_titulo = pygame.font.Font(None, 48)
-        self.font_mensaje = pygame.font.Font(None, 32)
+        # Usar gestor de fuentes compartido
+        fuentes = GestorFuentes()
+        self.font_titulo = fuentes.titulo_pequeño
+        self.font_mensaje = fuentes.texto_grande
+
+        # Overlay reutilizable
+        self.overlay = Overlay(self.ancho, self.alto, PaletaColores.FONDO_OVERLAY, 200)
+
+        # Panel del modal
+        self.panel = Panel(
+            self.ancho // 2 - 250,
+            self.alto // 2 - 100,
+            500,
+            200,
+            PaletaColores.FONDO_MODAL,
+            PaletaColores.obtener_color_tipo(tipo),
+        )
 
         # Botón OK centrado bajo el mensaje
         self.btn_ok = Boton(self.ancho // 2 - 75, self.alto // 2 + 60, 150, 50, "OK")
 
-        # Colores de acento según el tipo de mensaje
-        colores = {
-            "info": (0, 150, 255),
-            "success": (0, 200, 100),
-            "error": (255, 50, 50),
-            "warning": (255, 200, 0),
-        }
-        self.color_acento = colores.get(tipo, colores["info"])
+        # Color de acento según el tipo
+        self.color_acento = PaletaColores.obtener_color_tipo(tipo)
 
     def dibujar(self):
         """Dibuja fondo translúcido, caja con borde, textos y el botón OK."""
-        # Fondo semitransparente para centrar la atención
-        overlay = pygame.Surface((self.ancho, self.alto))
-        overlay.set_alpha(200)
-        overlay.fill((0, 0, 0))
-        self.screen.blit(overlay, (0, 0))
+        # Overlay semitransparente
+        self.overlay.dibujar(self.screen)
 
-        # Caja central del modal
-        modal_rect = pygame.Rect(self.ancho // 2 - 250, self.alto // 2 - 100, 500, 200)
-        pygame.draw.rect(self.screen, (40, 40, 60), modal_rect, border_radius=15)
-        pygame.draw.rect(
-            self.screen, self.color_acento, modal_rect, 3, border_radius=15
-        )
+        # Panel del modal
+        self.panel.dibujar(self.screen)
 
         # Título centrado
         titulo_surface = self.font_titulo.render(self.titulo, True, self.color_acento)
@@ -56,7 +61,9 @@ class MensajeModal:
         self.screen.blit(titulo_surface, titulo_rect)
 
         # Mensaje principal
-        mensaje_surface = self.font_mensaje.render(self.mensaje, True, (255, 255, 255))
+        mensaje_surface = self.font_mensaje.render(
+            self.mensaje, True, PaletaColores.TEXTO_PRINCIPAL
+        )
         mensaje_rect = mensaje_surface.get_rect(
             center=(self.ancho // 2, self.alto // 2)
         )

@@ -6,8 +6,10 @@ Muestra el título y opciones principales del juego.
 
 import pygame
 
-from interfaz.componentes.input_texto import Boton
+from config.colores import PaletaColores
 from config.config import ConfigJuego
+from interfaz.componentes.input_texto import Boton
+from interfaz.gestor_fuentes import GestorFuentes
 
 
 class MenuPrincipal:
@@ -22,16 +24,10 @@ class MenuPrincipal:
         self.ancho = screen.get_width()
         self.alto = screen.get_height()
 
-        # Paleta de colores del menú
-        self.COLORES = {
-            "fondo": (20, 20, 30),
-            "texto": (255, 255, 255),
-            "acento": (0, 150, 255),
-        }
-
-        # Fuentes para título y subtítulos
-        self.font_titulo = pygame.font.Font(None, 72)
-        self.font_subtitulo = pygame.font.Font(None, 24)
+        # Usar gestor de fuentes compartido
+        fuentes = GestorFuentes()
+        self.font_titulo = fuentes.titulo_grande
+        self.font_subtitulo = fuentes.texto_pequeño
 
         # Crear los botones alineados de forma horizontal
         self._crear_botones()
@@ -63,13 +59,15 @@ class MenuPrincipal:
 
     def dibujar(self):
         """Pinta el fondo, título, línea decorativa, subtítulo, botones y footer."""
-        self.screen.fill(self.COLORES["fondo"])
+        self.screen.fill(PaletaColores.FONDO_PRINCIPAL)
 
         # Título con pequeña sombra para contraste
         titulo = self.font_titulo.render(
-            ConfigJuego.TITULO, True, self.COLORES["texto"]
+            ConfigJuego.TITULO, True, PaletaColores.TEXTO_PRINCIPAL
         )
-        sombra = self.font_titulo.render(ConfigJuego.TITULO, True, (10, 10, 20))
+        sombra = self.font_titulo.render(
+            ConfigJuego.TITULO, True, PaletaColores.TEXTO_SOMBRA
+        )
 
         sombra_rect = sombra.get_rect(center=(self.ancho // 2 + 3, 103))
         titulo_rect = titulo.get_rect(center=(self.ancho // 2, 100))
@@ -80,7 +78,7 @@ class MenuPrincipal:
         # Línea decorativa bajo el título para separar visualmente
         pygame.draw.line(
             self.screen,
-            self.COLORES["acento"],
+            PaletaColores.ACENTO_PRINCIPAL,
             (self.ancho // 2 - 150, 150),
             (self.ancho // 2 + 150, 150),
             3,
@@ -90,7 +88,7 @@ class MenuPrincipal:
         subtitulo = self.font_subtitulo.render(
             "Escapa del laberinto · Recolecta obsequios · Evita al enemigo",
             True,
-            (150, 150, 150),
+            PaletaColores.TEXTO_DESACTIVADO,
         )
         subtitulo_rect = subtitulo.get_rect(center=(self.ancho // 2, 180))
         self.screen.blit(subtitulo, subtitulo_rect)
@@ -101,7 +99,7 @@ class MenuPrincipal:
 
         # Footer con indicación de uso del mouse
         footer = self.font_subtitulo.render(
-            "Usa el mouse para seleccionar", True, (100, 100, 120)
+            "Usa el mouse para seleccionar", True, PaletaColores.BORDE_NORMAL
         )
         footer_rect = footer.get_rect(center=(self.ancho // 2, self.alto - 30))
         self.screen.blit(footer, footer_rect)

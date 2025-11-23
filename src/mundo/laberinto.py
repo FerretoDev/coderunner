@@ -1,6 +1,5 @@
 import json
 import os
-from re import A
 
 import pygame
 
@@ -61,13 +60,20 @@ class Laberinto:
         self.jugador_inicio: tuple[int, int] = (1, 1)
         self.computadora_inicio: tuple[int, int] = (18, 12)
 
+        # Cargar imagen del pasillo con manejo de errores
         ruta_imagen_pasillo = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "..", "data", "pasillos.jpg"
         )
-        self.imagen_pasillo = pygame.image.load(ruta_imagen_pasillo).convert_alpha()
-        self.imagen_pasillo = pygame.transform.scale(
-            self.imagen_pasillo, (self.TAM_CELDA, self.TAM_CELDA)
-        )
+        try:
+            self.imagen_pasillo = pygame.image.load(ruta_imagen_pasillo).convert_alpha()
+            self.imagen_pasillo = pygame.transform.scale(
+                self.imagen_pasillo, (self.TAM_CELDA, self.TAM_CELDA)
+            )
+        except (pygame.error, FileNotFoundError) as e:
+            print(f"⚠️  Advertencia: No se pudo cargar la imagen del pasillo: {e}")
+            # Crear una superficie de color predeterminado como fallback
+            self.imagen_pasillo = pygame.Surface((self.TAM_CELDA, self.TAM_CELDA))
+            self.imagen_pasillo.fill((50, 50, 50))
 
         if isinstance(archivo_json_o_datos, dict):
             self._cargar_desde_diccionario(archivo_json_o_datos)
@@ -119,14 +125,14 @@ class Laberinto:
 
             self._procesar_datos_laberinto(datos)
 
-        except FileNotFoundError:
+        except FileNotFoundError as exc:
             raise FileNotFoundError(
                 f"No se encontró el archivo de laberinto: {archivo}"
-            )
-        except json.JSONDecodeError:
-            raise ValueError(f"El archivo {archivo} no es un JSON válido")
+            ) from exc
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"El archivo {archivo} no es un JSON válido") from exc
         except Exception as e:
-            raise RuntimeError(f"Error inesperado al cargar laberinto: {e}")
+            raise RuntimeError(f"Error inesperado al cargar laberinto: {e}") from e
 
     def _cargar_desde_diccionario(self, datos: dict) -> None:
         """
@@ -144,7 +150,7 @@ class Laberinto:
         except Exception as e:
             raise RuntimeError(
                 f"Error inesperado al cargar laberinto desde diccionario: {e}"
-            )
+            ) from e
 
     def _procesar_datos_laberinto(self, datos: dict) -> None:
         """

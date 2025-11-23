@@ -301,10 +301,6 @@ class PantallaJuego:
         self.jugador.dibujar_jugador_principal(self.screen)
         self.computadora.dibujar_computadora_principal(self.screen)
 
-        # Debug opcional (eliminar a futuro, es irrelevante, ya que lo usaba cuando intente implementar pathfinding usando trigonometría)
-        # if self.mostrar_distancia:
-        #    self._dibujar_linea_distancia()
-
         # HUD y overlays
         self._dibujar_hud()
         if self.pausado:
