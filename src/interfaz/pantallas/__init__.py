@@ -12,7 +12,6 @@ from .pantalla_carga_laberinto import PantallaCargaLaberinto
 from .pantalla_iniciar_juego import PantallaIniciarJuego
 from .pantalla_menu_administrador import PantallaMenuAdministrador
 from .pantalla_salon_fama import PantallaSalonFama
-from .pantalla_demo_ui import PantallaDemoUI
 
 __all__ = [
     "MenuPrincipal",
@@ -23,5 +22,4 @@ __all__ = [
     "PantallaMenuAdministrador",
     "PantallaCargaLaberinto",
     "ModalConfirmacion",
-    "PantallaDemoUI",
 ]
