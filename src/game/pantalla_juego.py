@@ -45,9 +45,14 @@ class PantallaJuego:
         self.incremento_velocidad = ConfigJuego.INCREMENTO_VELOCIDAD
 
         # Carga del laberinto desde archivo JSON y acceso a la matriz
-        self.laberinto = Laberinto(
-            "src/data/laberintos/laberinto3.json"
-        )  # Carga mapa, spawns y obsequios
+        # Intenta cargar el laberinto activo, si no existe usa el predeterminado
+        from models.administrador import Administrador
+
+        ruta_laberinto = Administrador.obtener_laberinto_activo()
+        if not ruta_laberinto:
+            ruta_laberinto = "src/data/laberintos/laberinto3.json"
+
+        self.laberinto = Laberinto(ruta_laberinto)  # Carga mapa, spawns y obsequios
         self.mapa = self.laberinto.laberinto  # Matriz de 0 (libre) y 1 (muro)
 
         # Ajuste de tamaño de celda para que el laberinto ocupe la mayor área visible
@@ -129,9 +134,9 @@ class PantallaJuego:
         # Timers iniciales de obsequios activos
         self._inicializar_timers_obsequios()
 
-        # Musica Perrona
-        musica_perrona = SistemaSonido()
-        musica_perrona.musica_perrona()
+        # Sistema de sonido (singleton) y reproducir música de fondo
+        self.sistema_sonido = SistemaSonido()
+        self.sistema_sonido.reproducir_musica_fondo()
 
         ruta_imagen_pasillo = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "..", "data", "pasillos.jpg"
@@ -269,6 +274,9 @@ class PantallaJuego:
             distancia
             < self.jugador.radio + self.computadora.radio + ConfigJuego.MARGEN_CAPTURA
         ):
+            # Reproducir sonido de captura
+            self.sistema_sonido.reproducir_captura()
+
             self.jugador.perder_vida()
             if not self.jugador.esta_vivo():
                 self.game_over = True
@@ -376,6 +384,9 @@ class PantallaJuego:
         # Si hay obsequio en esta celda, súmalo y renueva el objeto
         puntos = self.laberinto.recolectar_obsequio(posicion_celda)
         if puntos > 0:
+            # Reproducir sonido de recolección
+            self.sistema_sonido.reproducir_obsequio()
+
             self.jugador.sumar_puntos(puntos)
             if posicion_celda in self.obsequios_timers:
                 del self.obsequios_timers[posicion_celda]
@@ -559,7 +570,7 @@ class PantallaJuego:
 
         # Controles de ayuda al usuario
         controles_surf = self.fuente_pequena.render(
-            "WASD/Flechas: Mover | P: Pausa | ESC: Salir",
+            "WASD/Flechas: Mover | P: Pausa | U: Música | ESC: Salir",
             True,
             Colores.TEXTO_SECUNDARIO,
         )
@@ -588,6 +599,8 @@ class PantallaJuego:
     def _dibujar_game_over(self):
         """Overlay de game over, guarda puntaje una vez y muestra métricas finales con ranking."""
         if not hasattr(self, "_puntaje_guardado"):
+            # Detener la música al llegar a game over
+            self.sistema_sonido.pausar_musica()
             self._guardar_en_salon_fama()
             self._puntaje_guardado = True
 
@@ -779,12 +792,26 @@ class PantallaJuego:
                     return "salir"
                 if evento.key == pygame.K_p:
                     self.pausado = not self.pausado
+                    # Pausar/reanudar música según el estado
+                    if self.pausado:
+                        self.sistema_sonido.pausar_musica()
+                    else:
+                        self.sistema_sonido.reanudar_musica()
                 if evento.key == pygame.K_d:
                     self.mostrar_distancia = not self.mostrar_distancia
                 if evento.key == pygame.K_m:
                     self.movimiento_por_celdas = not self.movimiento_por_celdas
                     modo = "Celdas" if self.movimiento_por_celdas else "Píxeles"
                     print(f"Modo de movimiento cambiado a: {modo}")
+                if evento.key == pygame.K_u:
+                    # Alternar música de fondo
+                    self.sistema_sonido.alternar_musica()
+                    estado = (
+                        "activada"
+                        if self.sistema_sonido.musica_activa
+                        else "desactivada"
+                    )
+                    print(f"Música {estado}")
 
                 # En game over, cualquier tecla (menos 'p') sale SOLO si pasaron los 5 segundos
                 if (
@@ -818,6 +845,9 @@ class PantallaJuego:
 
             self._actualizar()
             self._renderizar()
+
+        # Detener la música al salir
+        self.sistema_sonido.detener_musica()
 
         # No se cierra pygame aquí para retornar al menú sin destruir el contexto
         # pygame.quit()

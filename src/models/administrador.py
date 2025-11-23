@@ -1,5 +1,7 @@
 import json
 import os
+import shutil
+from datetime import datetime
 from .laberinto import Laberinto
 from .salon_fama import SalonFama
 
@@ -18,12 +20,16 @@ class Administrador:
         """Autentica al administrador con la clave proporcionada."""
         return self._clave == clave
 
-    def cargar_laberinto(self, ruta_archivo: str) -> tuple[Laberinto | None, str]:
+    def cargar_laberinto(
+        self, ruta_archivo: str, copiar_externo: bool = True
+    ) -> tuple[Laberinto | None, str]:
         """
-        Carga un laberinto desde un archivo .json o .txt y valida su estructura.
+        Carga un laberinto desde un archivo .json y valida su estructura.
+        Si el archivo está fuera de src/data/laberintos/, lo copia automáticamente.
 
         Args:
             ruta_archivo: Ruta completa al archivo del laberinto
+            copiar_externo: Si True, copia archivos externos a src/data/laberintos/
 
         Returns:
             Tupla (laberinto, mensaje):
@@ -49,15 +55,118 @@ class Administrador:
             if errores:
                 return None, f"Estructura inválida:\n" + "\n".join(errores)
 
-            # Crear el laberinto
-            laberinto = Laberinto(datos)
+            # Verificar si el archivo está fuera de src/data/laberintos/
+            ruta_normalizada = os.path.normpath(os.path.abspath(ruta_archivo))
+            directorio_laberintos = os.path.normpath(
+                os.path.abspath("src/data/laberintos")
+            )
 
-            return laberinto, f"Laberinto '{laberinto.nombre}' cargado exitosamente"
+            mensaje_copia = ""
+            ruta_final = ruta_archivo
+
+            if copiar_externo and not ruta_normalizada.startswith(
+                directorio_laberintos
+            ):
+                # El archivo está fuera, copiarlo
+                ruta_final_temp = self._copiar_laberinto_externo(ruta_archivo, datos)
+                if ruta_final_temp:
+                    ruta_final = ruta_final_temp
+                    mensaje_copia = f"\n(Copiado a: {os.path.basename(ruta_final)})"
+                else:
+                    # Si falla la copia, usar el archivo original
+                    mensaje_copia = "\n(No se pudo copiar, usando archivo original)"
+
+            # Guardar la ruta del laberinto cargado para uso posterior
+            self._guardar_laberinto_activo(ruta_final)
+
+            # Crear el laberinto solo si pygame está disponible e inicializado
+            try:
+                import pygame
+
+                if pygame.get_init():
+                    laberinto = Laberinto(
+                        ruta_final if ruta_final.endswith(".json") else datos
+                    )
+                    return (
+                        laberinto,
+                        f"Laberinto '{laberinto.nombre}' cargado exitosamente{mensaje_copia}",
+                    )
+                else:
+                    # pygame no está inicializado, solo guardar configuración
+                    nombre = datos.get("nombre", "Laberinto")
+                    return (
+                        None,
+                        f"Laberinto '{nombre}' configurado exitosamente{mensaje_copia}\n(Se cargará al iniciar el juego)",
+                    )
+            except:
+                # pygame no disponible, solo guardar la configuración
+                nombre = datos.get("nombre", "Laberinto")
+                return (
+                    None,
+                    f"Laberinto '{nombre}' configurado exitosamente{mensaje_copia}\n(Se cargará al iniciar el juego)",
+                )
 
         except json.JSONDecodeError:
             return None, "El archivo no contiene JSON válido"
         except Exception as e:
             return None, f"Error al cargar laberinto: {str(e)}"
+
+    def _copiar_laberinto_externo(self, ruta_origen: str, datos: dict) -> str | None:
+        """
+        Copia un archivo de laberinto externo a src/data/laberintos/.
+
+        Args:
+            ruta_origen: Ruta del archivo original
+            datos: Datos del laberinto para generar nombre único
+
+        Returns:
+            Ruta del archivo copiado o None si falla
+        """
+        try:
+            # Crear directorio si no existe
+            directorio_destino = "src/data/laberintos"
+            os.makedirs(directorio_destino, exist_ok=True)
+
+            # Generar nombre único para evitar sobrescribir
+            nombre_base = os.path.splitext(os.path.basename(ruta_origen))[0]
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            nombre_destino = f"{nombre_base}_{timestamp}.json"
+
+            # Si el archivo ya tiene un nombre descriptivo, usarlo
+            if "nombre" in datos and datos["nombre"]:
+                nombre_laberinto = datos["nombre"].replace(" ", "_").lower()
+                nombre_destino = f"{nombre_laberinto}_{timestamp}.json"
+
+            ruta_destino = os.path.join(directorio_destino, nombre_destino)
+
+            # Copiar el archivo
+            shutil.copy2(ruta_origen, ruta_destino)
+
+            return ruta_destino
+
+        except Exception as e:
+            print(f"Error al copiar laberinto: {e}")
+            return None
+
+    def _guardar_laberinto_activo(self, ruta: str) -> None:
+        """
+        Guarda la ruta del laberinto activo en un archivo de configuración.
+
+        Args:
+            ruta: Ruta del archivo de laberinto a guardar como activo
+        """
+        try:
+            config_path = "src/data/config_laberinto.json"
+            config = {
+                "laberinto_activo": ruta,
+                "fecha_carga": datetime.now().isoformat(),
+            }
+
+            with open(config_path, "w", encoding="utf-8") as f:
+                json.dump(config, f, indent=2, ensure_ascii=False)
+
+        except Exception as e:
+            print(f"Error al guardar configuración de laberinto: {e}")
 
     def _validar_estructura_laberinto(self, datos: dict) -> list[str]:
         """
@@ -121,3 +230,25 @@ class Administrador:
         """
         salon.reiniciar()
         return "Salón de la fama reiniciado exitosamente"
+
+    @staticmethod
+    def obtener_laberinto_activo() -> str | None:
+        """
+        Obtiene la ruta del laberinto activo desde la configuración.
+
+        Returns:
+            Ruta del laberinto activo o None si no hay ninguno configurado
+        """
+        try:
+            config_path = "src/data/config_laberinto.json"
+            if os.path.exists(config_path):
+                with open(config_path, "r", encoding="utf-8") as f:
+                    config = json.load(f)
+                    ruta = config.get("laberinto_activo")
+                    # Verificar que el archivo todavía existe
+                    if ruta and os.path.exists(ruta):
+                        return ruta
+            return None
+        except Exception as e:
+            print(f"Error al leer configuración de laberinto: {e}")
+            return None

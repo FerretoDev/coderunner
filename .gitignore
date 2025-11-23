@@ -9,3 +9,4 @@ venv/
 *.log
 .DS_Store
 src/data/salon_fama.json
+src/data/config_laberinto.json
