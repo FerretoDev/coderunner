@@ -3,6 +3,9 @@ from collections import deque
 
 import pygame
 
+from game.config import ConfigJuego
+from game.coordenadas import ConversorCoordenadas
+
 from .personaje import Personaje
 
 
@@ -13,33 +16,20 @@ class Computadora(Personaje):
         super().__init__(x, y, radio, velocidad)
         self.color = (255, 50, 50)
 
-        # Crear rect de colisión 10% más pequeño que el círculo para precisión
-        size = int(radio * 1.8)
+        # Crear rect de colisión usando factor de configuración
+        size = int(radio * ConfigJuego.FACTOR_RECT_COLISION)
         offset = (radio * 2 - size) // 2  # Centrar rect en círculo
-        self.computadora_principal = pygame.Rect(x + offset, y + offset, size, size)
+        self._rect = pygame.Rect(x + offset, y + offset, size, size)
 
         # Variables para optimizar BFS (evitar recalcular cada frame)
         self._bfs_camino: list[tuple[int, int]] | None = None  # Ruta actual
         self._bfs_target_cell: tuple[int, int] | None = None  # Celda objetivo previa
         self._bfs_recalc_cooldown = 0  # Contador para recalcular camino
 
-    def _cell_from_pos(
-        self, x_px: int, y_px: int, tam_celda: int, offset_x: int = 0, offset_y: int = 0
-    ) -> tuple[int, int]:
-        """Convierte coordenadas de píxeles a índices de celda (fila, col)"""
-        x_rel = x_px - offset_x  # Ajustar por offset de centrado
-        y_rel = y_px - offset_y
-        col = max(0, x_rel // tam_celda)
-        fila = max(0, y_rel // tam_celda)
-        return int(fila), int(col)
-
-    def _pos_center_of_cell(
-        self, fila: int, col: int, tam_celda: int, offset_x: int = 0, offset_y: int = 0
-    ) -> tuple[int, int]:
-        """Convierte índices de celda (fila, col) a píxeles del centro"""
-        cx = col * tam_celda + tam_celda // 2 + offset_x
-        cy = fila * tam_celda + tam_celda // 2 + offset_y
-        return cx, cy
+    @property
+    def computadora_principal(self) -> pygame.Rect:
+        """Rect de colisión de la computadora (propiedad de solo lectura)."""
+        return self._rect
 
     def _calcular_camino_bfs(
         self, mapa: list[list[int]], start: tuple[int, int], goal: tuple[int, int]
@@ -103,13 +93,13 @@ class Computadora(Personaje):
         - Movimiento suave interpolando entre centros de celdas
         """
         # Obtener posiciones actuales en el grid
-        comp_cx, comp_cy = self.computadora_principal.center
-        fila_c, col_c = self._cell_from_pos(
+        comp_cx, comp_cy = self._rect.center
+        fila_c, col_c = ConversorCoordenadas.pixel_a_celda(
             comp_cx, comp_cy, tam_celda, offset_x, offset_y
         )
 
         jug_cx, jug_cy = jugador.jugador_principal.center
-        fila_j, col_j = self._cell_from_pos(
+        fila_j, col_j = ConversorCoordenadas.pixel_a_celda(
             jug_cx, jug_cy, tam_celda, offset_x, offset_y
         )
 
@@ -138,12 +128,12 @@ class Computadora(Personaje):
 
         # Obtener siguiente celda en el camino (índice 1, ya que 0 es la actual)
         siguiente_celda = self._bfs_camino[1]
-        target_px = self._pos_center_of_cell(
+        target_px = ConversorCoordenadas.celda_a_pixel_centro(
             *siguiente_celda, tam_celda, offset_x, offset_y
         )
 
         # Calcular vector de movimiento hacia el objetivo
-        ax, ay = self.computadora_principal.center
+        ax, ay = self._rect.center
         tx, ty = target_px
         dx, dy = tx - ax, ty - ay
         dist = math.hypot(dx, dy)
@@ -157,19 +147,19 @@ class Computadora(Personaje):
             nuevo_cy = ay + paso_y
 
             # Actualizar posición del rect (convertir a int para Pygame)
-            self.computadora_principal.centerx = int(nuevo_cx)
-            self.computadora_principal.centery = int(nuevo_cy)
-            self.x = self.computadora_principal.x
-            self.y = self.computadora_principal.y
+            self._rect.centerx = int(nuevo_cx)
+            self._rect.centery = int(nuevo_cy)
+            self.x = self._rect.x
+            self.y = self._rect.y
 
         # Si llegamos al centro de la celda objetivo, avanzar al siguiente paso
-        ax2, ay2 = self.computadora_principal.center
+        ax2, ay2 = self._rect.center
         if math.hypot(tx - ax2, ty - ay2) <= self.velocidad + 0.5:
             # Alinear exactamente al centro
-            self.computadora_principal.centerx = int(tx)
-            self.computadora_principal.centery = int(ty)
-            self.x = self.computadora_principal.x
-            self.y = self.computadora_principal.y
+            self._rect.centerx = int(tx)
+            self._rect.centery = int(ty)
+            self.x = self._rect.x
+            self.y = self._rect.y
 
             # Consumir celda actual del camino
             if self._bfs_camino and len(self._bfs_camino) > 1:
@@ -178,20 +168,20 @@ class Computadora(Personaje):
     def _aplicar_movimiento(self, nueva_x, nueva_y):
         """Aplica movimiento respetando límites del laberinto"""
         # Límites basados en laberinto de 20x15 celdas de 32px
-        limite_x = (20 * 32) - self.computadora_principal.width
-        limite_y = (15 * 32) - self.computadora_principal.height
+        limite_x = (20 * 32) - self._rect.width
+        limite_y = (15 * 32) - self._rect.height
 
         # Clamp a los límites
         nueva_x = max(0, min(nueva_x, limite_x))
         nueva_y = max(0, min(nueva_y, limite_y))
 
         # Actualizar rect de colisión
-        self.computadora_principal.x = int(nueva_x)
-        self.computadora_principal.y = int(nueva_y)
+        self._rect.x = int(nueva_x)
+        self._rect.y = int(nueva_y)
 
         # Sincronizar con coordenadas del personaje
-        self.x = self.computadora_principal.x
-        self.y = self.computadora_principal.y
+        self.x = self._rect.x
+        self.y = self._rect.y
 
     def _mover_rodeando_obstaculos(self, velocidad_x, velocidad_y):
         """Prueba movimientos alternativos si hay colisión (método legacy)"""
@@ -199,24 +189,33 @@ class Computadora(Personaje):
         movimientos_alternativos = [
             (velocidad_x, 0),  # Solo horizontal
             (0, velocidad_y),  # Solo vertical
-            (velocidad_x * 0.7, velocidad_y * 0.7),  # Diagonal principal
-            (velocidad_x * 0.7, -velocidad_y * 0.7),  # Diagonal inversa
-            (-velocidad_x * 0.7, velocidad_y * 0.7),  # Diagonal inversa 2
+            (
+                velocidad_x * ConfigJuego.FACTOR_DIAGONAL,
+                velocidad_y * ConfigJuego.FACTOR_DIAGONAL,
+            ),  # Diagonal principal
+            (
+                velocidad_x * ConfigJuego.FACTOR_DIAGONAL,
+                -velocidad_y * ConfigJuego.FACTOR_DIAGONAL,
+            ),  # Diagonal inversa
+            (
+                -velocidad_x * ConfigJuego.FACTOR_DIAGONAL,
+                velocidad_y * ConfigJuego.FACTOR_DIAGONAL,
+            ),  # Diagonal inversa 2
             (-velocidad_y, velocidad_x),  # Perpendicular 1
             (velocidad_y, -velocidad_x),  # Perpendicular 2
         ]
 
         # Probar cada movimiento alternativo
         for vel_x, vel_y in movimientos_alternativos:
-            nueva_x = self.computadora_principal.x + vel_x
-            nueva_y = self.computadora_principal.y + vel_y
+            nueva_x = self._rect.x + vel_x
+            nueva_y = self._rect.y + vel_y
 
             # Crear rect temporal para verificar colisión
             temp_rect = pygame.Rect(
                 int(nueva_x),
                 int(nueva_y),
-                self.computadora_principal.width,
-                self.computadora_principal.height,
+                self._rect.width,
+                self._rect.height,
             )
 
             # Verificar colisión con muros
@@ -284,14 +283,14 @@ class Computadora(Personaje):
 
         # Aplicar movimiento según dirección
         if direccion == "arriba":
-            self.computadora_principal.y -= paso
+            self._rect.y -= paso
         elif direccion == "abajo":
-            self.computadora_principal.y += paso
+            self._rect.y += paso
         elif direccion == "izquierda":
-            self.computadora_principal.x -= paso
+            self._rect.x -= paso
         elif direccion == "derecha":
-            self.computadora_principal.x += paso
+            self._rect.x += paso
 
         # Sincronizar coordenadas
-        self.x = self.computadora_principal.x
-        self.y = self.computadora_principal.y
+        self.x = self._rect.x
+        self.y = self._rect.y

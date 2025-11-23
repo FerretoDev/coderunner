@@ -28,8 +28,8 @@ class ConfigLaberinto:
                     config = json.load(f)
                     ruta = config.get("laberinto_activo")
                     # Verificar que el archivo todavía existe
-                    if ruta and os.path.exists(ruta):
-                        return ruta
+                    if ruta and isinstance(ruta, str) and os.path.exists(ruta):
+                        return str(ruta)
             return None
         except Exception as e:
             print(f"Error al leer configuración de laberinto: {e}")

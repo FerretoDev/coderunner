@@ -1,5 +1,7 @@
 import pygame
 
+from game.config import ConfigJuego
+
 from .personaje import Personaje
 
 
@@ -37,10 +39,15 @@ class Jugador(Personaje):
         self.imagen = pygame.transform.scale(self.imagen, (64, 64))
 
         # Rect de colisión más ajustado al círculo visual
-        # Usamos radio*1.8 en vez de radio*2 para mejor precisión
-        size = int(radio * 1.8)
+        # Usamos FACTOR_RECT_COLISION para mejor precisión
+        size = int(radio * ConfigJuego.FACTOR_RECT_COLISION)
         offset = (radio * 2 - size) // 2
-        self.jugador_principal = pygame.Rect(x + offset, y + offset, size, size)
+        self._rect = pygame.Rect(x + offset, y + offset, size, size)
+
+    @property
+    def jugador_principal(self) -> pygame.Rect:
+        """Rect de colisión del jugador (propiedad de solo lectura)."""
+        return self._rect
 
     def mover(self, teclas) -> None:
         # ya no se usa, se una en pantalla_juego.py
@@ -54,13 +61,13 @@ class Jugador(Personaje):
             Flecha abajo: mueve hacia abajo
         """
         if teclas[pygame.K_LEFT]:
-            self.jugador_principal.x -= self.velocidad
+            self._rect.x -= int(self.velocidad)
         if teclas[pygame.K_RIGHT]:
-            self.jugador_principal.x += self.velocidad
+            self._rect.x += int(self.velocidad)
         if teclas[pygame.K_UP]:
-            self.jugador_principal.y -= self.velocidad
+            self._rect.y -= int(self.velocidad)
         if teclas[pygame.K_DOWN]:
-            self.jugador_principal.y += self.velocidad
+            self._rect.y += int(self.velocidad)
 
     # === PROPERTIES PARA ENCAPSULACIÓN ===
 
@@ -125,11 +132,9 @@ class Jugador(Personaje):
         """
         try:
             # Obtener la posición donde se dibujará (centrando la imagen)
-            centro = self.jugador_principal.center
+            centro = self._rect.center
             rect_imagen = self.imagen.get_rect(center=centro)
             pantalla.blit(self.imagen, rect_imagen)
         except AttributeError:
             # En caso de error o si no hay imagen, dibujar círculo
-            pygame.draw.circle(
-                pantalla, self.color, self.jugador_principal.center, self.radio
-            )
+            pygame.draw.circle(pantalla, (255, 0, 0), self._rect.center, self.radio)

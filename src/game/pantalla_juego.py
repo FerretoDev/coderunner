@@ -9,6 +9,10 @@ from models.laberinto import Laberinto
 from models.sistema_sonido import SistemaSonido
 
 from .config import Colores, ConfigJuego
+from .coordenadas import ConversorCoordenadas
+from .gestor_dificultad import GestorDificultad
+from .gestor_movimiento import GestorMovimiento
+from .gestor_obsequios import GestorObsequios
 
 
 class PantallaJuego:
@@ -131,8 +135,28 @@ class PantallaJuego:
         self.pos_anterior_x = self.jugador.jugador_principal.x
         self.pos_anterior_y = self.jugador.jugador_principal.y
 
-        # Timers iniciales de obsequios activos
-        self._inicializar_timers_obsequios()
+        # Gestor de movimiento (maneja input, colisiones y movimiento del jugador)
+        self.gestor_movimiento = GestorMovimiento(
+            self.jugador,
+            self.muros,
+            self.tam_celda,
+            self.offset_x,
+            self.offset_y,
+            self.mapa,
+            self.frames_por_movimiento,
+            self.movimiento_por_celdas,
+        )
+
+        # Gestor de obsequios (maneja timers, recoleccion y creación)
+        self.gestor_obsequios = GestorObsequios(
+            self.laberinto, self.tiempo_vida_obsequio
+        )
+
+        # Gestor de dificultad progresiva
+        self.gestor_dificultad = GestorDificultad(
+            intervalo_frames=self.tiempo_incremento_velocidad,
+            incremento=self.incremento_velocidad,
+        )
 
         # Sistema de sonido (singleton) y reproducir música de fondo
         self.sistema_sonido = SistemaSonido()
@@ -162,100 +186,6 @@ class PantallaJuego:
         return muros
 
         # return self.laberinto.obtener_rectangulos()
-
-    def _guardar_posicion_anterior(self):
-        """Recuerda la posición actual del jugador para poder deshacer."""
-        self.pos_anterior_x = self.jugador.jugador_principal.x
-        self.pos_anterior_y = self.jugador.jugador_principal.y
-
-    def _revertir_posicion(self):
-        """Devuelve al jugador a la posición previa después de chocar."""
-        self.jugador.jugador_principal.x = self.pos_anterior_x
-        self.jugador.jugador_principal.y = self.pos_anterior_y
-
-    def _detectar_colisiones(self):
-        """Devuelve False si el jugador está chocando con algún muro."""
-        for muro in self.muros:
-            if self.jugador.jugador_principal.colliderect(muro):
-                return False
-        return True
-
-    def _mover_jugador_por_celdas(self, direccion):
-        """Desplaza al jugador exactamente una celda si no hay muro ni sale del área."""
-        if direccion == "up":
-            nueva_y = self.jugador.jugador_principal.y - self.tam_celda
-            if nueva_y >= self.offset_y:  # Límite superior
-                temp_rect = pygame.Rect(
-                    self.jugador.jugador_principal.x,
-                    nueva_y,
-                    self.jugador.jugador_principal.width,
-                    self.jugador.jugador_principal.height,
-                )
-                if not any(temp_rect.colliderect(m) for m in self.muros):
-                    self.jugador.jugador_principal.y = nueva_y
-
-        elif direccion == "down":
-            nueva_y = self.jugador.jugador_principal.y + self.tam_celda
-            limite_y_max = self.offset_y + (len(self.mapa) * self.tam_celda)
-            if nueva_y + self.jugador.jugador_principal.height <= limite_y_max:
-                temp_rect = pygame.Rect(
-                    self.jugador.jugador_principal.x,
-                    nueva_y,
-                    self.jugador.jugador_principal.width,
-                    self.jugador.jugador_principal.height,
-                )
-                if not any(temp_rect.colliderect(m) for m in self.muros):
-                    self.jugador.jugador_principal.y = nueva_y
-
-        elif direccion == "left":
-            nueva_x = self.jugador.jugador_principal.x - self.tam_celda
-            if nueva_x >= self.offset_x:  # Límite izquierdo
-                temp_rect = pygame.Rect(
-                    nueva_x,
-                    self.jugador.jugador_principal.y,
-                    self.jugador.jugador_principal.width,
-                    self.jugador.jugador_principal.height,
-                )
-                if not any(temp_rect.colliderect(m) for m in self.muros):
-                    self.jugador.jugador_principal.x = nueva_x
-
-        elif direccion == "right":
-            nueva_x = self.jugador.jugador_principal.x + self.tam_celda
-            limite_x_max = self.offset_x + (len(self.mapa[0]) * self.tam_celda)
-            if nueva_x + self.jugador.jugador_principal.width <= limite_x_max:
-                temp_rect = pygame.Rect(
-                    nueva_x,
-                    self.jugador.jugador_principal.y,
-                    self.jugador.jugador_principal.width,
-                    self.jugador.jugador_principal.height,
-                )
-                if not any(temp_rect.colliderect(m) for m in self.muros):
-                    self.jugador.jugador_principal.x = nueva_x
-
-    def _procesar_eventos_teclado(self):
-        """Manejo de movimiento por celdas con cooldown para no avanzar varias de golpe."""
-        if self.cooldown_movimiento > 0:  # Aún en espera
-            self.cooldown_movimiento -= 1
-            return
-
-        keys = pygame.key.get_pressed()  # Estado de flechas y WASD
-
-        tecla_actual = None
-        # Flechas
-        if keys[pygame.K_UP] or keys[pygame.K_w]:
-            tecla_actual = "up"
-        elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            tecla_actual = "down"
-        elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            tecla_actual = "left"
-        elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            tecla_actual = "right"
-
-        if tecla_actual:  # Mueve una celda y activa cooldown
-            self._mover_jugador_por_celdas(tecla_actual)
-            self.cooldown_movimiento = self.frames_por_movimiento
-
-        self.ultima_tecla_presionada = tecla_actual  # Útil para depurar
 
     def _verificar_captura(self):
         """Si la computadora alcanza al jugador, resta vida y hace respawn; si sin vidas, game over."""
@@ -310,44 +240,7 @@ class PantallaJuego:
         self.frame_count += 1  # Avanza contador de frames
 
         # Movimiento del jugador
-        if self.movimiento_por_celdas:
-            self._procesar_eventos_teclado()
-        else:
-            # Modo "legacy": movimiento suave pixel a pixel con límites y colisión
-            self._guardar_posicion_anterior()
-            teclas = pygame.key.get_pressed()
-            if teclas[pygame.K_LEFT] or teclas[pygame.K_a]:
-                self.jugador.jugador_principal.x -= self.jugador.velocidad
-            if teclas[pygame.K_RIGHT] or teclas[pygame.K_d]:
-                self.jugador.jugador_principal.x += self.jugador.velocidad
-            if teclas[pygame.K_UP] or teclas[pygame.K_w]:
-                self.jugador.jugador_principal.y -= self.jugador.velocidad
-            if teclas[pygame.K_DOWN] or teclas[pygame.K_s]:
-                self.jugador.jugador_principal.y += self.jugador.velocidad
-
-            # Aplica límites según el área del laberinto (considera offset y tamaño del rect)
-            limite_x_min = self.offset_x
-            limite_x_max = (
-                self.offset_x
-                + (len(self.mapa[0]) * self.tam_celda)
-                - self.jugador.jugador_principal.width
-            )
-            limite_y_min = self.offset_y
-            limite_y_max = (
-                self.offset_y
-                + (len(self.mapa) * self.tam_celda)
-                - self.jugador.jugador_principal.height
-            )
-            self.jugador.jugador_principal.x = max(
-                limite_x_min, min(self.jugador.jugador_principal.x, limite_x_max)
-            )
-            self.jugador.jugador_principal.y = max(
-                limite_y_min, min(self.jugador.jugador_principal.y, limite_y_max)
-            )
-
-            # Si chocó, deshacer al punto anterior
-            if not self._detectar_colisiones():
-                self._revertir_posicion()
+        self.gestor_movimiento.procesar_entrada_teclado()
 
         # Enemigo persigue con BFS sobre la grilla del laberinto
         self.computadora.perseguir_bfs(
@@ -355,7 +248,7 @@ class PantallaJuego:
         )
 
         # Timers de obsequios y su reposición al vencer
-        self._actualizar_timers_obsequios()
+        self.gestor_obsequios.actualizar()
 
         # Recolección de obsequios por celda
         self._verificar_recoleccion_obsequios()
@@ -364,7 +257,9 @@ class PantallaJuego:
         self._verificar_captura()
 
         # Escala de dificultad con el tiempo
-        self._aumentar_dificultad()
+        self.gestor_dificultad.actualizar_velocidad(
+            self.computadora, self.tiempo_transcurrido, self.velocidad_inicial_enemigo
+        )
 
         # Tiempo total transcurrido (en frames)
         self.tiempo_transcurrido += 1
@@ -373,72 +268,18 @@ class PantallaJuego:
         """Si el jugador pisa una celda con obsequio, suma puntos y reposiciona otro."""
         # Centro actual del jugador en píxeles
         jug_cx, jug_cy = self.jugador.jugador_principal.center
-        # Coordenadas relativas al laberinto (quitando offsets)
-        x_rel = jug_cx - self.offset_x
-        y_rel = jug_cy - self.offset_y
         # Celda donde está parado
-        celda_x = x_rel // self.tam_celda
-        celda_y = y_rel // self.tam_celda
-        posicion_celda = (celda_x, celda_y)
+        fila, col = ConversorCoordenadas.pixel_a_celda(
+            jug_cx, jug_cy, self.tam_celda, self.offset_x, self.offset_y
+        )
+        posicion_celda = (col, fila)
 
-        # Si hay obsequio en esta celda, súmalo y renueva el objeto
-        puntos = self.laberinto.recolectar_obsequio(posicion_celda)
+        # Verificar y recolectar obsequio usando el gestor
+        puntos = self.gestor_obsequios.verificar_recoleccion(posicion_celda)
         if puntos > 0:
             # Reproducir sonido de recolección
             self.sistema_sonido.reproducir_obsequio()
-
             self.jugador.sumar_puntos(puntos)
-            if posicion_celda in self.obsequios_timers:
-                del self.obsequios_timers[posicion_celda]
-            self._crear_nuevo_obsequio()  # Reponer en otra celda vacía
-
-    def _actualizar_timers_obsequios(self):
-        """Resta 1 frame a cada timer; si expira, quita el obsequio y crea otro."""
-        obsequios_expirados = []
-        for posicion, tiempo_restante in self.obsequios_timers.items():
-            self.obsequios_timers[posicion] = tiempo_restante - 1
-            if self.obsequios_timers[posicion] <= 0:
-                obsequios_expirados.append(posicion)
-
-        for posicion in obsequios_expirados:
-            if posicion in self.laberinto._obsequios:
-                valor = self.laberinto._obsequios[
-                    posicion
-                ].valor  # Mantén el mismo valor
-                del self.laberinto._obsequios[posicion]
-                del self.obsequios_timers[posicion]
-                self._crear_nuevo_obsequio(valor)  # Reponer con ese valor
-
-    def _crear_nuevo_obsequio(self, valor=10):
-        """Coloca un obsequio en una celda libre aleatoria que no sea spawn ni muro."""
-        import random
-
-        from models.obsequio import Obsequio
-
-        posiciones_validas = []
-        for fila in range(len(self.mapa)):
-            for col in range(len(self.mapa[0])):
-                posicion = (col, fila)
-                if (
-                    self.mapa[fila][col] == 0
-                    and posicion not in self.laberinto._obsequios
-                    and posicion != tuple(self.laberinto.jugador_inicio)
-                    and posicion != tuple(self.laberinto.computadora_inicio)
-                ):
-                    posiciones_validas.append(posicion)
-
-        if posiciones_validas:
-            nueva_posicion = random.choice(posiciones_validas)
-            self.laberinto._obsequios[nueva_posicion] = Obsequio(nueva_posicion, valor)
-            self.obsequios_timers[nueva_posicion] = self.tiempo_vida_obsequio
-
-    def _aumentar_dificultad(self):
-        """Cada cierto tiempo incrementa la velocidad del enemigo."""
-        if (
-            self.tiempo_transcurrido % self.tiempo_incremento_velocidad == 0
-            and self.tiempo_transcurrido > 0
-        ):
-            self.computadora.velocidad += self.incremento_velocidad
 
     def _renderizar(self):
         """Dibuja laberinto, obsequios, actores, overlays y HUD; luego actualiza pantalla."""

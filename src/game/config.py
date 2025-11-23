@@ -41,6 +41,14 @@ class ConfigJuego:
     VALOR_OBSEQUIO_DEFAULT = 10
     RADIO_OBSEQUIO_BASE = 8
 
+    # === FÍSICA Y COLISIONES ===
+    # Factor de ajuste del rect de colisión respecto al radio visual
+    # Un valor de 1.8 hace que el rect sea 90% del diámetro visual (más preciso)
+    FACTOR_RECT_COLISION = 1.8
+
+    # Factores para movimientos alternativos en pathfinding legacy
+    FACTOR_DIAGONAL = 0.7  # Para movimientos diagonales (sqrt(2)/2 ≈ 0.707)
+
     # === CONVERSIÓN TIEMPO ===
     @staticmethod
     def segundos_a_frames(segundos: int) -> int:

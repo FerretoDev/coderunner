@@ -58,37 +58,31 @@ class Juego:
 
     def __init__(self):
         # Estado general y servicios del juego
-        self._jugador = None  # Datos del jugador activo (nombre, puntaje, vidas), si aplica [web:21]
-        self._computadora = (
-            None  # Placeholder para IA/enemigos si se necesita a futuro [web:21]
-        )
-        self._laberinto = None  # Placeholder para el mapa/escenario [web:21]
-        self.sonido = (
-            SistemaSonido()
-        )  # Gestor de sonidos (cargar/reproducir efectos) [web:47]
-        self.salon_fama = (
-            SalonFama()
-        )  # Gestor de puntajes para mostrar/guardar récords [web:21]
-        self._estado = "en curso"  # Bandera simple del estado del juego [web:21]
+        self._jugador = None  # Datos del jugador activo (nombre, puntaje, vidas)
+        self._computadora = None  # Placeholder para IA/enemigos si se necesita a futuro
+        self._laberinto = None  # Placeholder para el mapa/escenario
+        self.sonido = SistemaSonido()  # Gestor de sonidos (cargar/reproducir efectos)
+        self.salon_fama = SalonFama()  # Gestor de puntajes para mostrar/guardar récords
+        self._estado = "en curso"  # Bandera simple del estado del juego
 
         # Objetos de Pygame que se inicializan en iniciar()
-        self.screen = None  # Se crea la Surface de la ventana al iniciar [web:47]
+        self.screen = None  # Se crea la Surface de la ventana al iniciar
         self.clock = (
             pygame.time.Clock()
-        )  # Reloj para controlar FPS si se usa un loop aquí [web:47]
+        )  # Reloj para controlar FPS si se usa un loop aquí
 
     def iniciar(self):
         """Inicializa Pygame, muestra el menú principal y navega hasta salir."""
         # Inicializar Pygame una sola vez antes de usar display, eventos o fuentes
-        pygame.init()  # Prepara módulos internos de Pygame para su uso correcto [web:47]
+        pygame.init()  # Prepara módulos internos de Pygame para su uso correcto
 
         # Crear ventana principal con tamaño fijo de 800x600 y título
         screen = pygame.display.set_mode(
             (800, 600)
-        )  # Crea la Surface principal donde se dibuja [web:47]
+        )  # Crea la Surface principal donde se dibuja
         pygame.display.set_caption(
             "CodeRunner"
-        )  # Título visible en la barra de la ventana [web:47]
+        )  # Título visible en la barra de la ventana
 
         # Instancias de servicios que se comparten entre pantallas
         salon_fama = (
@@ -105,9 +99,9 @@ class Juego:
             # Asegura las dimensiones y el título del menú cada vez
             screen = pygame.display.set_mode(
                 (800, 600)
-            )  # Útil si otras pantallas modifican la ventana [web:47]
+            )  # Útil si otras pantallas modifican la ventana
             pygame.display.set_caption(
-                "CodeRunner"
+                "Theseus Runner"
             )  # Restituye el título principal si cambió [web:47]
 
             # Mostrar menú principal y esperar a que el usuario elija
