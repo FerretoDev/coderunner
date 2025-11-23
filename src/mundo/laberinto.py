@@ -70,7 +70,7 @@ class Laberinto:
                 self.imagen_pasillo, (self.TAM_CELDA, self.TAM_CELDA)
             )
         except (pygame.error, FileNotFoundError) as e:
-            print(f"⚠️  Advertencia: No se pudo cargar la imagen del pasillo: {e}")
+            print(f"Advertencia: No se pudo cargar la imagen del pasillo: {e}")
             # Crear una superficie de color predeterminado como fallback
             self.imagen_pasillo = pygame.Surface((self.TAM_CELDA, self.TAM_CELDA))
             self.imagen_pasillo.fill((50, 50, 50))

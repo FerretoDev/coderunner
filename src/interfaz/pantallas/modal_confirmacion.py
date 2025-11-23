@@ -42,8 +42,8 @@ class ModalConfirmacion:
         )
 
         # Botones
-        self.btn_si = Boton(self.ancho // 2 - 160, self.alto // 2 + 50, 140, 50, "✓ Sí")
-        self.btn_no = Boton(self.ancho // 2 + 20, self.alto // 2 + 50, 140, 50, "✗ No")
+        self.btn_si = Boton(self.ancho // 2 - 160, self.alto // 2 + 50, 140, 50, "Sí")
+        self.btn_no = Boton(self.ancho // 2 + 20, self.alto // 2 + 50, 140, 50, "No")
 
     def dibujar(self):
         """Dibuja el modal de confirmación."""

@@ -40,9 +40,9 @@ class PantallaMenuAdministrador:
 
         self.botones = []
         textos_acciones = [
-            ("📁 Cargar Laberinto", 1),
-            ("🗑️ Reiniciar Salón de Fama", 2),
-            ("⬅️ Volver al Menú", 3),
+            ("Cargar Laberinto", 1),
+            ("Reiniciar Salón de Fama", 2),
+            ("Volver al Menú", 3),
         ]
 
         for i, (texto, accion) in enumerate(textos_acciones):
@@ -57,7 +57,7 @@ class PantallaMenuAdministrador:
 
         # Título
         titulo = self.font_titulo.render(
-            "⚙️ Panel de Administración", True, self.COLORES["acento"]
+            "Panel de Administración", True, self.COLORES["acento"]
         )
         titulo_rect = titulo.get_rect(center=(self.ancho // 2, 120))
         self.screen.blit(titulo, titulo_rect)

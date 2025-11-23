@@ -33,7 +33,7 @@ class PantallaAdministracion:
         self.screen.fill((20, 20, 30))
 
         # Título
-        titulo = self.font_titulo.render("🔐 Administración", True, (255, 255, 255))
+        titulo = self.font_titulo.render("Administración", True, (255, 255, 255))
         titulo_rect = titulo.get_rect(center=(self.ancho // 2, 100))
         self.screen.blit(titulo, titulo_rect)
 

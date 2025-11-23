@@ -487,7 +487,7 @@ class PantallaJuego:
 
         # Título del ranking
         ranking_titulo = self.fuente_hud.render(
-            "🏆 Top 5 Mejores Puntajes", True, (255, 215, 0)
+            "Top 5 Mejores Puntajes", True, (255, 215, 0)
         )
         ranking_titulo_rect = ranking_titulo.get_rect(
             center=(self.ANCHO // 2, y_info + 100)
@@ -514,16 +514,16 @@ class PantallaJuego:
                 # Color especial para el top 3
                 if i == 1:
                     color = (255, 215, 0)  # Oro
-                    emoji = "🥇"
+                    emoji = "1."
                 elif i == 2:
                     color = (192, 192, 192)  # Plata
-                    emoji = "🥈"
+                    emoji = "2."
                 elif i == 3:
                     color = (205, 127, 50)  # Bronce
-                    emoji = "🥉"
+                    emoji = "3."
                 else:
                     color = (200, 200, 220)
-                    emoji = "  "
+                    emoji = f"{i}."
 
                 # Destacar el puntaje actual del jugador
                 nombre_completo = reg["nombre_jugador"]

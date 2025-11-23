@@ -100,16 +100,16 @@ class PantallaSalonFama:
                 # Color especial para el podio (top 3)
                 if i == 0:
                     color = (255, 215, 0)  # Oro
-                    emoji = "🥇"
+                    emoji = "1."
                 elif i == 1:
                     color = (192, 192, 192)  # Plata
-                    emoji = "🥈"
+                    emoji = "2."
                 elif i == 2:
                     color = (205, 127, 50)  # Bronce
-                    emoji = "🥉"
+                    emoji = "3."
                 else:
                     color = (200, 200, 200)
-                    emoji = f"{i + 1}"
+                    emoji = f"{i + 1}."
 
                 # Formatear fecha (solo mostrar fecha, no hora completa)
                 fecha_str = reg.get("fecha", "N/A")

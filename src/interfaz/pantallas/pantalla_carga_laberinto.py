@@ -41,22 +41,22 @@ class PantallaCargaLaberinto:
         )
 
         # Botones
-        self.btn_cargar = Boton(self.ancho // 2 - 200, 320, 190, 50, "✓ Cargar")
-        self.btn_volver = Boton(self.ancho // 2 + 10, 320, 190, 50, "✗ Cancelar")
+        self.btn_cargar = Boton(self.ancho // 2 - 200, 320, 190, 50, "Cargar")
+        self.btn_volver = Boton(self.ancho // 2 + 10, 320, 190, 50, "Cancelar")
 
         # Botones de acceso rápido a archivos comunes (fila 1)
         self.btn_lab1 = Boton(
-            self.ancho // 2 - 310, 410, 200, 40, "📁 Laberinto 1 (Fácil)", accion="lab1"
+            self.ancho // 2 - 310, 410, 200, 40, "Laberinto 1 (Fácil)", accion="lab1"
         )
         self.btn_lab2 = Boton(
-            self.ancho // 2 - 100, 410, 200, 40, "📁 Laberinto 2 (Medio)", accion="lab2"
+            self.ancho // 2 - 100, 410, 200, 40, "Laberinto 2 (Medio)", accion="lab2"
         )
         self.btn_lab3 = Boton(
             self.ancho // 2 + 110,
             410,
             200,
             40,
-            "📁 Laberinto 3 (Difícil)",
+            "Laberinto 3 (Difícil)",
             accion="lab3",
         )
 
@@ -66,7 +66,7 @@ class PantallaCargaLaberinto:
             460,
             200,
             40,
-            "📁 Laberinto Ejemplo",
+            "Laberinto Ejemplo",
             accion="ejemplo",
         )
 
