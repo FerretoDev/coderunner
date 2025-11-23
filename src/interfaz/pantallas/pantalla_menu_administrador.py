@@ -10,7 +10,6 @@ from interfaz.componentes.titulo_arcade import (
     SubtituloArcade,
     TituloArcade,
 )
-from interfaz.gestor_fuentes import GestorFuentes
 
 
 class PantallaMenuAdministrador:
@@ -23,16 +22,6 @@ class PantallaMenuAdministrador:
         self.screen = screen
         self.ancho = screen.get_width()
         self.alto = screen.get_height()
-
-        self.COLORES = {
-            "fondo": (20, 20, 30),
-            "texto": (255, 255, 255),
-            "acento": (0, 200, 100),
-        }
-
-        fuentes = GestorFuentes()
-        self.font_titulo = fuentes.titulo_grande
-        self.font_subtitulo = fuentes.texto_grande
 
         # Componentes arcade
         self.titulo = TituloArcade("PANEL DE ADMINISTRACION", y=60, estilo="grande")
@@ -62,7 +51,7 @@ class PantallaMenuAdministrador:
 
     def dibujar(self):
         """Dibuja la pantalla del menú administrativo."""
-        self.screen.fill(self.COLORES["fondo"])
+        self.screen.fill((20, 20, 30))
 
         # Componentes arcade
         self.titulo.dibujar(self.screen)

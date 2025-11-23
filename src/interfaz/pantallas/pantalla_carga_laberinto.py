@@ -27,15 +27,7 @@ class PantallaCargaLaberinto:
         self.alto = screen.get_height()
         self.admin = admin
 
-        self.COLORES = {
-            "fondo": (20, 20, 30),
-            "texto": (255, 255, 255),
-            "acento": (0, 150, 255),
-        }
-
         fuentes = GestorFuentes()
-        self.font_titulo = fuentes.titulo_mediano
-        self.font_texto = fuentes.texto_grande
         self.font_info = fuentes.texto_normal
 
         # Componentes arcade
@@ -78,7 +70,7 @@ class PantallaCargaLaberinto:
 
     def dibujar(self):
         """Dibuja la pantalla de carga de laberinto."""
-        self.screen.fill(self.COLORES["fondo"])
+        self.screen.fill((20, 20, 30))
 
         # Componentes arcade
         self.titulo.dibujar(self.screen)

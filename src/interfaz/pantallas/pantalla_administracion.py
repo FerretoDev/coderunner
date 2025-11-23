@@ -24,8 +24,6 @@ class PantallaAdministracion:
         self.autenticado = False
 
         fuentes = GestorFuentes()
-        self.font_titulo = fuentes.titulo_normal
-        self.font_texto = fuentes.titulo_pequeño
         self.font_hint = fuentes.texto_info
 
         # Componentes arcade

@@ -11,7 +11,6 @@ from interfaz.componentes.titulo_arcade import (
     SubtituloArcade,
     TituloArcade,
 )
-from interfaz.gestor_fuentes import GestorFuentes
 
 
 class PantallaIniciarJuego:
@@ -21,10 +20,6 @@ class PantallaIniciarJuego:
         self.screen = screen
         self.ancho = screen.get_width()
         self.alto = screen.get_height()
-
-        fuentes = GestorFuentes()
-        self.font_titulo = fuentes.titulo_normal
-        self.font_texto = fuentes.titulo_pequeño
 
         # Componentes arcade
         self.titulo = TituloArcade("NUEVO JUEGO", y=60, estilo="grande")
