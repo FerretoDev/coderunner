@@ -286,14 +286,18 @@ class PantallaSalonFama:
 
         # Fuentes
         self.font_titulo = pygame.font.Font(None, 56)  # Título [web:47]
-        self.font_header = pygame.font.Font(None, 32)  # Encabezados de tabla [web:47]
-        self.font_data = pygame.font.Font(None, 28)  # Filas de datos [web:47]
-        self.font_info = pygame.font.Font(None, 24)  # Mensajes informativos [web:47]
+        self.font_header = pygame.font.Font(None, 28)  # Encabezados de tabla [web:47]
+        self.font_data = pygame.font.Font(None, 24)  # Filas de datos [web:47]
+        self.font_info = pygame.font.Font(None, 20)  # Mensajes informativos [web:47]
+        self.font_stats = pygame.font.Font(None, 22)  # Estadísticas [web:47]
 
-        # Botón volver centrado al fondo
+        # Botones
         self.btn_volver = Boton(
-            self.ancho // 2 - 100, self.alto - 80, 200, 50, "Volver"
+            self.ancho // 2 - 220, self.alto - 80, 200, 50, "Volver"
         )  # Permite regresar al menú principal [web:21]
+        self.btn_reiniciar = Boton(
+            self.ancho // 2 + 20, self.alto - 80, 200, 50, "Reiniciar"
+        )  # Reinicia el salón de la fama [web:21]
 
     def dibujar(self):
         """Dibuja título, encabezados, registros si hay, y el botón volver."""
@@ -304,72 +308,135 @@ class PantallaSalonFama:
             "🏆 Salón de la Fama", True, (255, 215, 0)
         )  # Color dorado [web:21]
         titulo_rect = titulo.get_rect(
-            center=(self.ancho // 2, 60)
+            center=(self.ancho // 2, 40)
         )  # Centrado arriba [web:47]
         self.screen.blit(titulo, titulo_rect)  # Dibuja [web:47]
 
-        # Pide registros al modelo del salón de la fama
-        registros = (
-            self.salon_fama.mostrar_mejores()
-        )  # Lista de dict con nombre, puntaje y laberinto [web:21]
+        # Obtener registros y estadísticas
+        registros = self.salon_fama.mostrar_mejores()  # Lista de registros [web:21]
+        stats = (
+            self.salon_fama.obtener_estadisticas()
+        )  # Estadísticas generales [web:21]
 
-        if not registros:  # Si no hay datos aún [web:21]
+        # Mostrar estadísticas generales
+        y_stats = 90
+        if registros:
+            stats_texto = [
+                f"Total de partidas: {stats['total_partidas']}",
+                f"Mejor puntaje: {stats['mejor_puntaje']} pts",
+                f"Promedio: {stats['promedio']:.1f} pts",
+                f"Jugador destacado: {stats['jugador_top']}",
+            ]
+            for i, texto in enumerate(stats_texto):
+                stat_surface = self.font_stats.render(
+                    texto, True, (180, 180, 200)
+                )  # Color gris claro [web:21]
+                stat_rect = stat_surface.get_rect(
+                    center=(self.ancho // 2, y_stats + i * 22)
+                )
+                self.screen.blit(stat_surface, stat_rect)
+
+        # Línea decorativa
+        pygame.draw.line(
+            self.screen,
+            (0, 150, 255),
+            (self.ancho // 2 - 300, 185),
+            (self.ancho // 2 + 300, 185),
+            2,
+        )  # Línea azul [web:47]
+
+        if not registros:  # Si no hay datos [web:21]
             texto = self.font_header.render(
                 "No hay registros todavía", True, (150, 150, 150)
-            )  # Mensaje gris suave [web:21]
+            )  # Mensaje gris [web:21]
             texto_rect = texto.get_rect(
                 center=(self.ancho // 2, 300)
             )  # Centrado [web:47]
             self.screen.blit(texto, texto_rect)  # Dibuja [web:47]
+
+            # Mensaje de ayuda
+            ayuda = self.font_info.render(
+                "¡Juega una partida para empezar a competir!", True, (120, 120, 140)
+            )
+            ayuda_rect = ayuda.get_rect(center=(self.ancho // 2, 340))
+            self.screen.blit(ayuda, ayuda_rect)
         else:
-            # Encabezados de la “tabla” y sus posiciones x
-            headers = ["#", "Jugador", "Puntaje", "Laberinto"]  # Columnas [web:21]
+            # Encabezados de la tabla
+            headers = [
+                "#",
+                "Jugador",
+                "Puntaje",
+                "Laberinto",
+                "Fecha",
+            ]  # Columnas con fecha
             x_positions = [
-                100,
-                200,
-                450,
+                80,
+                140,
+                320,
+                430,
                 600,
-            ]  # Posiciones x para alinear columnas [web:47]
+            ]  # Posiciones ajustadas para 5 columnas
 
             for header, x in zip(
-                headers, x_positions
-            ):  # Dibuja cada título de columna [web:21]
+                headers, x_positions, strict=True
+            ):  # Dibuja cada título de columna
                 texto = self.font_header.render(
                     header, True, (150, 150, 150)
                 )  # Gris [web:21]
-                self.screen.blit(texto, (x, 130))  # Posición de encabezados [web:47]
+                self.screen.blit(texto, (x, 200))  # Posición de encabezados ajustada
 
-            # Línea separadora entre encabezados y datos
+            # Línea separadora
             pygame.draw.line(
-                self.screen, (100, 100, 120), (80, 160), (720, 160), 2
-            )  # Separador [web:47]
+                self.screen, (100, 100, 120), (60, 225), (740, 225), 2
+            )  # Separador ajustado
 
-            # Muestra hasta 10 registros con color dorado para los 3 primeros
+            # Mostrar hasta 10 registros
             for i, reg in enumerate(registros[:10]):  # Top 10 [web:21]
-                y_pos = 180 + i * 35  # Cada fila separada 35 px [web:47]
-                color = (
-                    (255, 215, 0) if i < 3 else (200, 200, 200)
-                )  # Destaca podio [web:21]
+                y_pos = 240 + i * 30  # Espaciado entre filas
+
+                # Color especial para el podio (top 3)
+                if i == 0:
+                    color = (255, 215, 0)  # Oro
+                    emoji = "🥇"
+                elif i == 1:
+                    color = (192, 192, 192)  # Plata
+                    emoji = "🥈"
+                elif i == 2:
+                    color = (205, 127, 50)  # Bronce
+                    emoji = "🥉"
+                else:
+                    color = (200, 200, 200)  # Blanco grisáceo
+                    emoji = f"{i + 1}"
+
+                # Formatear fecha (solo mostrar fecha, no hora completa)
+                fecha_str = reg.get("fecha", "N/A")
+                if fecha_str != "N/A" and len(fecha_str) > 10:
+                    fecha_str = fecha_str[:10]  # Solo YYYY-MM-DD
 
                 datos = [
-                    f"{i + 1}",  # Posición [web:21]
-                    reg["nombre_jugador"][
-                        :15
-                    ],  # Nombre acotado a 15 caracteres [web:21]
-                    str(reg["puntaje"]),  # Puntaje en texto [web:21]
-                    reg["laberinto"][:12],  # Laberinto acotado [web:21]
-                ]  # Prepara la fila visible [web:21]
+                    emoji,  # Posición con emoji para top 3
+                    reg["nombre_jugador"][:12],  # Nombre truncado
+                    str(reg["puntaje"]),  # Puntaje
+                    reg["laberinto"][:15],  # Laberinto truncado
+                    fecha_str,  # Fecha
+                ]
 
-                for dato, x in zip(
-                    datos, x_positions
-                ):  # Dibuja cada celda en su columna [web:21]
-                    texto = self.font_data.render(
-                        dato, True, color
-                    )  # Usa color según podio/otros [web:21]
-                    self.screen.blit(texto, (x, y_pos))  # Dibuja dato [web:47]
+                for dato, x in zip(datos, x_positions, strict=True):
+                    texto = self.font_data.render(dato, True, color)
+                    self.screen.blit(texto, (x, y_pos))
 
-        # Botón volver
-        self.btn_volver.dibujar(self.screen)  # Botón visible al final [web:47]
+            # Footer con información adicional
+            footer = self.font_info.render(
+                f"Mostrando {min(len(registros), 10)} de {len(registros)} registros",
+                True,
+                (100, 100, 120),
+            )
+            footer_rect = footer.get_rect(center=(self.ancho // 2, 535))
+            self.screen.blit(footer, footer_rect)
+
+        # Botones
+        self.btn_volver.dibujar(self.screen)
+        self.btn_reiniciar.dibujar(self.screen)
 
         pygame.display.flip()  # Actualiza pantalla [web:47]
 
@@ -393,6 +460,12 @@ class PantallaSalonFama:
                     evento, mouse_pos
                 ):  # Click en Volver [web:47]
                     return  # Sale [web:21]
+
+                if self.btn_reiniciar.manejar_evento(
+                    evento, mouse_pos
+                ):  # Click en Reiniciar [web:47]
+                    # Reiniciar el salón de la fama
+                    self.salon_fama.reiniciar()
 
             self.dibujar()  # Redibuja [web:47]
 
