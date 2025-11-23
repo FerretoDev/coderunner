@@ -1,18 +1,17 @@
-import math  # Para calcular distancias y ángulos
+import math  # Para animaciones y cálculos trigonométricos del HUD
 import os
 
 import pygame  # Motor de eventos, dibujo y tiempo
 
-from personajes.computadora import Computadora
-from personajes.jugador import Jugador
-from mundo.laberinto import Laberinto
-from servicios.sistema_sonido import SistemaSonido
-
 from config.config import Colores, ConfigJuego
-from utilidades.coordenadas import ConversorCoordenadas
 from jugabilidad.gestores.gestor_dificultad import GestorDificultad
 from jugabilidad.gestores.gestor_movimiento import GestorMovimiento
 from jugabilidad.gestores.gestor_obsequios import GestorObsequios
+from mundo.laberinto import Laberinto
+from personajes.computadora import Computadora
+from personajes.jugador import Jugador
+from servicios.sistema_sonido import SistemaSonido
+from utilidades.coordenadas import ConversorCoordenadas
 
 
 class PantallaJuego:
@@ -43,6 +42,10 @@ class PantallaJuego:
         self.mostrar_distancia = False  # Overlay opcional para depurar
         self.nombre_jugador = nombre_jugador
 
+        # Datos del puntaje final para retornar
+        self.puntaje_final = None
+        self.nombre_laberinto = None
+
         # Obsequios con vencimiento (desaparecen y reaparecen)
         self.tiempo_vida_obsequio = ConfigJuego.segundos_a_frames(
             ConfigJuego.SEGUNDOS_VIDA_OBSEQUIO
@@ -62,7 +65,7 @@ class PantallaJuego:
 
         ruta_laberinto = ConfigLaberinto.obtener_laberinto_activo()
         if not ruta_laberinto:
-            ruta_laberinto = "src/data/laberintos/laberinto3.json"
+            ruta_laberinto = "src/data/laberintos/laberinto1.json"
 
         self.laberinto = Laberinto(ruta_laberinto)  # Carga mapa, spawns y obsequios
         self.mapa = self.laberinto.laberinto  # Matriz de 0 (libre) y 1 (muro)
@@ -95,36 +98,24 @@ class PantallaJuego:
         self.cooldown_movimiento = 0  # Frames que faltan para permitir otra celda
         self.frames_por_movimiento = ConfigJuego.FRAMES_COOLDOWN_MOVIMIENTO
 
-        # Muros como Rects para colisiones rápidas
-        self.muros = self._generar_muros()
-
         # Radios de personajes desde config
         radio_jugador = ConfigJuego.RADIO_JUGADOR
         radio_compu = ConfigJuego.RADIO_ENEMIGO
 
-        # Posiciones de spawn leídas del JSON y convertidas a píxeles + offset
-        celda_jugador_x, celda_jugador_y = self.laberinto.jugador_inicio
-        pos_x_jugador = (
-            celda_jugador_x * self.tam_celda
-            + (self.tam_celda - radio_jugador * 2) // 2
-            + self.offset_x
+        # Calcular posiciones de spawn usando Laberinto
+        pos_x_jugador, pos_y_jugador = self.laberinto.calcular_posicion_spawn(
+            self.laberinto.jugador_inicio,
+            radio_jugador,
+            self.tam_celda,
+            self.offset_x,
+            self.offset_y,
         )
-        pos_y_jugador = (
-            celda_jugador_y * self.tam_celda
-            + (self.tam_celda - radio_jugador * 2) // 2
-            + self.offset_y
-        )
-
-        celda_compu_x, celda_compu_y = self.laberinto.computadora_inicio
-        pos_x_compu = (
-            celda_compu_x * self.tam_celda
-            + (self.tam_celda - radio_compu * 2) // 2
-            + self.offset_x
-        )
-        pos_y_compu = (
-            celda_compu_y * self.tam_celda
-            + (self.tam_celda - radio_compu * 2) // 2
-            + self.offset_y
+        pos_x_compu, pos_y_compu = self.laberinto.calcular_posicion_spawn(
+            self.laberinto.computadora_inicio,
+            radio_compu,
+            self.tam_celda,
+            self.offset_x,
+            self.offset_y,
         )
 
         # Crear actores
@@ -133,11 +124,10 @@ class PantallaJuego:
             pos_x_compu, pos_y_compu, radio_compu, self.velocidad_inicial_enemigo
         )
 
-        # Guardar spawns para respawn al ser capturado
-        self.jugador_spawn_x = pos_x_jugador
-        self.jugador_spawn_y = pos_y_jugador
-        self.computadora_spawn_x = pos_x_compu
-        self.computadora_spawn_y = pos_y_compu
+        # Generar muros usando Laberinto
+        self.muros = self.laberinto.generar_muros_rect(
+            self.tam_celda, self.offset_x, self.offset_y
+        )
 
         # Posiciones previas para deshacer en colisión (modo pixel a pixel)
         self.pos_anterior_x = self.jugador.jugador_principal.x
@@ -185,37 +175,9 @@ class PantallaJuego:
         for posicion in self.laberinto._obsequios.keys():
             self.obsequios_timers[posicion] = self.tiempo_vida_obsequio
 
-    def _generar_muros(self):
-        """Convierte cada celda de muro en un Rect para colisiones rápidas."""
-        muros = []
-        for fila in range(len(self.mapa)):
-            for col in range(len(self.mapa[0])):
-                if self.mapa[fila][col] == 1:  # 1 = pared
-                    x = col * self.tam_celda + self.offset_x
-                    y = fila * self.tam_celda + self.offset_y
-                    rect = pygame.Rect(x, y, self.tam_celda, self.tam_celda)
-                    muros.append(rect)
-        return muros
-
-        # return self.laberinto.obtener_rectangulos()
-
     def _verificar_captura(self):
         """Si la computadora alcanza al jugador, resta vida y hace respawn; si sin vidas, game over."""
-        dx = (
-            self.jugador.jugador_principal.centerx
-            - self.computadora.computadora_principal.centerx
-        )
-        dy = (
-            self.jugador.jugador_principal.centery
-            - self.computadora.computadora_principal.centery
-        )
-        distancia = math.sqrt(dx**2 + dy**2)
-
-        # Radio de captura con holgura configurada
-        if (
-            distancia
-            < self.jugador.radio + self.computadora.radio + ConfigJuego.MARGEN_CAPTURA
-        ):
+        if self.computadora.verificar_captura(self.jugador, ConfigJuego.MARGEN_CAPTURA):
             # Reproducir sonido de captura
             self.sistema_sonido.reproducir_captura()
 
@@ -225,16 +187,14 @@ class PantallaJuego:
                 self.game_over_timer = ConfigJuego.segundos_a_frames(
                     ConfigJuego.SEGUNDOS_ESPERA_GAME_OVER
                 )
+                # Guardar datos para retornar al final
+                self.puntaje_final = self.jugador.puntaje
+                self.nombre_laberinto = self.laberinto.nombre
                 return True
 
-            # Respawn en los puntos iniciales
-            self.jugador.jugador_principal.x = self.jugador_spawn_x
-            self.jugador.jugador_principal.y = self.jugador_spawn_y
-            self.computadora.computadora_principal.x = self.computadora_spawn_x
-            self.computadora.computadora_principal.y = self.computadora_spawn_y
-
-            # Limpia camino de BFS para que recalcule desde cero
-            self.computadora._bfs_camino = None
+            # Respawn usando métodos de los personajes
+            self.jugador.respawn()
+            self.computadora.respawn()
 
         return False
 
@@ -569,29 +529,28 @@ class PantallaJuego:
         self.screen.blit(tip, tip_rect)
 
     def _dibujar_game_over(self):
-        """Overlay de game over, guarda puntaje una vez y muestra métricas finales con ranking."""
-        if not hasattr(self, "_puntaje_guardado"):
+        """Overlay de game over mostrando las métricas finales de la partida."""
+        if not hasattr(self, "_musica_pausada"):
             # Detener la música al llegar a game over
             self.sistema_sonido.pausar_musica()
-            self._guardar_en_salon_fama()
-            self._puntaje_guardado = True
+            self._musica_pausada = True
 
         overlay = pygame.Surface((self.ANCHO, self.ALTO))
         overlay.set_alpha(200)
         overlay.fill(Colores.OVERLAY_OSCURO)
         self.screen.blit(overlay, (0, 0))
 
-        # Caja más grande para incluir el ranking
-        caja_rect = pygame.Rect(self.ANCHO // 2 - 350, 30, 700, self.ALTO - 60)
+        # Caja para mostrar información
+        caja_rect = pygame.Rect(self.ANCHO // 2 - 350, 100, 700, 450)
         pygame.draw.rect(self.screen, (40, 40, 60), caja_rect, border_radius=15)
         pygame.draw.rect(self.screen, Colores.VIDAS, caja_rect, 3, border_radius=15)
 
         titulo = self.fuente_titulo.render("GAME OVER", True, Colores.VIDAS)
-        titulo_rect = titulo.get_rect(center=(self.ANCHO // 2, 70))
+        titulo_rect = titulo.get_rect(center=(self.ANCHO // 2, 140))
         self.screen.blit(titulo, titulo_rect)
 
         # Información de la partida actual
-        y_info = 120
+        y_info = 200
         puntaje = self.fuente_hud.render(
             f"Tu Puntaje: {self.jugador.puntaje}", True, Colores.PUNTAJE
         )
@@ -607,81 +566,15 @@ class PantallaJuego:
         tiempo_rect = tiempo_texto.get_rect(center=(self.ANCHO // 2, y_info + 40))
         self.screen.blit(tiempo_texto, tiempo_rect)
 
-        # Línea separadora
-        pygame.draw.line(
-            self.screen,
-            (100, 100, 120),
-            (self.ANCHO // 2 - 300, y_info + 75),
-            (self.ANCHO // 2 + 300, y_info + 75),
-            2,
+        # Mensaje indicando que el puntaje será guardado
+        mensaje = self.fuente_pequena.render(
+            "Tu puntaje ha sido guardado", True, (150, 200, 150)
         )
-
-        # Título del ranking
-        ranking_titulo = self.fuente_hud.render(
-            "Top 5 Mejores Puntajes", True, (255, 215, 0)
-        )
-        ranking_titulo_rect = ranking_titulo.get_rect(
-            center=(self.ANCHO // 2, y_info + 100)
-        )
-        self.screen.blit(ranking_titulo, ranking_titulo_rect)
-
-        # Obtener y mostrar el ranking
-        from mundo.salon_fama import SalonFama
-
-        salon = SalonFama()
-        registros = salon.mostrar_mejores(limite=5)
-
-        y_ranking = y_info + 145
-        if registros:
-            # Encabezados
-            encabezado = self.fuente_pequena.render(
-                "#    Jugador              Puntaje", True, (150, 150, 150)
-            )
-            self.screen.blit(encabezado, (self.ANCHO // 2 - 250, y_ranking))
-            y_ranking += 30
-
-            # Mostrar cada registro
-            for i, reg in enumerate(registros, 1):
-                # Color especial para el top 3
-                if i == 1:
-                    color = (255, 215, 0)  # Oro
-                    emoji = "1."
-                elif i == 2:
-                    color = (192, 192, 192)  # Plata
-                    emoji = "2."
-                elif i == 3:
-                    color = (205, 127, 50)  # Bronce
-                    emoji = "3."
-                else:
-                    color = (200, 200, 220)
-                    emoji = f"{i}."
-
-                # Destacar el puntaje actual del jugador
-                nombre_completo = reg["nombre_jugador"]
-                nombre = nombre_completo[:15]  # Limitar longitud del nombre
-                if (
-                    nombre_completo == self.nombre_jugador
-                    and reg["puntaje"] == self.jugador.puntaje
-                ):
-                    # Es el registro recién agregado
-                    nombre = f"► {nombre}"  # Marcar con flecha
-                    color = Colores.PUNTAJE  # Usar color de puntaje
-
-                texto = f"{emoji} {i}  {nombre:<18} {reg['puntaje']:>6} pts"
-                registro_surface = self.fuente_pequena.render(texto, True, color)
-                self.screen.blit(registro_surface, (self.ANCHO // 2 - 250, y_ranking))
-                y_ranking += 35
-        else:
-            sin_registros = self.fuente_pequena.render(
-                "No hay registros todavía", True, (150, 150, 150)
-            )
-            sin_registros_rect = sin_registros.get_rect(
-                center=(self.ANCHO // 2, y_ranking + 50)
-            )
-            self.screen.blit(sin_registros, sin_registros_rect)
+        mensaje_rect = mensaje.get_rect(center=(self.ANCHO // 2, y_info + 100))
+        self.screen.blit(mensaje, mensaje_rect)
 
         # Mostrar mensaje según si puede salir o no
-        y_instruccion = self.ALTO - 60
+        y_instruccion = 500
         if self.game_over_timer > 0:
             segundos_restantes = ConfigJuego.frames_a_segundos(self.game_over_timer) + 1
             instruccion = self.fuente_pequena.render(
@@ -695,20 +588,6 @@ class PantallaJuego:
             )
         instruccion_rect = instruccion.get_rect(center=(self.ANCHO // 2, y_instruccion))
         self.screen.blit(instruccion, instruccion_rect)
-
-    def _guardar_en_salon_fama(self):
-        """Crea un registro y lo guarda en el salón de la fama."""
-        from mundo.registro import Registro
-        from mundo.salon_fama import SalonFama
-
-        salon = SalonFama()
-        registro = Registro(
-            nombre_jugador=self.nombre_jugador,
-            puntaje=self.jugador._puntaje,
-            laberinto=self.laberinto.nombre,
-        )
-        salon.guardar_puntaje(registro)
-        print(f"Puntaje guardado en el Salón de la Fama: {self.jugador.puntaje} puntos")
 
     def _dibujar_victoria(self):
         """Overlay de victoria (no se usa en modo infinito, se deja por si se activa)."""
@@ -796,7 +675,11 @@ class PantallaJuego:
         return None  # No hay acción global
 
     def ejecutar(self):
-        """Crea la ventana, inicializa fuentes y corre el loop hasta salir."""
+        """Crea la ventana, inicializa fuentes y corre el loop hasta salir.
+
+        Retorna:
+            dict | None: Datos del puntaje {'nombre': str, 'puntaje': int, 'laberinto': str} si hubo game over, None si salió antes
+        """
         if not pygame.get_init():
             pygame.init()
 
@@ -823,3 +706,12 @@ class PantallaJuego:
 
         # Detener la música al salir
         self.sistema_sonido.detener_musica()
+
+        # Retornar datos del puntaje si hubo game over
+        if self.game_over and self.puntaje_final is not None:
+            return {
+                "nombre": self.nombre_jugador,
+                "puntaje": self.puntaje_final,
+                "laberinto": self.nombre_laberinto,
+            }
+        return None

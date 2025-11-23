@@ -17,6 +17,10 @@ class Computadora(Personaje):
         super().__init__(x, y, radio, velocidad)
         self.color = (255, 50, 50)
 
+        # Posiciones de spawn para respawn
+        self.spawn_x = x
+        self.spawn_y = y
+
         # Sprite animado del Minotauro
         self.sprite = SpriteMinotaurRunner(escala=0.5)  # 48x48 píxeles
         self.direccion_derecha = True
@@ -275,6 +279,33 @@ class Computadora(Personaje):
         # Dibujar sprite centrado en la posición de la computadora
         centro = self._rect.center
         self.sprite.dibujar(pantalla, centro[0], centro[1])
+
+    def respawn(self):
+        """Reposiciona a la computadora en su punto de spawn inicial."""
+        self._rect.x = self.spawn_x
+        self._rect.y = self.spawn_y
+        self.moviendo = False
+        self._bfs_camino = None  # Limpiar camino para recalcular
+        self._bfs_target_cell = None
+
+    def verificar_captura(self, jugador, margen_captura: int = 0) -> bool:
+        """
+        Verifica si la computadora ha capturado al jugador.
+
+        Args:
+            jugador: Instancia del jugador
+            margen_captura: Margen adicional para la captura (por defecto 0)
+
+        Returns:
+            True si capturó al jugador, False en caso contrario
+        """
+        import math
+
+        dx = jugador.jugador_principal.centerx - self._rect.centerx
+        dy = jugador.jugador_principal.centery - self._rect.centery
+        distancia = math.sqrt(dx**2 + dy**2)
+
+        return distancia < (jugador.radio + self.radio + margen_captura)
 
         # Resetear flag de movimiento para el siguiente frame
         self.moviendo = False

@@ -172,6 +172,13 @@ class GestorMovimiento:
             # Actualizar estado de movimiento del sprite del jugador
             self.jugador.actualizar_movimiento(dx, dy)
 
+            # Sumar 1 punto por cada movimiento exitoso
+            self.jugador.sumar_puntos(1)
+
+            return True  # Movimiento exitoso
+
+        return False  # No se pudo mover
+
     def _mover_continuo(self, direccion: str):
         """
         Mueve al jugador píxel a píxel (modo legacy).
@@ -213,9 +220,13 @@ class GestorMovimiento:
         # Revertir si hay colisión
         if not self.detectar_colision():
             self.revertir_posicion()
+            self.jugador.actualizar_movimiento(0, 0)  # Dejar de animar
         else:
-            # Actualizar estado de movimiento del sprite del jugador
+            # Actualizar estado de movimiento del sprite
             self.jugador.actualizar_movimiento(dx, dy)
+
+            # Sumar 1 punto por cada frame de movimiento continuo
+            self.jugador.sumar_puntos(1)
 
     def actualizar_muros(self, nuevos_muros: list[pygame.Rect]):
         """Actualiza la lista de muros (útil si el laberinto cambia)."""

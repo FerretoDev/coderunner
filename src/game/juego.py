@@ -126,7 +126,7 @@ class Juego:
             )  # Devuelve un número de opción elegido por el usuario [web:21]
 
             if opcion == 1:  # Iniciar Juego
-                self._manejar_iniciar_juego(screen)
+                self._manejar_iniciar_juego(screen, salon_fama)
             elif opcion == 2:  # Salón de la Fama
                 self._manejar_salon_fama(screen, salon_fama)
             elif opcion == 3:  # Administración
@@ -138,14 +138,26 @@ class Juego:
         pygame.quit()  # Libera recursos de Pygame (ventana, audio, etc.) [web:47]
         sys.exit()  # Termina el proceso del programa explícitamente [web:21]
 
-    def _manejar_iniciar_juego(self, screen):
-        """Maneja la opción de iniciar juego."""
+    def _manejar_iniciar_juego(self, screen, salon_fama):
+        """Maneja la opción de iniciar juego y guarda el puntaje si termina."""
         pantalla_inicio = PantallaIniciarJuego(screen)
         nombre = pantalla_inicio.ejecutar()
 
         if nombre:
             pantalla = PantallaJuego(nombre)
-            pantalla.ejecutar()
+            datos_puntaje = pantalla.ejecutar()
+
+            # Si hay datos de puntaje, guardar en el salón de la fama
+            if datos_puntaje:
+                from mundo.registro import Registro
+
+                registro = Registro(
+                    nombre_jugador=datos_puntaje["nombre"],
+                    puntaje=datos_puntaje["puntaje"],
+                    laberinto=datos_puntaje["laberinto"],
+                )
+                salon_fama.guardar_puntaje(registro)
+                print(f"Puntaje guardado: {datos_puntaje['puntaje']} puntos")
 
     def _manejar_salon_fama(self, screen, salon_fama):
         """Maneja la opción de Salón de la Fama."""

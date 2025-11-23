@@ -97,4 +97,6 @@ class MenuPrincipal:
                     if boton.manejar_evento(evento, mouse_pos):
                         return boton.accion
 
+            # Redibujar constantemente para actualizar efectos hover
             self.dibujar()
+            pygame.display.flip()

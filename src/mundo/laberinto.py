@@ -380,3 +380,55 @@ class Laberinto:
             # Capa 4: Punto de luz superior izquierdo (destello)
             pygame.draw.circle(pantalla, (255, 255, 255), (x - 2, y - 2), 2)
             pygame.draw.circle(pantalla, (255, 255, 255), (x - 2, y - 2), 2)
+
+    def generar_muros_rect(
+        self, tam_celda: int, offset_x: int, offset_y: int
+    ) -> list[pygame.Rect]:
+        """
+        Genera una lista de Rects para todos los muros del laberinto.
+
+        Args:
+            tam_celda: Tamaño de cada celda en píxeles
+            offset_x: Desplazamiento horizontal para centrado
+            offset_y: Desplazamiento vertical para centrado
+
+        Returns:
+            Lista de pygame.Rect, uno por cada muro
+        """
+        muros = []
+        for fila in range(len(self.laberinto)):
+            for col in range(len(self.laberinto[0])):
+                if self.laberinto[fila][col] == 1:  # 1 = muro
+                    x = col * tam_celda + offset_x
+                    y = fila * tam_celda + offset_y
+                    rect = pygame.Rect(x, y, tam_celda, tam_celda)
+                    muros.append(rect)
+        return muros
+
+    def calcular_posicion_spawn(
+        self,
+        posicion_celda: tuple[int, int],
+        radio: int,
+        tam_celda: int,
+        offset_x: int,
+        offset_y: int,
+    ) -> tuple[int, int]:
+        """
+        Calcula la posición en píxeles para un personaje basado en su celda inicial.
+
+        Centra el personaje dentro de la celda considerando su radio.
+
+        Args:
+            posicion_celda: (col, fila) en el mapa
+            radio: Radio del personaje en píxeles
+            tam_celda: Tamaño de cada celda en píxeles
+            offset_x: Desplazamiento horizontal del laberinto
+            offset_y: Desplazamiento vertical del laberinto
+
+        Returns:
+            (x, y) posición en píxeles para el personaje
+        """
+        col, fila = posicion_celda
+        x = col * tam_celda + (tam_celda - radio * 2) // 2 + offset_x
+        y = fila * tam_celda + (tam_celda - radio * 2) // 2 + offset_y
+        return (x, y)

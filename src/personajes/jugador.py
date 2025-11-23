@@ -31,6 +31,10 @@ class Jugador(Personaje):
         self._vidas = 3
         self._puntaje = 0
 
+        # Posiciones de spawn para respawn
+        self.spawn_x = x
+        self.spawn_y = y
+
         # Sprite animado de Theseus
         self.sprite = SpriteTheseusRunner(escala=0.5)  # 32x48 píxeles
         self.direccion_derecha = True
@@ -146,3 +150,9 @@ class Jugador(Personaje):
             self.direccion_derecha = True
         elif dx < 0:
             self.direccion_derecha = False
+
+    def respawn(self):
+        """Reposiciona al jugador en su punto de spawn inicial."""
+        self._rect.x = self.spawn_x
+        self._rect.y = self.spawn_y
+        self.moviendo = False
