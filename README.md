@@ -34,7 +34,11 @@ coderunner/
 │   │   └── interfaz.py      # menús, pantallas, interacción
 │   │
 │   ├── data/                # Archivos JSON/TXT para laberintos y puntajes
-│   │   ├── laberinto1.json
+│   │   ├── laberintos/      # Laberintos del juego
+│   │   │   ├── laberinto1.json
+│   │   │   ├── laberinto2.json
+│   │   │   ├── laberinto3.json
+│   │   │   └── laberinto_ejemplo.json
 │   │   ├── laberinto_demo.txt
 │   │   └── salon_fama.json
 │   │

@@ -45,7 +45,9 @@ class PantallaJuego:
         self.incremento_velocidad = ConfigJuego.INCREMENTO_VELOCIDAD
 
         # Carga del laberinto desde archivo JSON y acceso a la matriz
-        self.laberinto = Laberinto("laberinto1.json")  # Carga mapa, spawns y obsequios
+        self.laberinto = Laberinto(
+            "src/data/laberintos/laberinto3.json"
+        )  # Carga mapa, spawns y obsequios
         self.mapa = self.laberinto.laberinto  # Matriz de 0 (libre) y 1 (muro)
 
         # Ajuste de tamaño de celda para que el laberinto ocupe la mayor área visible
@@ -584,7 +586,7 @@ class PantallaJuego:
         self.screen.blit(instruccion, instruccion_rect)
 
     def _dibujar_game_over(self):
-        """Overlay de game over, guarda puntaje una vez y muestra métricas finales."""
+        """Overlay de game over, guarda puntaje una vez y muestra métricas finales con ranking."""
         if not hasattr(self, "_puntaje_guardado"):
             self._guardar_en_salon_fama()
             self._puntaje_guardado = True
@@ -594,40 +596,107 @@ class PantallaJuego:
         overlay.fill(Colores.OVERLAY_OSCURO)
         self.screen.blit(overlay, (0, 0))
 
-        caja_rect = pygame.Rect(self.ANCHO // 2 - 300, self.ALTO // 2 - 200, 600, 400)
+        # Caja más grande para incluir el ranking
+        caja_rect = pygame.Rect(self.ANCHO // 2 - 350, 30, 700, self.ALTO - 60)
         pygame.draw.rect(self.screen, (40, 40, 60), caja_rect, border_radius=15)
         pygame.draw.rect(self.screen, Colores.VIDAS, caja_rect, 3, border_radius=15)
 
         titulo = self.fuente_titulo.render("GAME OVER", True, Colores.VIDAS)
-        titulo_rect = titulo.get_rect(center=(self.ANCHO // 2, self.ALTO // 2 - 120))
+        titulo_rect = titulo.get_rect(center=(self.ANCHO // 2, 70))
         self.screen.blit(titulo, titulo_rect)
 
+        # Información de la partida actual
+        y_info = 120
         puntaje = self.fuente_hud.render(
-            f"Puntaje Final: {self.jugador.puntaje}", True, Colores.PUNTAJE
+            f"Tu Puntaje: {self.jugador.puntaje}", True, Colores.PUNTAJE
         )
-        puntaje_rect = puntaje.get_rect(center=(self.ANCHO // 2, self.ALTO // 2 - 40))
+        puntaje_rect = puntaje.get_rect(center=(self.ANCHO // 2, y_info))
         self.screen.blit(puntaje, puntaje_rect)
 
         tiempo_segundos = self.tiempo_transcurrido // 60
         tiempo_texto = self.fuente_pequena.render(
-            f"Tiempo: {tiempo_segundos} segundos", True, Colores.TEXTO_SECUNDARIO
-        )
-        tiempo_rect = tiempo_texto.get_rect(
-            center=(self.ANCHO // 2, self.ALTO // 2 + 10)
-        )
-        self.screen.blit(tiempo_texto, tiempo_rect)
-
-        velocidad_texto = self.fuente_pequena.render(
-            f"Nivel de dificultad: {self.computadora.velocidad:.1f}x",
+            f"Tiempo: {tiempo_segundos} segundos | Dificultad: {self.computadora.velocidad:.1f}x",
             True,
             Colores.TEXTO_SECUNDARIO,
         )
-        velocidad_rect = velocidad_texto.get_rect(
-            center=(self.ANCHO // 2, self.ALTO // 2 + 50)
+        tiempo_rect = tiempo_texto.get_rect(center=(self.ANCHO // 2, y_info + 40))
+        self.screen.blit(tiempo_texto, tiempo_rect)
+
+        # Línea separadora
+        pygame.draw.line(
+            self.screen,
+            (100, 100, 120),
+            (self.ANCHO // 2 - 300, y_info + 75),
+            (self.ANCHO // 2 + 300, y_info + 75),
+            2,
         )
-        self.screen.blit(velocidad_texto, velocidad_rect)
+
+        # Título del ranking
+        ranking_titulo = self.fuente_hud.render(
+            "🏆 Top 5 Mejores Puntajes", True, (255, 215, 0)
+        )
+        ranking_titulo_rect = ranking_titulo.get_rect(
+            center=(self.ANCHO // 2, y_info + 100)
+        )
+        self.screen.blit(ranking_titulo, ranking_titulo_rect)
+
+        # Obtener y mostrar el ranking
+        from models.salon_fama import SalonFama
+
+        salon = SalonFama()
+        registros = salon.mostrar_mejores(limite=5)
+
+        y_ranking = y_info + 145
+        if registros:
+            # Encabezados
+            encabezado = self.fuente_pequena.render(
+                "#    Jugador              Puntaje", True, (150, 150, 150)
+            )
+            self.screen.blit(encabezado, (self.ANCHO // 2 - 250, y_ranking))
+            y_ranking += 30
+
+            # Mostrar cada registro
+            for i, reg in enumerate(registros, 1):
+                # Color especial para el top 3
+                if i == 1:
+                    color = (255, 215, 0)  # Oro
+                    emoji = "🥇"
+                elif i == 2:
+                    color = (192, 192, 192)  # Plata
+                    emoji = "🥈"
+                elif i == 3:
+                    color = (205, 127, 50)  # Bronce
+                    emoji = "🥉"
+                else:
+                    color = (200, 200, 220)
+                    emoji = "  "
+
+                # Destacar el puntaje actual del jugador
+                nombre_completo = reg["nombre_jugador"]
+                nombre = nombre_completo[:15]  # Limitar longitud del nombre
+                if (
+                    nombre_completo == self.nombre_jugador
+                    and reg["puntaje"] == self.jugador.puntaje
+                ):
+                    # Es el registro recién agregado
+                    nombre = f"► {nombre}"  # Marcar con flecha
+                    color = Colores.PUNTAJE  # Usar color de puntaje
+
+                texto = f"{emoji} {i}  {nombre:<18} {reg['puntaje']:>6} pts"
+                registro_surface = self.fuente_pequena.render(texto, True, color)
+                self.screen.blit(registro_surface, (self.ANCHO // 2 - 250, y_ranking))
+                y_ranking += 35
+        else:
+            sin_registros = self.fuente_pequena.render(
+                "No hay registros todavía", True, (150, 150, 150)
+            )
+            sin_registros_rect = sin_registros.get_rect(
+                center=(self.ANCHO // 2, y_ranking + 50)
+            )
+            self.screen.blit(sin_registros, sin_registros_rect)
 
         # Mostrar mensaje según si puede salir o no
+        y_instruccion = self.ALTO - 60
         if self.game_over_timer > 0:
             segundos_restantes = ConfigJuego.frames_a_segundos(self.game_over_timer) + 1
             instruccion = self.fuente_pequena.render(
@@ -637,11 +706,9 @@ class PantallaJuego:
             )
         else:
             instruccion = self.fuente_pequena.render(
-                "Presiona cualquier tecla para volver", True, Colores.TEXTO_SECUNDARIO
+                "Presiona cualquier tecla para volver al menú", True, (100, 255, 100)
             )
-        instruccion_rect = instruccion.get_rect(
-            center=(self.ANCHO // 2, self.ALTO // 2 + 120)
-        )
+        instruccion_rect = instruccion.get_rect(center=(self.ANCHO // 2, y_instruccion))
         self.screen.blit(instruccion, instruccion_rect)
 
     def _guardar_en_salon_fama(self):

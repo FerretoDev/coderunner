@@ -1,7 +1,7 @@
 import json
 import os
 from datetime import datetime
-from typing import List
+from typing import Any, List
 
 from .registro import Registro
 
@@ -35,7 +35,7 @@ class SalonFama:
         self._registros.append(registro)
         self.guardar_datos()  # Persistir inmediatamente
 
-    def mostrar_mejores(self, limite: int = 10) -> list[dict]:
+    def mostrar_mejores(self, limite: int = 10) -> Any:
         """
         Devuelve los mejores puntajes en orden descendente.
 

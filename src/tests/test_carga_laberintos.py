@@ -224,7 +224,7 @@ class TestCargaArchivosReales:
 
         pygame.init()
 
-        archivo = "/home/marcosferreto/Dev/coderunner/src/data/laberinto1.json"
+        archivo = "src/data/laberintos/laberinto1.json"
 
         if os.path.exists(archivo):
             # Crear laberinto directamente desde el archivo

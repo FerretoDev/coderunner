@@ -31,7 +31,7 @@ def test_carga_laberinto():
 
     # Ruta al archivo de ejemplo
     ruta = os.path.join(
-        os.path.dirname(__file__), "src", "data", "laberinto_ejemplo.json"
+        os.path.dirname(__file__), "src", "data", "laberintos", "laberinto_ejemplo.json"
     )
 
     # Cargar laberinto

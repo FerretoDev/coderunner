@@ -1,5 +1,5 @@
 {
-  "nombre": "Laberinto de Prueba",
+  "nombre": "Laberinto de Ejemplo",
   "dificultad": "facil",
   "mapa": [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -27,21 +27,9 @@
     "fila": 13
   },
   "obsequios": [
-    {
-      "posicion": [5, 3],
-      "valor": 50
-    },
-    {
-      "posicion": [10, 7],
-      "valor": 100
-    },
-    {
-      "posicion": [15, 5],
-      "valor": 75
-    },
-    {
-      "posicion": [8, 11],
-      "valor": 150
-    }
+    {"posicion": [5, 3], "valor": 50},
+    {"posicion": [10, 7], "valor": 100},
+    {"posicion": [15, 5], "valor": 75},
+    {"posicion": [8, 11], "valor": 150}
   ]
 }

@@ -295,9 +295,6 @@ class PantallaSalonFama:
         self.btn_volver = Boton(
             self.ancho // 2 - 220, self.alto - 80, 200, 50, "Volver"
         )  # Permite regresar al menú principal [web:21]
-        self.btn_reiniciar = Boton(
-            self.ancho // 2 + 20, self.alto - 80, 200, 50, "Reiniciar"
-        )  # Reinicia el salón de la fama [web:21]
 
     def dibujar(self):
         """Dibuja título, encabezados, registros si hay, y el botón volver."""
@@ -436,7 +433,6 @@ class PantallaSalonFama:
 
         # Botones
         self.btn_volver.dibujar(self.screen)
-        self.btn_reiniciar.dibujar(self.screen)
 
         pygame.display.flip()  # Actualiza pantalla [web:47]
 
@@ -460,12 +456,6 @@ class PantallaSalonFama:
                     evento, mouse_pos
                 ):  # Click en Volver [web:47]
                     return  # Sale [web:21]
-
-                if self.btn_reiniciar.manejar_evento(
-                    evento, mouse_pos
-                ):  # Click en Reiniciar [web:47]
-                    # Reiniciar el salón de la fama
-                    self.salon_fama.reiniciar()
 
             self.dibujar()  # Redibuja [web:47]
 
@@ -775,7 +765,7 @@ class PantallaMenuAdministrador:
 class PantallaCargaLaberinto:
     """
     Pantalla para seleccionar y cargar un archivo de laberinto.
-    Utiliza tkinter.filedialog para explorador de archivos.
+    Permite ingresar la ruta del archivo manualmente.
     """
 
     def __init__(self, screen, admin):
@@ -794,14 +784,44 @@ class PantallaCargaLaberinto:
         self.font_texto = pygame.font.Font(None, 28)
         self.font_info = pygame.font.Font(None, 22)
 
+        # Input para la ruta del archivo
+        self.input_ruta = InputTexto(
+            self.ancho // 2 - 300,
+            220,
+            600,
+            50,
+            "Ruta del archivo (ej: src/data/laberintos/laberinto1.json)",
+        )
+
         # Botones
-        self.btn_explorar = Boton(
-            self.ancho // 2 - 200, 250, 400, 60, "📂 Seleccionar Archivo"
+        self.btn_cargar = Boton(self.ancho // 2 - 200, 320, 190, 50, "✓ Cargar")
+        self.btn_volver = Boton(self.ancho // 2 + 10, 320, 190, 50, "✗ Cancelar")
+
+        # Botones de acceso rápido a archivos comunes (fila 1)
+        self.btn_lab1 = Boton(
+            self.ancho // 2 - 310, 410, 200, 40, "📁 Laberinto 1 (Fácil)", accion="lab1"
         )
-        self.btn_cargar = Boton(
-            self.ancho // 2 - 200, 340, 190, 50, "✓ Cargar", activo=False
+        self.btn_lab2 = Boton(
+            self.ancho // 2 - 100, 410, 200, 40, "📁 Laberinto 2 (Medio)", accion="lab2"
         )
-        self.btn_volver = Boton(self.ancho // 2 + 10, 340, 190, 50, "✗ Cancelar")
+        self.btn_lab3 = Boton(
+            self.ancho // 2 + 110,
+            410,
+            200,
+            40,
+            "📁 Laberinto 3 (Difícil)",
+            accion="lab3",
+        )
+
+        # Botón de ejemplo (fila 2)
+        self.btn_lab_ejemplo = Boton(
+            self.ancho // 2 - 100,
+            460,
+            200,
+            40,
+            "📁 Laberinto Ejemplo",
+            accion="ejemplo",
+        )
 
         self.archivo_seleccionado = None
         self.nombre_archivo = ""
@@ -819,72 +839,52 @@ class PantallaCargaLaberinto:
 
         # Instrucción
         instruccion = self.font_texto.render(
-            "Selecciona un archivo .json o .txt:", True, (200, 200, 200)
+            "Ingresa la ruta del archivo:", True, (200, 200, 200)
         )
         instruccion_rect = instruccion.get_rect(center=(self.ancho // 2, 170))
         self.screen.blit(instruccion, instruccion_rect)
 
-        # Mostrar archivo seleccionado
-        if self.archivo_seleccionado:
-            archivo_texto = self.font_info.render(
-                f"Archivo: {self.nombre_archivo}", True, (100, 255, 100)
-            )
-            archivo_rect = archivo_texto.get_rect(center=(self.ancho // 2, 430))
-            self.screen.blit(archivo_texto, archivo_rect)
-        else:
-            archivo_texto = self.font_info.render(
-                "Ningún archivo seleccionado", True, (150, 150, 150)
-            )
-            archivo_rect = archivo_texto.get_rect(center=(self.ancho // 2, 430))
-            self.screen.blit(archivo_texto, archivo_rect)
+        # Input de ruta
+        self.input_ruta.dibujar(self.screen)
 
-        # Botones
-        self.btn_explorar.dibujar(self.screen)
+        # Botones principales
         self.btn_cargar.dibujar(self.screen)
         self.btn_volver.dibujar(self.screen)
 
+        # Línea separadora
+        pygame.draw.line(
+            self.screen,
+            (80, 80, 100),
+            (self.ancho // 2 - 320, 395),
+            (self.ancho // 2 + 320, 395),
+            2,
+        )
+
+        # Texto de acceso rápido
+        acceso_texto = self.font_info.render(
+            "Acceso rápido a laberintos:", True, (180, 180, 200)
+        )
+        acceso_rect = acceso_texto.get_rect(center=(self.ancho // 2, 385))
+        self.screen.blit(acceso_texto, acceso_rect)
+
+        # Botones de acceso rápido (fila 1)
+        self.btn_lab1.dibujar(self.screen)
+        self.btn_lab2.dibujar(self.screen)
+        self.btn_lab3.dibujar(self.screen)
+
+        # Botón de ejemplo (fila 2)
+        self.btn_lab_ejemplo.dibujar(self.screen)
+
         # Información adicional
         info = self.font_info.render(
-            "Formatos aceptados: .json, .txt", True, (120, 120, 140)
+            "Formato: .json | Rutas relativas desde: src/data/",
+            True,
+            (120, 120, 140),
         )
-        info_rect = info.get_rect(center=(self.ancho // 2, self.alto - 50))
+        info_rect = info.get_rect(center=(self.ancho // 2, self.alto - 30))
         self.screen.blit(info, info_rect)
 
         pygame.display.flip()
-
-    def seleccionar_archivo(self):
-        """Abre el diálogo de selección de archivo usando tkinter."""
-        try:
-            import tkinter as tk
-            from tkinter import filedialog
-
-            # Crear ventana temporal de tkinter (oculta)
-            root = tk.Tk()
-            root.withdraw()  # Ocultar la ventana principal
-            root.attributes("-topmost", True)  # Mantener al frente
-
-            # Abrir diálogo de selección
-            archivo = filedialog.askopenfilename(
-                title="Seleccionar archivo de laberinto",
-                filetypes=[
-                    ("Archivos JSON", "*.json"),
-                    ("Archivos de texto", "*.txt"),
-                    ("Todos los archivos", "*.*"),
-                ],
-            )
-
-            root.destroy()  # Cerrar ventana temporal
-
-            if archivo:
-                self.archivo_seleccionado = archivo
-                self.nombre_archivo = archivo.split("/")[-1].split("\\")[-1]
-                return True
-
-            return False
-
-        except Exception as e:
-            print(f"Error al abrir selector de archivo: {e}")
-            return False
 
     def ejecutar(self):
         """
@@ -907,21 +907,57 @@ class PantallaCargaLaberinto:
                     if evento.key == pygame.K_ESCAPE:
                         return None, None
 
-                # Botón Explorar
-                if self.btn_explorar.manejar_evento(evento, mouse_pos):
-                    self.seleccionar_archivo()
+                # Manejar input de texto
+                if self.input_ruta.manejar_evento(evento):
+                    # Enter presionado, intentar cargar
+                    ruta = self.input_ruta.obtener_texto()
+                    if ruta:
+                        # Si la ruta no es absoluta, buscar en src/data/
+                        import os
+
+                        if not os.path.isabs(ruta):
+                            # Intentar primero la ruta tal cual
+                            if not os.path.exists(ruta):
+                                # Buscar en src/data/
+                                ruta_data = os.path.join("src", "data", ruta)
+                                if os.path.exists(ruta_data):
+                                    ruta = ruta_data
+
+                        laberinto, mensaje = self.admin.cargar_laberinto(ruta)
+                        return laberinto, mensaje
 
                 # Botón Cargar
                 if self.btn_cargar.manejar_evento(evento, mouse_pos):
-                    if self.archivo_seleccionado:
-                        laberinto, mensaje = self.admin.cargar_laberinto(
-                            self.archivo_seleccionado
-                        )
+                    ruta = self.input_ruta.obtener_texto()
+                    if ruta:
+                        # Si la ruta no es absoluta, buscar en src/data/
+                        import os
+
+                        if not os.path.isabs(ruta):
+                            if not os.path.exists(ruta):
+                                ruta_data = os.path.join("src", "data", ruta)
+                                if os.path.exists(ruta_data):
+                                    ruta = ruta_data
+
+                        laberinto, mensaje = self.admin.cargar_laberinto(ruta)
                         return laberinto, mensaje
 
                 # Botón Volver
                 if self.btn_volver.manejar_evento(evento, mouse_pos):
                     return None, None
+
+                # Botones de acceso rápido
+                if self.btn_lab1.manejar_evento(evento, mouse_pos):
+                    self.input_ruta.texto = "src/data/laberintos/laberinto1.json"
+
+                if self.btn_lab2.manejar_evento(evento, mouse_pos):
+                    self.input_ruta.texto = "src/data/laberintos/laberinto2.json"
+
+                if self.btn_lab3.manejar_evento(evento, mouse_pos):
+                    self.input_ruta.texto = "src/data/laberintos/laberinto3.json"
+
+                if self.btn_lab_ejemplo.manejar_evento(evento, mouse_pos):
+                    self.input_ruta.texto = "src/data/laberintos/laberinto_ejemplo.json"
 
             self.dibujar()
 

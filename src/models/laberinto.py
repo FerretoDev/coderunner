@@ -61,9 +61,13 @@ class Laberinto:
         self.jugador_inicio: tuple[int, int] = (1, 1)
         self.computadora_inicio: tuple[int, int] = (18, 12)
 
-        ruta_imagen_pasillo = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "pasillos.jpg")
+        ruta_imagen_pasillo = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "..", "data", "pasillos.jpg"
+        )
         self.imagen_pasillo = pygame.image.load(ruta_imagen_pasillo).convert_alpha()
-        self.imagen_pasillo = pygame.transform.scale(self.imagen_pasillo, (self.TAM_CELDA, self.TAM_CELDA))
+        self.imagen_pasillo = pygame.transform.scale(
+            self.imagen_pasillo, (self.TAM_CELDA, self.TAM_CELDA)
+        )
 
         if isinstance(archivo_json_o_datos, dict):
             self._cargar_desde_diccionario(archivo_json_o_datos)
@@ -97,10 +101,17 @@ class Laberinto:
             # === PASO 1: Resolver ruta del archivo ===
             # Si la ruta es relativa, buscar desde el directorio data
             if not os.path.isabs(archivo):
-                # Obtener el directorio del módulo actual (models/)
-                dir_actual = os.path.dirname(os.path.abspath(__file__))
-                # Subir un nivel (src/) y entrar a data/
-                archivo = os.path.join(dir_actual, "..", "data", archivo)
+                # Si la ruta ya comienza con 'src/data/', usarla desde la raíz del proyecto
+                if archivo.startswith("src/data/"):
+                    # Obtener directorio raíz del proyecto (dos niveles arriba desde models/)
+                    dir_actual = os.path.dirname(os.path.abspath(__file__))
+                    proyecto_root = os.path.join(dir_actual, "..", "..")
+                    archivo = os.path.join(proyecto_root, archivo)
+                else:
+                    # Obtener el directorio del módulo actual (models/)
+                    dir_actual = os.path.dirname(os.path.abspath(__file__))
+                    # Subir un nivel (src/) y entrar a data/
+                    archivo = os.path.join(dir_actual, "..", "data", archivo)
 
             # === PASO 2: Leer archivo JSON ===
             with open(archivo, "r", encoding="utf-8") as f:
@@ -131,7 +142,9 @@ class Laberinto:
         try:
             self._procesar_datos_laberinto(datos)
         except Exception as e:
-            raise RuntimeError(f"Error inesperado al cargar laberinto desde diccionario: {e}")
+            raise RuntimeError(
+                f"Error inesperado al cargar laberinto desde diccionario: {e}"
+            )
 
     def _procesar_datos_laberinto(self, datos: dict) -> None:
         """
@@ -163,7 +176,7 @@ class Laberinto:
         if "inicio_computadora" in datos:
             col, fila = datos["inicio_computadora"].values()
             self.computadora_inicio = (col, fila)
-        
+
         # === PASO 5: Procesar el mapa ===
         # Identificar qué celdas son muros y cuáles pasillos
         self._procesar_laberinto()
@@ -172,9 +185,7 @@ class Laberinto:
         if "obsequios" in datos:
             for obsequio_data in datos["obsequios"]:
                 col, fila = obsequio_data["posicion"]
-                valor = obsequio_data.get(
-                    "valor", 10
-                )  # Valor por defecto: 10 puntos
+                valor = obsequio_data.get("valor", 10)  # Valor por defecto: 10 puntos
                 posicion = (col, fila)
                 self._obsequios[posicion] = Obsequio(posicion, valor)
 

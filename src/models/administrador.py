@@ -37,17 +37,12 @@ class Administrador:
 
             # Validar extensión del archivo
             extension = os.path.splitext(ruta_archivo)[1].lower()
-            if extension not in [".json", ".txt"]:
-                return None, "Solo se permiten archivos .json o .txt"
+            if extension != ".json":
+                return None, "Solo se permiten archivos .json"
 
-            # Leer el archivo
+            # Leer el archivo JSON
             with open(ruta_archivo, "r", encoding="utf-8") as f:
-                if extension == ".json":
-                    datos = json.load(f)
-                else:  # .txt
-                    # Para archivos .txt, intentar parsear como JSON
-                    contenido = f.read()
-                    datos = json.loads(contenido)
+                datos = json.load(f)
 
             # Validar estructura básica del laberinto
             errores = self._validar_estructura_laberinto(datos)
