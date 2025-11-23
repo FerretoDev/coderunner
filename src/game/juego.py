@@ -11,7 +11,11 @@ Responsabilidades:
 import os  # Manejo de rutas para construir paths portables al sistema operativo [web:21]
 import sys  # Permite modificar sys.path y cerrar la app con sys.exit() [web:21]
 
-import pygame  # Motor de eventos, ventana y tiempo para el loop principal [web:47]
+import pygame
+
+from .constants import (
+    PASSWORD,
+)  # Motor de eventos, ventana y tiempo para el loop principal [web:47]
 
 # Agregar el directorio 'src' al path para las importaciones relativas absolutas de paquetes internos.
 # Esto permite ejecutar el archivo desde distintos lugares sin errores de importación.
@@ -22,8 +26,11 @@ sys.path.append(
 from game.interfaz import (
     MensajeModal,  # Modal reutilizable para mostrar mensajes (éxito/error) [web:21]
     MenuPrincipal,  # Menú principal que devuelve la opción elegida [web:21]
+    ModalConfirmacion,  # Modal de confirmación para acciones críticas
     PantallaAdministracion,  # Pantalla que solicita clave para administración [web:21]
+    PantallaCargaLaberinto,  # Pantalla para cargar archivos de laberinto
     PantallaIniciarJuego,  # Pantalla para capturar el nombre del jugador antes de iniciar [web:21]
+    PantallaMenuAdministrador,  # Menú de opciones administrativas
     PantallaSalonFama,  # Pantalla que muestra los mejores puntajes [web:21]
 )
 from game.pantalla_juego import (
@@ -88,7 +95,7 @@ class Juego:
             SalonFama()
         )  # Mantiene los récords accesibles desde el menú y su pantalla [web:21]
         admin = Administrador(
-            "casa"
+            PASSWORD
         )  # Admin con clave por defecto “casa” para pruebas [web:21]
 
         # Loop principal de navegación de menús
@@ -143,14 +150,54 @@ class Juego:
                 if clave and admin.autenticar(
                     clave
                 ):  # Verifica credenciales de admin [web:21]
-                    modal = MensajeModal(
-                        screen,
-                        "✅ Acceso Concedido",
-                        "Bienvenido Administrador",
-                        "success",
-                    )  # Muestra confirmación de acceso [web:21]
-                    modal.ejecutar()  # Espera a que el usuario cierre el modal [web:21]
-                    # TODO: Aquí irá el panel de administración cuando esté listo [web:21]
+                    # Mostrar menú administrativo
+                    en_menu_admin = True
+                    while en_menu_admin:
+                        menu_admin = PantallaMenuAdministrador(screen)
+                        opcion_admin = menu_admin.ejecutar()
+
+                        if opcion_admin == 1:  # Cargar Laberinto
+                            pantalla_carga = PantallaCargaLaberinto(screen, admin)
+                            laberinto, mensaje = pantalla_carga.ejecutar()
+
+                            if laberinto:
+                                # Éxito: mostrar mensaje
+                                modal = MensajeModal(
+                                    screen,
+                                    "✅ Laberinto Cargado",
+                                    mensaje,
+                                    "success",
+                                )
+                                modal.ejecutar()
+                                # Aquí podrías guardar el laberinto en self._laberinto
+                                # o en una variable global para usarlo en el juego
+                            elif mensaje:
+                                # Error: mostrar mensaje
+                                modal = MensajeModal(
+                                    screen, "❌ Error", mensaje, "error"
+                                )
+                                modal.ejecutar()
+
+                        elif opcion_admin == 2:  # Reiniciar Salón de Fama
+                            # Confirmar antes de reiniciar
+                            confirmar = ModalConfirmacion(
+                                screen,
+                                "⚠️ Confirmar Acción",
+                                "¿Está seguro de que desea\neliminar todos los registros?",
+                            )
+                            if confirmar.ejecutar():
+                                mensaje = admin.reiniciar_salon_fama(salon_fama)
+                                modal = MensajeModal(
+                                    screen,
+                                    "✅ Salón Reiniciado",
+                                    mensaje,
+                                    "success",
+                                )
+                                modal.ejecutar()
+
+                        elif opcion_admin == 3:  # Volver
+                            en_menu_admin = False
+
                 elif clave:
                     modal = MensajeModal(
                         screen, "Error", "Clave incorrecta", "error"
@@ -158,9 +205,16 @@ class Juego:
                     modal.ejecutar()  # Espera a que el usuario cierre el modal [web:21]
 
             elif opcion == 4:  # Salir
-                ejecutando = (
-                    False  # Sale del loop principal y cierra la aplicación [web:47]
+                # Mostrar confirmación antes de salir
+                confirmar = ModalConfirmacion(
+                    screen,
+                    "⚠️ Confirmar Salida",
+                    "¿Está seguro de que desea\nsalir del juego?",
                 )
+                if confirmar.ejecutar():
+                    ejecutando = (
+                        False  # Sale del loop principal y cierra la aplicación [web:47]
+                    )
 
         # Al salir del loop, cerrar Pygame y terminar el proceso de forma limpia
         pygame.quit()  # Libera recursos de Pygame (ventana, audio, etc.) [web:47]

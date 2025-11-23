@@ -673,3 +673,343 @@ class MensajeModal:
                     return  # Cierra [web:21]
 
             self.dibujar()  # Sigue dibujando hasta cerrar [web:47]
+
+
+class PantallaMenuAdministrador:
+    """
+    Menú administrativo con opciones para cargar laberinto,
+    reiniciar salón de fama y volver al menú principal.
+    """
+
+    def __init__(self, screen):
+        self.screen = screen
+        self.ancho = screen.get_width()
+        self.alto = screen.get_height()
+
+        self.COLORES = {
+            "fondo": (20, 20, 30),
+            "texto": (255, 255, 255),
+            "acento": (0, 200, 100),
+        }
+
+        self.font_titulo = pygame.font.Font(None, 60)
+        self.font_subtitulo = pygame.font.Font(None, 28)
+
+        # Crear botones verticales
+        self._crear_botones()
+
+    def _crear_botones(self):
+        """Crea los botones del menú administrativo."""
+        ancho_boton = 400
+        alto_boton = 60
+        x = (self.ancho - ancho_boton) // 2
+        y_inicial = 250
+        espacio = 20
+
+        self.botones = []
+        textos_acciones = [
+            ("📁 Cargar Laberinto", 1),
+            ("🗑️ Reiniciar Salón de Fama", 2),
+            ("⬅️ Volver al Menú", 3),
+        ]
+
+        for i, (texto, accion) in enumerate(textos_acciones):
+            y = y_inicial + (alto_boton + espacio) * i
+            self.botones.append(
+                Boton(x, y, ancho_boton, alto_boton, texto, accion=accion)
+            )
+
+    def dibujar(self):
+        """Dibuja la pantalla del menú administrativo."""
+        self.screen.fill(self.COLORES["fondo"])
+
+        # Título
+        titulo = self.font_titulo.render(
+            "⚙️ Panel de Administración", True, self.COLORES["acento"]
+        )
+        titulo_rect = titulo.get_rect(center=(self.ancho // 2, 120))
+        self.screen.blit(titulo, titulo_rect)
+
+        # Subtítulo
+        subtitulo = self.font_subtitulo.render(
+            "Selecciona una opción:", True, self.COLORES["texto"]
+        )
+        subtitulo_rect = subtitulo.get_rect(center=(self.ancho // 2, 180))
+        self.screen.blit(subtitulo, subtitulo_rect)
+
+        # Dibujar botones
+        for boton in self.botones:
+            boton.dibujar(self.screen)
+
+        pygame.display.flip()
+
+    def ejecutar(self):
+        """
+        Loop del menú administrativo.
+
+        Returns:
+            int: Opción seleccionada (1=Cargar Laberinto, 2=Reiniciar Salón, 3=Volver)
+        """
+        clock = pygame.time.Clock()
+
+        while True:
+            clock.tick(60)
+            mouse_pos = pygame.mouse.get_pos()
+
+            for evento in pygame.event.get():
+                if evento.type == pygame.QUIT:
+                    return 3  # Volver
+
+                if evento.type == pygame.KEYDOWN:
+                    if evento.key == pygame.K_ESCAPE:
+                        return 3  # Volver
+
+                # Verificar clicks en botones
+                for boton in self.botones:
+                    if boton.manejar_evento(evento, mouse_pos):
+                        return boton.accion
+
+            self.dibujar()
+
+
+class PantallaCargaLaberinto:
+    """
+    Pantalla para seleccionar y cargar un archivo de laberinto.
+    Utiliza tkinter.filedialog para explorador de archivos.
+    """
+
+    def __init__(self, screen, admin):
+        self.screen = screen
+        self.ancho = screen.get_width()
+        self.alto = screen.get_height()
+        self.admin = admin  # Instancia del Administrador
+
+        self.COLORES = {
+            "fondo": (20, 20, 30),
+            "texto": (255, 255, 255),
+            "acento": (0, 150, 255),
+        }
+
+        self.font_titulo = pygame.font.Font(None, 52)
+        self.font_texto = pygame.font.Font(None, 28)
+        self.font_info = pygame.font.Font(None, 22)
+
+        # Botones
+        self.btn_explorar = Boton(
+            self.ancho // 2 - 200, 250, 400, 60, "📂 Seleccionar Archivo"
+        )
+        self.btn_cargar = Boton(
+            self.ancho // 2 - 200, 340, 190, 50, "✓ Cargar", activo=False
+        )
+        self.btn_volver = Boton(self.ancho // 2 + 10, 340, 190, 50, "✗ Cancelar")
+
+        self.archivo_seleccionado = None
+        self.nombre_archivo = ""
+
+    def dibujar(self):
+        """Dibuja la pantalla de carga de laberinto."""
+        self.screen.fill(self.COLORES["fondo"])
+
+        # Título
+        titulo = self.font_titulo.render(
+            "Cargar Laberinto", True, self.COLORES["acento"]
+        )
+        titulo_rect = titulo.get_rect(center=(self.ancho // 2, 100))
+        self.screen.blit(titulo, titulo_rect)
+
+        # Instrucción
+        instruccion = self.font_texto.render(
+            "Selecciona un archivo .json o .txt:", True, (200, 200, 200)
+        )
+        instruccion_rect = instruccion.get_rect(center=(self.ancho // 2, 170))
+        self.screen.blit(instruccion, instruccion_rect)
+
+        # Mostrar archivo seleccionado
+        if self.archivo_seleccionado:
+            archivo_texto = self.font_info.render(
+                f"Archivo: {self.nombre_archivo}", True, (100, 255, 100)
+            )
+            archivo_rect = archivo_texto.get_rect(center=(self.ancho // 2, 430))
+            self.screen.blit(archivo_texto, archivo_rect)
+        else:
+            archivo_texto = self.font_info.render(
+                "Ningún archivo seleccionado", True, (150, 150, 150)
+            )
+            archivo_rect = archivo_texto.get_rect(center=(self.ancho // 2, 430))
+            self.screen.blit(archivo_texto, archivo_rect)
+
+        # Botones
+        self.btn_explorar.dibujar(self.screen)
+        self.btn_cargar.dibujar(self.screen)
+        self.btn_volver.dibujar(self.screen)
+
+        # Información adicional
+        info = self.font_info.render(
+            "Formatos aceptados: .json, .txt", True, (120, 120, 140)
+        )
+        info_rect = info.get_rect(center=(self.ancho // 2, self.alto - 50))
+        self.screen.blit(info, info_rect)
+
+        pygame.display.flip()
+
+    def seleccionar_archivo(self):
+        """Abre el diálogo de selección de archivo usando tkinter."""
+        try:
+            import tkinter as tk
+            from tkinter import filedialog
+
+            # Crear ventana temporal de tkinter (oculta)
+            root = tk.Tk()
+            root.withdraw()  # Ocultar la ventana principal
+            root.attributes("-topmost", True)  # Mantener al frente
+
+            # Abrir diálogo de selección
+            archivo = filedialog.askopenfilename(
+                title="Seleccionar archivo de laberinto",
+                filetypes=[
+                    ("Archivos JSON", "*.json"),
+                    ("Archivos de texto", "*.txt"),
+                    ("Todos los archivos", "*.*"),
+                ],
+            )
+
+            root.destroy()  # Cerrar ventana temporal
+
+            if archivo:
+                self.archivo_seleccionado = archivo
+                self.nombre_archivo = archivo.split("/")[-1].split("\\")[-1]
+                return True
+
+            return False
+
+        except Exception as e:
+            print(f"Error al abrir selector de archivo: {e}")
+            return False
+
+    def ejecutar(self):
+        """
+        Loop de la pantalla de carga.
+
+        Returns:
+            tuple: (laberinto, mensaje) si se cargó exitosamente, (None, None) si se canceló
+        """
+        clock = pygame.time.Clock()
+
+        while True:
+            clock.tick(60)
+            mouse_pos = pygame.mouse.get_pos()
+
+            for evento in pygame.event.get():
+                if evento.type == pygame.QUIT:
+                    return None, None
+
+                if evento.type == pygame.KEYDOWN:
+                    if evento.key == pygame.K_ESCAPE:
+                        return None, None
+
+                # Botón Explorar
+                if self.btn_explorar.manejar_evento(evento, mouse_pos):
+                    self.seleccionar_archivo()
+
+                # Botón Cargar
+                if self.btn_cargar.manejar_evento(evento, mouse_pos):
+                    if self.archivo_seleccionado:
+                        laberinto, mensaje = self.admin.cargar_laberinto(
+                            self.archivo_seleccionado
+                        )
+                        return laberinto, mensaje
+
+                # Botón Volver
+                if self.btn_volver.manejar_evento(evento, mouse_pos):
+                    return None, None
+
+            self.dibujar()
+
+
+class ModalConfirmacion:
+    """
+    Modal de confirmación con botones Sí/No.
+    Se usa para confirmar acciones críticas como salir o reiniciar datos.
+    """
+
+    def __init__(self, screen, titulo, mensaje):
+        self.screen = screen
+        self.ancho = screen.get_width()
+        self.alto = screen.get_height()
+        self.titulo = titulo
+        self.mensaje = mensaje
+
+        self.font_titulo = pygame.font.Font(None, 44)
+        self.font_mensaje = pygame.font.Font(None, 28)
+
+        # Botones
+        self.btn_si = Boton(self.ancho // 2 - 160, self.alto // 2 + 50, 140, 50, "✓ Sí")
+        self.btn_no = Boton(self.ancho // 2 + 20, self.alto // 2 + 50, 140, 50, "✗ No")
+
+    def dibujar(self):
+        """Dibuja el modal de confirmación."""
+        # Fondo semitransparente
+        overlay = pygame.Surface((self.ancho, self.alto))
+        overlay.set_alpha(220)
+        overlay.fill((0, 0, 0))
+        self.screen.blit(overlay, (0, 0))
+
+        # Caja del modal
+        modal_rect = pygame.Rect(self.ancho // 2 - 300, self.alto // 2 - 120, 600, 240)
+        pygame.draw.rect(self.screen, (40, 40, 60), modal_rect, border_radius=15)
+        pygame.draw.rect(self.screen, (255, 200, 0), modal_rect, 3, border_radius=15)
+
+        # Título
+        titulo_surface = self.font_titulo.render(self.titulo, True, (255, 200, 0))
+        titulo_rect = titulo_surface.get_rect(
+            center=(self.ancho // 2, self.alto // 2 - 70)
+        )
+        self.screen.blit(titulo_surface, titulo_rect)
+
+        # Mensaje (puede tener múltiples líneas)
+        lineas = self.mensaje.split("\n")
+        y_offset = -20
+        for linea in lineas:
+            mensaje_surface = self.font_mensaje.render(linea, True, (255, 255, 255))
+            mensaje_rect = mensaje_surface.get_rect(
+                center=(self.ancho // 2, self.alto // 2 + y_offset)
+            )
+            self.screen.blit(mensaje_surface, mensaje_rect)
+            y_offset += 35
+
+        # Botones
+        self.btn_si.dibujar(self.screen)
+        self.btn_no.dibujar(self.screen)
+
+        pygame.display.flip()
+
+    def ejecutar(self):
+        """
+        Loop del modal de confirmación.
+
+        Returns:
+            bool: True si confirmó (Sí), False si canceló (No)
+        """
+        clock = pygame.time.Clock()
+
+        while True:
+            clock.tick(60)
+            mouse_pos = pygame.mouse.get_pos()
+
+            for evento in pygame.event.get():
+                if evento.type == pygame.QUIT:
+                    return False
+
+                if evento.type == pygame.KEYDOWN:
+                    if evento.key == pygame.K_ESCAPE:
+                        return False
+                    if evento.key == pygame.K_RETURN:
+                        return True
+
+                # Botones
+                if self.btn_si.manejar_evento(evento, mouse_pos):
+                    return True
+                if self.btn_no.manejar_evento(evento, mouse_pos):
+                    return False
+
+            self.dibujar()
