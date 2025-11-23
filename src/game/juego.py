@@ -32,7 +32,6 @@ from interfaz.pantallas import (
     PantallaIniciarJuego,  # Pantalla para capturar el nombre del jugador antes de iniciar
     PantallaMenuAdministrador,  # Menú de opciones administrativas
     PantallaSalonFama,  # Pantalla que muestra los mejores puntajes
-    PantallaDemoUI,  # Pantalla de demostración de componentes UI pixel art
 )
 from interfaz.pantallas.pantalla_juego import (
     PantallaJuego,
@@ -132,9 +131,7 @@ class Juego:
                 self._manejar_salon_fama(screen, salon_fama)
             elif opcion == 3:  # Administración
                 self._manejar_administracion(screen, admin, salon_fama)
-            elif opcion == 4:  # Demo UI (Nueva opción)
-                self._manejar_demo_ui(screen)
-            elif opcion == 5:  # Salir
+            elif opcion == 4:  # Salir
                 ejecutando = self._manejar_salir(screen)
 
         # Al salir del loop, cerrar Pygame y terminar el proceso de forma limpia
@@ -156,33 +153,6 @@ class Juego:
         salon_fama.cargar_datos()
         pantalla_salon = PantallaSalonFama(screen, salon_fama)
         pantalla_salon.ejecutar()
-
-    def _manejar_demo_ui(self, screen):
-        """Maneja la opción de Demo UI."""
-        from interfaz.pantallas.pantalla_demo_ui import PantallaDemoUI
-
-        pantalla_demo = PantallaDemoUI(screen)
-        # Ejecutar loop de la demo
-        clock = pygame.time.Clock()
-        ejecutando = True
-
-        while ejecutando:
-            # Eventos
-            eventos = pygame.event.get()
-            pantalla_demo.manejar_eventos(eventos)
-
-            # Actualizar
-            pantalla_demo.actualizar()
-
-            # Dibujar
-            pantalla_demo.dibujar()
-            pygame.display.flip()
-            clock.tick(60)
-
-            # Verificar salida
-            resultado = pantalla_demo.obtener_resultado()
-            if resultado:
-                ejecutando = False
 
     def _manejar_administracion(self, screen, admin, salon_fama):
         """Maneja la opción de Administración."""

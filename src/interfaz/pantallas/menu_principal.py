@@ -43,8 +43,7 @@ class MenuPrincipal:
             ("Iniciar Juego", 1),
             ("Salón de la Fama", 2),
             ("Administración", 3),
-            ("Demo UI", 4),
-            ("Salir", 5),
+            ("Salir", 4),
         ]
 
         # Comenzar los botones justo después de la línea decorativa
