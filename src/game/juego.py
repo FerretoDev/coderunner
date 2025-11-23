@@ -23,15 +23,15 @@ sys.path.append(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 )  # Ajuste de ruta robusto y portátil [web:21]
 
-from game.interfaz import (
-    MensajeModal,  # Modal reutilizable para mostrar mensajes (éxito/error) [web:21]
-    MenuPrincipal,  # Menú principal que devuelve la opción elegida [web:21]
+from game.pantallas import (
+    MensajeModal,  # Modal reutilizable para mostrar mensajes (éxito/error)
+    MenuPrincipal,  # Menú principal que devuelve la opción elegida
     ModalConfirmacion,  # Modal de confirmación para acciones críticas
-    PantallaAdministracion,  # Pantalla que solicita clave para administración [web:21]
+    PantallaAdministracion,  # Pantalla que solicita clave para administración
     PantallaCargaLaberinto,  # Pantalla para cargar archivos de laberinto
-    PantallaIniciarJuego,  # Pantalla para capturar el nombre del jugador antes de iniciar [web:21]
+    PantallaIniciarJuego,  # Pantalla para capturar el nombre del jugador antes de iniciar
     PantallaMenuAdministrador,  # Menú de opciones administrativas
-    PantallaSalonFama,  # Pantalla que muestra los mejores puntajes [web:21]
+    PantallaSalonFama,  # Pantalla que muestra los mejores puntajes
 )
 from game.pantalla_juego import (
     PantallaJuego,
@@ -119,134 +119,90 @@ class Juego:
             )  # Devuelve un número de opción elegido por el usuario [web:21]
 
             if opcion == 1:  # Iniciar Juego
-                pantalla_inicio = PantallaIniciarJuego(
-                    screen
-                )  # Pantalla para pedir el nombre del jugador [web:21]
-                nombre = (
-                    pantalla_inicio.ejecutar()
-                )  # Devuelve el nombre o None si canceló [web:21]
-
-                if nombre:
-                    # Inicia el juego principal con el nombre ingresado
-                    pantalla = PantallaJuego(
-                        nombre
-                    )  # Pantalla del juego con su propio loop interno [web:47]
-                    pantalla.ejecutar()  # Corre hasta que termine esa pantalla (regresa al menú) [web:47]
-
+                self._manejar_iniciar_juego(screen)
             elif opcion == 2:  # Salón de la Fama
-                pantalla_salon = PantallaSalonFama(
-                    screen, salon_fama
-                )  # Pasamos el gestor para leer datos [web:21]
-                pantalla_salon.ejecutar()  # Muestra la tabla de récords y vuelve al menú al cerrar [web:21]
-
+                self._manejar_salon_fama(screen, salon_fama)
             elif opcion == 3:  # Administración
-                pantalla_admin = PantallaAdministracion(
-                    screen
-                )  # Pantalla que pide la clave al usuario [web:21]
-                clave = (
-                    pantalla_admin.ejecutar()
-                )  # Devuelve la clave ingresada o None si canceló [web:21]
-
-                if clave and admin.autenticar(
-                    clave
-                ):  # Verifica credenciales de admin [web:21]
-                    # Mostrar menú administrativo
-                    en_menu_admin = True
-                    while en_menu_admin:
-                        menu_admin = PantallaMenuAdministrador(screen)
-                        opcion_admin = menu_admin.ejecutar()
-
-                        if opcion_admin == 1:  # Cargar Laberinto
-                            pantalla_carga = PantallaCargaLaberinto(screen, admin)
-                            laberinto, mensaje = pantalla_carga.ejecutar()
-
-                            if laberinto:
-                                # Éxito: mostrar mensaje
-                                modal = MensajeModal(
-                                    screen,
-                                    "✅ Laberinto Cargado",
-                                    mensaje,
-                                    "success",
-                                )
-                                modal.ejecutar()
-                                # Aquí podrías guardar el laberinto en self._laberinto
-                                # o en una variable global para usarlo en el juego
-                            elif mensaje:
-                                # Error: mostrar mensaje
-                                modal = MensajeModal(
-                                    screen, "❌ Error", mensaje, "error"
-                                )
-                                modal.ejecutar()
-
-                        elif opcion_admin == 2:  # Reiniciar Salón de Fama
-                            # Confirmar antes de reiniciar
-                            confirmar = ModalConfirmacion(
-                                screen,
-                                "⚠️ Confirmar Acción",
-                                "¿Está seguro de que desea\neliminar todos los registros?",
-                            )
-                            if confirmar.ejecutar():
-                                mensaje = admin.reiniciar_salon_fama(salon_fama)
-                                modal = MensajeModal(
-                                    screen,
-                                    "✅ Salón Reiniciado",
-                                    mensaje,
-                                    "success",
-                                )
-                                modal.ejecutar()
-
-                        elif opcion_admin == 3:  # Volver
-                            en_menu_admin = False
-
-                elif clave:
-                    modal = MensajeModal(
-                        screen, "Error", "Clave incorrecta", "error"
-                    )  # Muestra error por clave inválida [web:21]
-                    modal.ejecutar()  # Espera a que el usuario cierre el modal [web:21]
-
+                self._manejar_administracion(screen, admin, salon_fama)
             elif opcion == 4:  # Salir
-                # Mostrar confirmación antes de salir
-                confirmar = ModalConfirmacion(
-                    screen,
-                    "⚠️ Confirmar Salida",
-                    "¿Está seguro de que desea\nsalir del juego?",
-                )
-                if confirmar.ejecutar():
-                    ejecutando = (
-                        False  # Sale del loop principal y cierra la aplicación [web:47]
-                    )
+                ejecutando = self._manejar_salir(screen)
 
         # Al salir del loop, cerrar Pygame y terminar el proceso de forma limpia
         pygame.quit()  # Libera recursos de Pygame (ventana, audio, etc.) [web:47]
         sys.exit()  # Termina el proceso del programa explícitamente [web:21]
 
-        # Código de finalización adicional si se necesitara en el futuro
-        self.terminar()  # Llamado no alcanzable tras sys.exit, se deja por claridad de intención [web:21]
+    def _manejar_iniciar_juego(self, screen):
+        """Maneja la opción de iniciar juego."""
+        pantalla_inicio = PantallaIniciarJuego(screen)
+        nombre = pantalla_inicio.ejecutar()
 
-    def actualizar(self):
-        """Cada ciclo: mover enemigo, colisiones y puntaje (pendiente de implementar)."""
-        pass  # La lógica de juego frame a frame se delega a PantallaJuego en este diseño [web:47]
+        if nombre:
+            pantalla = PantallaJuego(nombre)
+            pantalla.ejecutar()
 
-    def mostrar_estado(self):
-        """Muestra en consola el estado del jugador si existe (diagnóstico rápido)."""
-        if self._jugador:  # Evita errores si aún no hay jugador activo [web:21]
-            print(
-                f"Jugador: {self._jugador['nombre']}"
-            )  # Nombre del jugador para seguimiento [web:21]
-            print(f"Puntaje: {self._jugador['puntaje']}")  # Puntos actuales [web:21]
-            print(f"Vidas: {self._jugador['vidas']}")  # Vidas restantes [web:21]
+    def _manejar_salon_fama(self, screen, salon_fama):
+        """Maneja la opción de Salón de la Fama."""
+        pantalla_salon = PantallaSalonFama(screen, salon_fama)
+        pantalla_salon.ejecutar()
 
-    def terminar(self):
-        """Cierra el juego y, si existe jugador, muestra su puntaje final en consola."""
-        print(
-            "🎮 Juego terminado"
-        )  # Mensaje de cierre para indicar final del ciclo [web:21]
-        if self._jugador:  # Muestra puntaje final si corresponde [web:21]
-            print(
-                f"Puntaje final: {self._jugador['puntaje']}"
-            )  # Diagnóstico final [web:21]
-        pygame.quit()  # Garantiza liberación de recursos si se llama fuera del flujo normal [web:47]
+    def _manejar_administracion(self, screen, admin, salon_fama):
+        """Maneja la opción de Administración."""
+        pantalla_admin = PantallaAdministracion(screen)
+        clave = pantalla_admin.ejecutar()
 
-    def salir(self):
-        """Cierre ordenado de la aplicación usando la misma ruta de 'terminar'."""
-        self.terminar()  # Punto único para centralizar la lógica de salida [web:21]
+        if clave and admin.autenticar(clave):
+            self._mostrar_menu_administrador(screen, admin, salon_fama)
+        elif clave:
+            modal = MensajeModal(screen, "Error", "Clave incorrecta", "error")
+            modal.ejecutar()
+
+    def _mostrar_menu_administrador(self, screen, admin, salon_fama):
+        """Muestra el menú de administrador y maneja sus opciones."""
+        en_menu_admin = True
+        while en_menu_admin:
+            menu_admin = PantallaMenuAdministrador(screen)
+            opcion_admin = menu_admin.ejecutar()
+
+            if opcion_admin == 1:  # Cargar Laberinto
+                self._manejar_cargar_laberinto(screen, admin)
+            elif opcion_admin == 2:  # Reiniciar Salón de Fama
+                self._manejar_reiniciar_salon(screen, admin, salon_fama)
+            elif opcion_admin == 3:  # Volver
+                en_menu_admin = False
+
+    def _manejar_cargar_laberinto(self, screen, admin):
+        """Maneja la carga de un laberinto."""
+        pantalla_carga = PantallaCargaLaberinto(screen, admin)
+        laberinto, mensaje = pantalla_carga.ejecutar()
+
+        if laberinto:
+            modal = MensajeModal(screen, "✅ Laberinto Cargado", mensaje, "success")
+            modal.ejecutar()
+        elif mensaje:
+            modal = MensajeModal(screen, "❌ Error", mensaje, "error")
+            modal.ejecutar()
+
+    def _manejar_reiniciar_salon(self, screen, admin, salon_fama):
+        """Maneja el reinicio del salón de la fama."""
+        confirmar = ModalConfirmacion(
+            screen,
+            "⚠️ Confirmar Acción",
+            "¿Está seguro de que desea\neliminar todos los registros?",
+        )
+        if confirmar.ejecutar():
+            mensaje = admin.reiniciar_salon_fama(salon_fama)
+            modal = MensajeModal(screen, "✅ Salón Reiniciado", mensaje, "success")
+            modal.ejecutar()
+
+    def _manejar_salir(self, screen):
+        """Maneja la confirmación de salida del juego.
+
+        Returns:
+            False para salir del loop, True para continuar
+        """
+        confirmar = ModalConfirmacion(
+            screen,
+            "⚠️ Confirmar Salida",
+            "¿Está seguro de que desea\nsalir del juego?",
+        )
+        return not confirmar.ejecutar()

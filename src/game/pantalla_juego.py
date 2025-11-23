@@ -46,9 +46,9 @@ class PantallaJuego:
 
         # Carga del laberinto desde archivo JSON y acceso a la matriz
         # Intenta cargar el laberinto activo, si no existe usa el predeterminado
-        from models.administrador import Administrador
+        from models.config_laberinto import ConfigLaberinto
 
-        ruta_laberinto = Administrador.obtener_laberinto_activo()
+        ruta_laberinto = ConfigLaberinto.obtener_laberinto_activo()
         if not ruta_laberinto:
             ruta_laberinto = "src/data/laberintos/laberinto3.json"
 

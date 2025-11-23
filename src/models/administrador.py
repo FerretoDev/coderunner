@@ -2,6 +2,10 @@ import json
 import os
 import shutil
 from datetime import datetime
+
+from utils import guardar_json, resolver_ruta_laberinto
+
+from .config_laberinto import ConfigLaberinto
 from .laberinto import Laberinto
 from .salon_fama import SalonFama
 
@@ -77,7 +81,7 @@ class Administrador:
                     mensaje_copia = "\n(No se pudo copiar, usando archivo original)"
 
             # Guardar la ruta del laberinto cargado para uso posterior
-            self._guardar_laberinto_activo(ruta_final)
+            ConfigLaberinto.guardar_laberinto_activo(ruta_final)
 
             # Crear el laberinto solo si pygame está disponible e inicializado
             try:
@@ -148,26 +152,6 @@ class Administrador:
             print(f"Error al copiar laberinto: {e}")
             return None
 
-    def _guardar_laberinto_activo(self, ruta: str) -> None:
-        """
-        Guarda la ruta del laberinto activo en un archivo de configuración.
-
-        Args:
-            ruta: Ruta del archivo de laberinto a guardar como activo
-        """
-        try:
-            config_path = "src/data/config_laberinto.json"
-            config = {
-                "laberinto_activo": ruta,
-                "fecha_carga": datetime.now().isoformat(),
-            }
-
-            with open(config_path, "w", encoding="utf-8") as f:
-                json.dump(config, f, indent=2, ensure_ascii=False)
-
-        except Exception as e:
-            print(f"Error al guardar configuración de laberinto: {e}")
-
     def _validar_estructura_laberinto(self, datos: dict) -> list[str]:
         """
         Valida la estructura del archivo de laberinto.
@@ -230,25 +214,3 @@ class Administrador:
         """
         salon.reiniciar()
         return "Salón de la fama reiniciado exitosamente"
-
-    @staticmethod
-    def obtener_laberinto_activo() -> str | None:
-        """
-        Obtiene la ruta del laberinto activo desde la configuración.
-
-        Returns:
-            Ruta del laberinto activo o None si no hay ninguno configurado
-        """
-        try:
-            config_path = "src/data/config_laberinto.json"
-            if os.path.exists(config_path):
-                with open(config_path, "r", encoding="utf-8") as f:
-                    config = json.load(f)
-                    ruta = config.get("laberinto_activo")
-                    # Verificar que el archivo todavía existe
-                    if ruta and os.path.exists(ruta):
-                        return ruta
-            return None
-        except Exception as e:
-            print(f"Error al leer configuración de laberinto: {e}")
-            return None

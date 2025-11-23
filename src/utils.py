@@ -6,6 +6,7 @@ Funciones helper que evitan duplicación de código:
 - Validaciones comunes
 - Helpers de configuración
 """
+
 import json
 import os
 

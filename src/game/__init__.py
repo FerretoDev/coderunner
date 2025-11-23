@@ -12,8 +12,8 @@ Incluye:
 - ModalConfirmacion: cuadro de diálogo de confirmación.
 """
 
-# Import relativo de las pantallas desde el paquete interfaz
-from .interfaz import (
+# Import relativo de las pantallas desde el paquete pantallas
+from .pantallas import (
     MenuPrincipal,  # Menú de entrada a las demás pantallas
     MensajeModal,  # Cuadro de diálogo para mensajes
     ModalConfirmacion,  # Cuadro de diálogo de confirmación
