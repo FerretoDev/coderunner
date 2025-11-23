@@ -4,7 +4,7 @@ Modal para mostrar mensajes al usuario.
 
 import pygame
 
-from ..componentes.input_texto import Boton
+from ui.components.input_texto import Boton
 
 
 class MensajeModal:

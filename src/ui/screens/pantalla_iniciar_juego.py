@@ -4,7 +4,7 @@ Pantalla para ingresar el nombre del jugador antes de iniciar partida.
 
 import pygame
 
-from ..componentes.input_texto import Boton, InputTexto
+from ui.components.input_texto import Boton, InputTexto
 
 
 class PantallaIniciarJuego:

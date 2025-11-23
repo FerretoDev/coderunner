@@ -8,7 +8,7 @@ import os
 
 import pytest
 
-from models.laberinto import Laberinto
+from world.laberinto import Laberinto
 
 
 @pytest.fixture

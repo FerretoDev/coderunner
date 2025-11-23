@@ -6,7 +6,7 @@ Verificar que el laberinto tiene muros y pasillos correctos.
 import pygame
 import pytest
 
-from models.laberinto import Laberinto
+from world.laberinto import Laberinto
 
 
 @pytest.fixture

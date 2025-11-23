@@ -4,7 +4,7 @@ Pantalla del Salón de la Fama que muestra los mejores puntajes.
 
 import pygame
 
-from ..componentes.input_texto import Boton
+from ui.components.input_texto import Boton
 
 
 class PantallaSalonFama:

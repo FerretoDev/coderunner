@@ -6,8 +6,8 @@ Muestra el título y opciones principales del juego.
 
 import pygame
 
-from ..componentes.input_texto import Boton
-from ..config import ConfigJuego
+from ui.components.input_texto import Boton
+from config.config import ConfigJuego
 
 
 class MenuPrincipal:

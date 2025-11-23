@@ -3,16 +3,16 @@ import os
 
 import pygame  # Motor de eventos, dibujo y tiempo
 
-from models.computadora import Computadora
-from models.jugador import Jugador
-from models.laberinto import Laberinto
-from models.sistema_sonido import SistemaSonido
+from entities.computadora import Computadora
+from entities.jugador import Jugador
+from world.laberinto import Laberinto
+from services.sistema_sonido import SistemaSonido
 
-from .config import Colores, ConfigJuego
-from .coordenadas import ConversorCoordenadas
-from .gestor_dificultad import GestorDificultad
-from .gestor_movimiento import GestorMovimiento
-from .gestor_obsequios import GestorObsequios
+from config.config import Colores, ConfigJuego
+from utils.coordenadas import ConversorCoordenadas
+from gameplay.managers.gestor_dificultad import GestorDificultad
+from gameplay.managers.gestor_movimiento import GestorMovimiento
+from gameplay.managers.gestor_obsequios import GestorObsequios
 
 
 class PantallaJuego:
@@ -50,7 +50,7 @@ class PantallaJuego:
 
         # Carga del laberinto desde archivo JSON y acceso a la matriz
         # Intenta cargar el laberinto activo, si no existe usa el predeterminado
-        from models.config_laberinto import ConfigLaberinto
+        from config.config_laberinto import ConfigLaberinto
 
         ruta_laberinto = ConfigLaberinto.obtener_laberinto_activo()
         if not ruta_laberinto:
@@ -495,7 +495,7 @@ class PantallaJuego:
         self.screen.blit(ranking_titulo, ranking_titulo_rect)
 
         # Obtener y mostrar el ranking
-        from models.salon_fama import SalonFama
+        from world.salon_fama import SalonFama
 
         salon = SalonFama()
         registros = salon.mostrar_mejores(limite=5)
@@ -567,8 +567,8 @@ class PantallaJuego:
 
     def _guardar_en_salon_fama(self):
         """Crea un registro y lo guarda en el salón de la fama."""
-        from models.registro import Registro
-        from models.salon_fama import SalonFama
+        from world.registro import Registro
+        from world.salon_fama import SalonFama
 
         salon = SalonFama()
         registro = Registro(

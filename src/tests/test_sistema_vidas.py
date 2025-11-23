@@ -6,8 +6,8 @@ Verificar el sistema de vidas del jugador.
 import pygame
 import pytest
 
-from models.computadora import Computadora
-from models.jugador import Jugador
+from entities.computadora import Computadora
+from entities.jugador import Jugador
 
 
 @pytest.fixture

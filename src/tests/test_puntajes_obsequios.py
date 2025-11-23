@@ -6,8 +6,8 @@ Verificar el sistema de puntos y recolección de obsequios.
 import pygame
 import pytest
 
-from models.jugador import Jugador
-from models.obsequio import Obsequio
+from entities.jugador import Jugador
+from world.obsequio import Obsequio
 
 
 @pytest.fixture

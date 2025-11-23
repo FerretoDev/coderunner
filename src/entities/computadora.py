@@ -3,8 +3,8 @@ from collections import deque
 
 import pygame
 
-from game.config import ConfigJuego
-from game.coordenadas import ConversorCoordenadas
+from config.config import ConfigJuego
+from utils.coordenadas import ConversorCoordenadas
 
 from .personaje import Personaje
 

@@ -1,6 +1,6 @@
 import pygame
 
-from game.config import ConfigJuego
+from config.config import ConfigJuego
 
 from .personaje import Personaje
 

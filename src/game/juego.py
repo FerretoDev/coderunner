@@ -13,7 +13,7 @@ import sys  # Permite modificar sys.path y cerrar la app con sys.exit() [web:21]
 
 import pygame
 
-from .constants import (
+from config.constants import (
     PASSWORD,
 )  # Motor de eventos, ventana y tiempo para el loop principal [web:47]
 
@@ -23,7 +23,7 @@ sys.path.append(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 )  # Ajuste de ruta robusto y portátil [web:21]
 
-from game.pantallas import (
+from ui.screens import (
     MensajeModal,  # Modal reutilizable para mostrar mensajes (éxito/error)
     MenuPrincipal,  # Menú principal que devuelve la opción elegida
     ModalConfirmacion,  # Modal de confirmación para acciones críticas
@@ -33,16 +33,16 @@ from game.pantallas import (
     PantallaMenuAdministrador,  # Menú de opciones administrativas
     PantallaSalonFama,  # Pantalla que muestra los mejores puntajes
 )
-from game.pantalla_juego import (
+from ui.screens.pantalla_juego import (
     PantallaJuego,
 )  # Pantalla que corre el juego principal (loop propio) [web:47]
-from models.administrador import (
+from services.administrador import (
     Administrador,
 )  # Lógica de autenticación de administrador [web:21]
-from models.salon_fama import (
+from world.salon_fama import (
     SalonFama,
 )  # Modelo para gestionar puntuaciones y récords [web:21]
-from models.sistema_sonido import (
+from services.sistema_sonido import (
     SistemaSonido,
 )  # Sistema centralizado de sonidos [web:47]
 

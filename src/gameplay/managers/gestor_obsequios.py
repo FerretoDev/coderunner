@@ -10,7 +10,7 @@ Maneja el ciclo de vida completo de los obsequios:
 
 import random
 
-from models.obsequio import Obsequio
+from world.obsequio import Obsequio
 
 
 class GestorObsequios:
