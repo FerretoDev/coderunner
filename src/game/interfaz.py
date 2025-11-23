@@ -793,9 +793,12 @@ class PantallaCargaLaberinto:
             "Ruta del archivo (ej: src/data/laberintos/laberinto1.json)",
         )
 
-        # Botones
-        self.btn_cargar = Boton(self.ancho // 2 - 200, 320, 190, 50, "✓ Cargar")
-        self.btn_volver = Boton(self.ancho // 2 + 10, 320, 190, 50, "✗ Cancelar")
+        # Botones principales
+        self.btn_explorador = Boton(
+            self.ancho // 2 - 300, 320, 200, 50, "📂 Explorador"
+        )
+        self.btn_cargar = Boton(self.ancho // 2 - 90, 320, 180, 50, "✓ Cargar")
+        self.btn_volver = Boton(self.ancho // 2 + 100, 320, 180, 50, "✗ Cancelar")
 
         # Botones de acceso rápido a archivos comunes (fila 1)
         self.btn_lab1 = Boton(
@@ -826,6 +829,39 @@ class PantallaCargaLaberinto:
         self.archivo_seleccionado = None
         self.nombre_archivo = ""
 
+    def abrir_explorador_archivos(self):
+        """
+        Abre el explorador de archivos del sistema para seleccionar un archivo JSON.
+
+        Returns:
+            str or None: Ruta del archivo seleccionado o None si se canceló
+        """
+        try:
+            import tkinter as tk
+            from tkinter import filedialog
+
+            # Crear ventana raíz oculta
+            root = tk.Tk()
+            root.withdraw()
+            root.attributes("-topmost", True)
+
+            # Abrir diálogo de selección de archivo
+            archivo = filedialog.askopenfilename(
+                title="Seleccionar archivo de laberinto",
+                initialdir="src/data/laberintos",
+                filetypes=[("Archivos JSON", "*.json"), ("Todos los archivos", "*.*")],
+            )
+
+            root.destroy()
+            return archivo if archivo else None
+
+        except ImportError:
+            print("Error al abrir selector de archivo: No module named 'tkinter'")
+            return None
+        except Exception as e:
+            print(f"Error al abrir explorador de archivos: {e}")
+            return None
+
     def dibujar(self):
         """Dibuja la pantalla de carga de laberinto."""
         self.screen.fill(self.COLORES["fondo"])
@@ -848,6 +884,7 @@ class PantallaCargaLaberinto:
         self.input_ruta.dibujar(self.screen)
 
         # Botones principales
+        self.btn_explorador.dibujar(self.screen)
         self.btn_cargar.dibujar(self.screen)
         self.btn_volver.dibujar(self.screen)
 
@@ -925,6 +962,12 @@ class PantallaCargaLaberinto:
 
                         laberinto, mensaje = self.admin.cargar_laberinto(ruta)
                         return laberinto, mensaje
+
+                # Botón Explorador
+                if self.btn_explorador.manejar_evento(evento, mouse_pos):
+                    archivo = self.abrir_explorador_archivos()
+                    if archivo:
+                        self.input_ruta.texto = archivo
 
                 # Botón Cargar
                 if self.btn_cargar.manejar_evento(evento, mouse_pos):
