@@ -1,0 +1,12 @@
+{
+  "sfx": {
+    "jump": "audio/sfx/jump.wav",
+    "coin": "audio/sfx/coin.wav",
+    "hit": "audio/sfx/hit.wav",
+    "death": "audio/sfx/death.wav",
+    "victory": "audio/sfx/victory.wav"
+  },
+  "music": {
+    "bgm_loop": "audio/music/bgm_loop.wav"
+  }
+}

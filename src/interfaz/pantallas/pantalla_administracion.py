@@ -4,7 +4,14 @@ Pantalla de autenticación para el administrador.
 
 import pygame
 
-from interfaz.componentes.input_texto import Boton, InputTexto
+from interfaz.componentes.boton_adaptable import BotonGrande
+from interfaz.componentes.input_texto import InputTexto
+from interfaz.componentes.titulo_arcade import (
+    LineaDecorativa,
+    SubtituloArcade,
+    TituloArcade,
+)
+from interfaz.gestor_fuentes import GestorFuentes
 
 
 class PantallaAdministracion:
@@ -16,44 +23,49 @@ class PantallaAdministracion:
         self.alto = screen.get_height()
         self.autenticado = False
 
-        self.font_titulo = pygame.font.Font(None, 56)
-        self.font_texto = pygame.font.Font(None, 32)
+        fuentes = GestorFuentes()
+        self.font_titulo = fuentes.titulo_normal
+        self.font_texto = fuentes.titulo_pequeño
+        self.font_hint = fuentes.texto_info
+
+        # Componentes arcade
+        self.titulo = TituloArcade("ADMINISTRACION", y=50, estilo="mediano")
+        self.subtitulo = SubtituloArcade("Ingresa la clave de administrador", y=120)
+        self.linea = LineaDecorativa(y=150, ancho_porcentaje=50, doble=True)
 
         # Input de clave con placeholder
         self.input_clave = InputTexto(
-            self.ancho // 2 - 200, 250, 400, 50, "Ingresa la clave"
+            self.ancho // 2 - 200, 200, 400, 50, "Ingresa la clave"
         )
 
-        # Botones
-        self.btn_ingresar = Boton(self.ancho // 2 - 100, 350, 200, 50, "Ingresar")
-        self.btn_volver = Boton(self.ancho // 2 - 100, 420, 200, 50, "Volver")
+        # Botones arcade
+        self.btn_ingresar = BotonGrande(self.ancho // 2, 290, "Ingresar")
+        self.btn_ingresar.centrar_horizontalmente(self.ancho)
+
+        self.btn_volver = BotonGrande(self.ancho // 2, 365, "Volver")
+        self.btn_volver.centrar_horizontalmente(self.ancho)
 
     def dibujar(self):
         """Dibuja la pantalla de autenticación con input, botones y un hint."""
         self.screen.fill((20, 20, 30))
 
-        # Título
-        titulo = self.font_titulo.render("Administración", True, (255, 255, 255))
-        titulo_rect = titulo.get_rect(center=(self.ancho // 2, 100))
-        self.screen.blit(titulo, titulo_rect)
+        # Componentes arcade
+        self.titulo.dibujar(self.screen)
+        self.subtitulo.dibujar(self.screen)
+        self.linea.dibujar(self.screen)
 
-        # Instrucción
-        instruccion = self.font_texto.render(
-            "Ingresa la clave de administrador:", True, (200, 200, 200)
-        )
-        instruccion_rect = instruccion.get_rect(center=(self.ancho // 2, 180))
-        self.screen.blit(instruccion, instruccion_rect)
-
-        # Input y botones
+        # Input
         self.input_clave.dibujar(self.screen)
+
+        # Botones
         self.btn_ingresar.dibujar(self.screen)
         self.btn_volver.dibujar(self.screen)
 
-        # Hint visible al pie de pantalla
-        hint = pygame.font.Font(None, 20).render(
-            "Clave por defecto: admin123", True, (100, 100, 120)
+        # Hint con icono de candado
+        hint = self.font_hint.render(
+            "🔒 Clave por defecto: admin123", True, (100, 120, 150)
         )
-        hint_rect = hint.get_rect(center=(self.ancho // 2, self.alto - 30))
+        hint_rect = hint.get_rect(center=(self.ancho // 2, self.alto - 40))
         self.screen.blit(hint, hint_rect)
 
         pygame.display.flip()

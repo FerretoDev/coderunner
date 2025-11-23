@@ -32,6 +32,7 @@ from interfaz.pantallas import (
     PantallaIniciarJuego,  # Pantalla para capturar el nombre del jugador antes de iniciar
     PantallaMenuAdministrador,  # Menú de opciones administrativas
     PantallaSalonFama,  # Pantalla que muestra los mejores puntajes
+    PantallaDemoUI,  # Pantalla de demostración de componentes UI pixel art
 )
 from interfaz.pantallas.pantalla_juego import (
     PantallaJuego,
@@ -76,9 +77,22 @@ class Juego:
         # Inicializar Pygame una sola vez antes de usar display, eventos o fuentes
         pygame.init()  # Prepara módulos internos de Pygame para su uso correcto
 
-        # Crear ventana principal con tamaño fijo de 800x600 y título
+        # Obtener información de la pantalla
+        info_pantalla = pygame.display.Info()
+        ancho_monitor = info_pantalla.current_w
+        alto_monitor = info_pantalla.current_h
+
+        # Usar 90% del tamaño del monitor para dejar espacio para barras del sistema
+        ancho_ventana = int(ancho_monitor * 0.9)
+        alto_ventana = int(alto_monitor * 0.85)
+
+        # Mínimo 800x600 para asegurar usabilidad
+        ancho_ventana = max(800, ancho_ventana)
+        alto_ventana = max(600, alto_ventana)
+
+        # Crear ventana principal con tamaño adaptable
         screen = pygame.display.set_mode(
-            (800, 600)
+            (ancho_ventana, alto_ventana)
         )  # Crea la Surface principal donde se dibuja
         pygame.display.set_caption(
             "Theseus Runner"
@@ -99,9 +113,7 @@ class Juego:
 
         while ejecutando:
             # Asegura las dimensiones y el título del menú cada vez
-            screen = pygame.display.set_mode(
-                (800, 600)
-            )  # Útil si otras pantallas modifican la ventana
+            # Mantener el tamaño actual de la ventana
             pygame.display.set_caption(
                 "Theseus Runner"
             )  # Restituye el título principal si cambió [web:47]
@@ -120,7 +132,9 @@ class Juego:
                 self._manejar_salon_fama(screen, salon_fama)
             elif opcion == 3:  # Administración
                 self._manejar_administracion(screen, admin, salon_fama)
-            elif opcion == 4:  # Salir
+            elif opcion == 4:  # Demo UI (Nueva opción)
+                self._manejar_demo_ui(screen)
+            elif opcion == 5:  # Salir
                 ejecutando = self._manejar_salir(screen)
 
         # Al salir del loop, cerrar Pygame y terminar el proceso de forma limpia
@@ -138,8 +152,37 @@ class Juego:
 
     def _manejar_salon_fama(self, screen, salon_fama):
         """Maneja la opción de Salón de la Fama."""
+        # Recargar datos para mostrar los puntajes más recientes
+        salon_fama.cargar_datos()
         pantalla_salon = PantallaSalonFama(screen, salon_fama)
         pantalla_salon.ejecutar()
+
+    def _manejar_demo_ui(self, screen):
+        """Maneja la opción de Demo UI."""
+        from interfaz.pantallas.pantalla_demo_ui import PantallaDemoUI
+
+        pantalla_demo = PantallaDemoUI(screen)
+        # Ejecutar loop de la demo
+        clock = pygame.time.Clock()
+        ejecutando = True
+
+        while ejecutando:
+            # Eventos
+            eventos = pygame.event.get()
+            pantalla_demo.manejar_eventos(eventos)
+
+            # Actualizar
+            pantalla_demo.actualizar()
+
+            # Dibujar
+            pantalla_demo.dibujar()
+            pygame.display.flip()
+            clock.tick(60)
+
+            # Verificar salida
+            resultado = pantalla_demo.obtener_resultado()
+            if resultado:
+                ejecutando = False
 
     def _manejar_administracion(self, screen, admin, salon_fama):
         """Maneja la opción de Administración."""

@@ -5,6 +5,8 @@ Singleton que mantiene todas las fuentes pre-creadas y listas para usar
 en cualquier pantalla, mejorando el rendimiento y uso de memoria.
 """
 
+from pathlib import Path
+
 import pygame
 
 
@@ -29,32 +31,112 @@ class GestorFuentes:
         if self._inicializado:
             return
 
-        # Fuentes para títulos
-        self.titulo_grande = pygame.font.Font(None, 72)  # MenuPrincipal
-        self.titulo_normal = pygame.font.Font(None, 56)  # Pantallas comunes
-        self.titulo_mediano = pygame.font.Font(None, 52)  # Carga laberinto
-        self.titulo_pequeño = pygame.font.Font(None, 48)  # Modales
-        self.titulo_mini = pygame.font.Font(None, 44)  # Modal confirmación
+        # Intentar cargar la fuente Press Start 2P descargada
+        font_path = Path("src/assets/fonts/PressStart2P-Regular.ttf")
+        usar_press_start = font_path.exists()
 
-        # Fuentes para texto normal
-        self.texto_grande = pygame.font.Font(None, 32)  # Texto importante
-        self.texto_normal = pygame.font.Font(None, 28)  # Texto común
-        self.texto_pequeño = pygame.font.Font(None, 24)  # Texto secundario
-        self.texto_mini = pygame.font.Font(None, 22)  # Estadísticas
-        self.texto_info = pygame.font.Font(None, 20)  # Info adicional
+        if usar_press_start:
+            # Fuentes para títulos (Press Start 2P)
+            self.titulo_grande = pygame.font.Font(str(font_path), 48)
+            self.titulo_normal = pygame.font.Font(str(font_path), 36)
+            self.titulo_mediano = pygame.font.Font(str(font_path), 32)
+            self.titulo_pequeño = pygame.font.Font(str(font_path), 28)
+            self.titulo_mini = pygame.font.Font(str(font_path), 24)
 
-        # Fuentes específicas del juego
-        self.hud_titulo = pygame.font.Font(None, 48)  # Títulos en juego
-        self.hud_normal = pygame.font.Font(None, 32)  # HUD principal
-        self.hud_pequeño = pygame.font.Font(None, 24)  # HUD secundario
+            # Fuentes para texto normal (Press Start 2P)
+            self.texto_grande = pygame.font.Font(str(font_path), 20)
+            self.texto_normal = pygame.font.Font(str(font_path), 16)
+            self.texto_pequeño = pygame.font.Font(str(font_path), 14)
+            self.texto_mini = pygame.font.Font(str(font_path), 12)
+            self.texto_info = pygame.font.Font(str(font_path), 10)
 
-        # Fuente monoespaciada para datos tabulares (si se necesita)
-        try:
-            self.monoespaciada = pygame.font.SysFont("courier", 24)
-        except Exception:
-            self.monoespaciada = pygame.font.Font(None, 24)
+            # Fuentes específicas del juego (HUD)
+            self.hud_titulo = pygame.font.Font(str(font_path), 28)
+            self.hud_normal = pygame.font.Font(str(font_path), 18)
+            self.hud_pequeño = pygame.font.Font(str(font_path), 14)
+
+            # Fuente monoespaciada
+            self.monoespaciada = pygame.font.Font(str(font_path), 16)
+
+            self.fuente_pixel_nombre = "Press Start 2P (TTF)"
+
+        else:
+            # Fallback: Buscar fuentes pixel art en el sistema
+            fuentes_pixel_preferidas = [
+                "courier new",
+                "courier",
+                "mono",
+                "monospace",
+            ]
+
+            fuente_pixel = None
+            for nombre in fuentes_pixel_preferidas:
+                try:
+                    test = pygame.font.SysFont(nombre, 16)
+                    if test:
+                        fuente_pixel = nombre
+                        break
+                except:
+                    continue
+
+            if fuente_pixel:
+                # Usar fuente del sistema
+                self.titulo_grande = pygame.font.SysFont(fuente_pixel, 56, bold=True)
+                self.titulo_normal = pygame.font.SysFont(fuente_pixel, 42, bold=True)
+                self.titulo_mediano = pygame.font.SysFont(fuente_pixel, 36)
+                self.titulo_pequeño = pygame.font.SysFont(fuente_pixel, 32)
+                self.titulo_mini = pygame.font.SysFont(fuente_pixel, 28)
+
+                self.texto_grande = pygame.font.SysFont(fuente_pixel, 24)
+                self.texto_normal = pygame.font.SysFont(fuente_pixel, 20)
+                self.texto_pequeño = pygame.font.SysFont(fuente_pixel, 16)
+                self.texto_mini = pygame.font.SysFont(fuente_pixel, 14)
+                self.texto_info = pygame.font.SysFont(fuente_pixel, 12)
+
+                self.hud_titulo = pygame.font.SysFont(fuente_pixel, 32, bold=True)
+                self.hud_normal = pygame.font.SysFont(fuente_pixel, 22)
+                self.hud_pequeño = pygame.font.SysFont(fuente_pixel, 16)
+
+                self.monoespaciada = pygame.font.SysFont(fuente_pixel, 18)
+
+                self.fuente_pixel_nombre = f"{fuente_pixel} (Sistema)"
+            else:
+                # Último fallback: fuente default de pygame
+                self.titulo_grande = pygame.font.Font(None, 72)
+                self.titulo_normal = pygame.font.Font(None, 56)
+                self.titulo_mediano = pygame.font.Font(None, 52)
+                self.titulo_pequeño = pygame.font.Font(None, 48)
+                self.titulo_mini = pygame.font.Font(None, 44)
+
+                self.texto_grande = pygame.font.Font(None, 32)
+                self.texto_normal = pygame.font.Font(None, 28)
+                self.texto_pequeño = pygame.font.Font(None, 24)
+                self.texto_mini = pygame.font.Font(None, 22)
+                self.texto_info = pygame.font.Font(None, 20)
+
+                self.hud_titulo = pygame.font.Font(None, 48)
+                self.hud_normal = pygame.font.Font(None, 32)
+                self.hud_pequeño = pygame.font.Font(None, 24)
+
+                self.monoespaciada = pygame.font.Font(None, 24)
+
+                self.fuente_pixel_nombre = "Default (pygame.font.Font)"
 
         self._inicializado = True
+
+    def render_pixel(self, fuente, texto, color):
+        """
+        Renderiza texto con estilo pixel art (sin antialiasing).
+
+        Args:
+            fuente: Objeto Font a usar
+            texto: Texto a renderizar
+            color: Color del texto (tuple RGB)
+
+        Returns:
+            Surface con el texto renderizado
+        """
+        return fuente.render(texto, False, color)  # False = sin antialiasing
 
     @classmethod
     def obtener(cls):

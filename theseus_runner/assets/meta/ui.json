@@ -1,0 +1,23 @@
+{
+  "buttons": {
+    "width": 64,
+    "height": 16,
+    "states": [
+      "normal",
+      "hover",
+      "pressed"
+    ]
+  },
+  "health_bar": {
+    "width": 100,
+    "height": 8
+  },
+  "icons": {
+    "size": 16,
+    "types": [
+      "key",
+      "gem",
+      "coin"
+    ]
+  }
+}

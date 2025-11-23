@@ -133,24 +133,32 @@ class GestorMovimiento:
         nueva_x = rect.x
         nueva_y = rect.y
 
+        # Calcular desplazamiento para el sprite
+        dx = 0
+        dy = 0
+
         # Calcular nueva posición según dirección
         if direccion == "up":
             nueva_y = rect.y - self.tam_celda
+            dy = -self.tam_celda
             limite_min = self.offset_y
             if nueva_y < limite_min:
                 return
         elif direccion == "down":
             nueva_y = rect.y + self.tam_celda
+            dy = self.tam_celda
             limite_max = self.offset_y + (len(self.mapa) * self.tam_celda)
             if nueva_y + rect.height > limite_max:
                 return
         elif direccion == "left":
             nueva_x = rect.x - self.tam_celda
+            dx = -self.tam_celda
             limite_min = self.offset_x
             if nueva_x < limite_min:
                 return
         elif direccion == "right":
             nueva_x = rect.x + self.tam_celda
+            dx = self.tam_celda
             limite_max = self.offset_x + (len(self.mapa[0]) * self.tam_celda)
             if nueva_x + rect.width > limite_max:
                 return
@@ -160,6 +168,9 @@ class GestorMovimiento:
         if not any(temp_rect.colliderect(m) for m in self.muros):
             rect.x = nueva_x
             rect.y = nueva_y
+
+            # Actualizar estado de movimiento del sprite del jugador
+            self.jugador.actualizar_movimiento(dx, dy)
 
     def _mover_continuo(self, direccion: str):
         """
@@ -172,15 +183,23 @@ class GestorMovimiento:
         rect = self.jugador.jugador_principal
         velocidad = self.jugador.velocidad
 
+        # Calcular desplazamiento para el sprite
+        dx = 0
+        dy = 0
+
         # Aplicar movimiento
         if direccion == "up":
             rect.y -= velocidad
+            dy = -velocidad
         elif direccion == "down":
             rect.y += velocidad
+            dy = velocidad
         elif direccion == "left":
             rect.x -= velocidad
+            dx = -velocidad
         elif direccion == "right":
             rect.x += velocidad
+            dx = velocidad
 
         # Aplicar límites del laberinto
         limite_x_min = self.offset_x
@@ -194,6 +213,9 @@ class GestorMovimiento:
         # Revertir si hay colisión
         if not self.detectar_colision():
             self.revertir_posicion()
+        else:
+            # Actualizar estado de movimiento del sprite del jugador
+            self.jugador.actualizar_movimiento(dx, dy)
 
     def actualizar_muros(self, nuevos_muros: list[pygame.Rect]):
         """Actualiza la lista de muros (útil si el laberinto cambia)."""

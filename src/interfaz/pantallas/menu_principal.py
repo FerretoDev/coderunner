@@ -8,15 +8,19 @@ import pygame
 
 from config.colores import PaletaColores
 from config.config import ConfigJuego
-from interfaz.componentes.input_texto import Boton
-from interfaz.gestor_fuentes import GestorFuentes
+from interfaz.componentes.boton_adaptable import BotonGrande
+from interfaz.componentes.titulo_arcade import (
+    FooterArcade,
+    LineaDecorativa,
+    SubtituloArcade,
+    TituloArcade,
+)
 
 
 class MenuPrincipal:
-    """Menú principal con botones horizontales.
+    """Menú principal con componentes arcade reutilizables.
 
-    Muestra el título y cuatro botones: Iniciar, Salón de la Fama, Administración y Salir.
-    Devuelve un número según la opción elegida para que el llamador actúe.
+    Muestra el título y botones adaptables con efectos pixel art.
     """
 
     def __init__(self, screen):
@@ -24,85 +28,52 @@ class MenuPrincipal:
         self.ancho = screen.get_width()
         self.alto = screen.get_height()
 
-        # Usar gestor de fuentes compartido
-        fuentes = GestorFuentes()
-        self.font_titulo = fuentes.titulo_grande
-        self.font_subtitulo = fuentes.texto_pequeño
+        # Crear componentes visuales
+        self.titulo = TituloArcade(ConfigJuego.TITULO, 60, "grande")
+        # self.subtitulo = SubtituloArcade("El laberinto retro", 130)
+        self.linea_decorativa = LineaDecorativa(160, ancho_porcentaje=50, doble=True)
+        self.footer = FooterArcade("Usa el mouse para seleccionar")
 
-        # Crear los botones alineados de forma horizontal
+        # Crear los botones adaptativos
         self._crear_botones()
 
     def _crear_botones(self):
-        """Calcula posiciones y crea los botones del menú."""
-        ancho_boton = 180
-        alto_boton = 60
-        espacio = 20
-
-        num_botones = 4
-        ancho_total = (ancho_boton * num_botones) + (espacio * (num_botones - 1))
-        inicio_x = (self.ancho - ancho_total) // 2
-        y = 350
-
-        self.botones = []
-        textos = [
-            "Iniciar Juego",
-            "Salón de la Fama",
-            "Administración",
-            "Salir",
+        """Crea los botones del menú principal con componentes adaptables."""
+        opciones = [
+            ("Iniciar Juego", 1),
+            ("Salón de la Fama", 2),
+            ("Administración", 3),
+            ("Demo UI", 4),
+            ("Salir", 5),
         ]
 
-        for i, texto in enumerate(textos):
-            x = inicio_x + (ancho_boton + espacio) * i
-            self.botones.append(
-                Boton(x, y, ancho_boton, alto_boton, texto, accion=i + 1)
-            )
+        # Comenzar los botones justo después de la línea decorativa
+        y_inicial = 200
+        alto_boton = 60
+        espacio = 15  # Espacio compacto entre botones
+
+        self.botones = []
+        for i, (texto, accion) in enumerate(opciones):
+            y = y_inicial + i * (alto_boton + espacio)
+            # Crear botón adaptable (se ajusta automáticamente al texto)
+            boton = BotonGrande(0, y, texto, accion)
+            # Centrarlo horizontalmente
+            boton.centrar_horizontalmente(self.ancho)
+            self.botones.append(boton)
 
     def dibujar(self):
-        """Pinta el fondo, título, línea decorativa, subtítulo, botones y footer."""
+        """Dibuja el menú con todos sus componentes."""
         self.screen.fill(PaletaColores.FONDO_PRINCIPAL)
 
-        # Título con pequeña sombra para contraste
-        titulo = self.font_titulo.render(
-            ConfigJuego.TITULO, True, PaletaColores.TEXTO_PRINCIPAL
-        )
-        sombra = self.font_titulo.render(
-            ConfigJuego.TITULO, True, PaletaColores.TEXTO_SOMBRA
-        )
+        # Dibujar componentes visuales
+        self.titulo.dibujar(self.screen)
+        self.linea_decorativa.dibujar(self.screen)
+        # self.subtitulo.dibujar(self.screen)
+        self.footer.dibujar(self.screen)
 
-        sombra_rect = sombra.get_rect(center=(self.ancho // 2 + 3, 103))
-        titulo_rect = titulo.get_rect(center=(self.ancho // 2, 100))
-
-        self.screen.blit(sombra, sombra_rect)
-        self.screen.blit(titulo, titulo_rect)
-
-        # Línea decorativa bajo el título para separar visualmente
-        pygame.draw.line(
-            self.screen,
-            PaletaColores.ACENTO_PRINCIPAL,
-            (self.ancho // 2 - 150, 150),
-            (self.ancho // 2 + 150, 150),
-            3,
-        )
-
-        # Subtítulo con instrucciones del juego
-        subtitulo = self.font_subtitulo.render(
-            "Escapa del laberinto · Recolecta obsequios · Evita al enemigo",
-            True,
-            PaletaColores.TEXTO_DESACTIVADO,
-        )
-        subtitulo_rect = subtitulo.get_rect(center=(self.ancho // 2, 180))
-        self.screen.blit(subtitulo, subtitulo_rect)
-
-        # Botones del menú
+        # Dibujar botones
         for boton in self.botones:
             boton.dibujar(self.screen)
-
-        # Footer con indicación de uso del mouse
-        footer = self.font_subtitulo.render(
-            "Usa el mouse para seleccionar", True, PaletaColores.BORDE_NORMAL
-        )
-        footer_rect = footer.get_rect(center=(self.ancho // 2, self.alto - 30))
-        self.screen.blit(footer, footer_rect)
 
         pygame.display.flip()
 

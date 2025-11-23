@@ -9,10 +9,12 @@ class ConfigJuego:
     """Configuración general del juego"""
 
     # === VENTANA ===
-    ANCHO_VENTANA = 1200
-    ALTO_VENTANA = 800
+    # None = se adapta al tamaño del monitor automáticamente
+    ANCHO_VENTANA = None  # Se calcula dinámicamente
+    ALTO_VENTANA = None  # Se calcula dinámicamente
     FPS = 60
     TITULO = "Theseus Runner"
+    FULLSCREEN = False  # True para pantalla completa, False para ventana
 
     # === LABERINTO ===
     TAM_CELDA = 32  # Tamaño de cada celda en píxeles
@@ -62,34 +64,34 @@ class ConfigJuego:
 
 
 class Colores:
-    """Paleta de colores del juego"""
+    """Paleta de colores del juego - Estilo Pixel Art Vibrante"""
 
     # === FONDO Y BASE ===
-    FONDO = (20, 25, 40)
-    HUD_FONDO = (15, 20, 35)
+    FONDO = (15, 15, 35)
+    HUD_FONDO = (25, 30, 55)
 
     # === LABERINTO ===
-    PARED = (60, 70, 90)
-    PISO = (35, 40, 55)
-    BORDE_CELDA = (100, 100, 120)
+    PARED = (70, 85, 120)
+    PISO = (35, 40, 60)
+    BORDE_CELDA = (120, 140, 180)
 
     # === PERSONAJES ===
-    JUGADOR = (50, 150, 255)
-    ENEMIGO = (255, 50, 50)
+    JUGADOR = (50, 200, 255)  # Cyan brillante
+    ENEMIGO = (255, 60, 80)  # Rojo neón
 
     # === UI Y TEXTO ===
-    TEXTO = (220, 220, 220)
-    TEXTO_SECUNDARIO = (150, 150, 150)
-    ACENTO = (100, 150, 255)
+    TEXTO = (255, 255, 255)
+    TEXTO_SECUNDARIO = (180, 200, 255)
+    ACENTO = (0, 200, 255)  # Cyan eléctrico
 
     # === ESTADOS ===
-    VIDAS = (255, 100, 100)
-    PUNTAJE = (255, 200, 50)
+    VIDAS = (255, 80, 120)  # Rosa neón
+    PUNTAJE = (255, 220, 60)  # Dorado brillante
 
     # === OBSEQUIOS ===
     OBSEQUIO_EXTERIOR = (255, 240, 100)
     OBSEQUIO_PRINCIPAL = (255, 215, 0)
-    OBSEQUIO_BRILLO = (255, 255, 200)
+    OBSEQUIO_BRILLO = (255, 255, 150)
     OBSEQUIO_DESTELLO = (255, 255, 255)
 
     # === OVERLAYS ===

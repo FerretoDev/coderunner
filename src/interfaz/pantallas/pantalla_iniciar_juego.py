@@ -4,7 +4,14 @@ Pantalla para ingresar el nombre del jugador antes de iniciar partida.
 
 import pygame
 
-from interfaz.componentes.input_texto import Boton, InputTexto
+from interfaz.componentes.boton_adaptable import BotonGrande
+from interfaz.componentes.input_texto import InputTexto
+from interfaz.componentes.titulo_arcade import (
+    LineaDecorativa,
+    SubtituloArcade,
+    TituloArcade,
+)
+from interfaz.gestor_fuentes import GestorFuentes
 
 
 class PantallaIniciarJuego:
@@ -15,33 +22,35 @@ class PantallaIniciarJuego:
         self.ancho = screen.get_width()
         self.alto = screen.get_height()
 
-        self.font_titulo = pygame.font.Font(None, 56)
-        self.font_texto = pygame.font.Font(None, 32)
+        fuentes = GestorFuentes()
+        self.font_titulo = fuentes.titulo_normal
+        self.font_texto = fuentes.titulo_pequeño
+
+        # Componentes arcade
+        self.titulo = TituloArcade("NUEVO JUEGO", y=60, estilo="grande")
+        self.subtitulo = SubtituloArcade("Ingresa tu nombre para comenzar", y=130)
+        self.linea = LineaDecorativa(y=160, ancho_porcentaje=50, doble=True)
 
         # Campo de texto para el nombre con placeholder
         self.input_nombre = InputTexto(
-            self.ancho // 2 - 200, 250, 400, 50, "Ingresa tu nombre"
+            self.ancho // 2 - 200, 210, 400, 50, "Ingresa tu nombre"
         )
 
-        # Botones de acción
-        self.btn_continuar = Boton(self.ancho // 2 - 100, 350, 200, 50, "Continuar")
-        self.btn_volver = Boton(self.ancho // 2 - 100, 420, 200, 50, "Volver")
+        # Botones arcade
+        self.btn_continuar = BotonGrande(self.ancho // 2, 300, "Continuar")
+        self.btn_continuar.centrar_horizontalmente(self.ancho)
+
+        self.btn_volver = BotonGrande(self.ancho // 2, 375, "Volver")
+        self.btn_volver.centrar_horizontalmente(self.ancho)
 
     def dibujar(self):
         """Dibuja fondo, textos, input y botones."""
         self.screen.fill((20, 20, 30))
 
-        # Título
-        titulo = self.font_titulo.render("Nuevo Juego", True, (255, 255, 255))
-        titulo_rect = titulo.get_rect(center=(self.ancho // 2, 100))
-        self.screen.blit(titulo, titulo_rect)
-
-        # Instrucción
-        instruccion = self.font_texto.render(
-            "Ingresa tu nombre para comenzar:", True, (200, 200, 200)
-        )
-        instruccion_rect = instruccion.get_rect(center=(self.ancho // 2, 180))
-        self.screen.blit(instruccion, instruccion_rect)
+        # Componentes arcade
+        self.titulo.dibujar(self.screen)
+        self.subtitulo.dibujar(self.screen)
+        self.linea.dibujar(self.screen)
 
         # Input de nombre
         self.input_nombre.dibujar(self.screen)

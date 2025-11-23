@@ -3,6 +3,7 @@ import pygame
 from config.config import ConfigJuego
 
 from .personaje import Personaje
+from .sprite_animado import SpriteTheseusRunner
 
 
 class Jugador(Personaje):
@@ -13,7 +14,7 @@ class Jugador(Personaje):
         El movimiento del jugador usando las teclas de dirección
         El sistema de vidas (3 vidas iniciales)
         El sistema de puntaje
-        La representación visual del jugador (círculo rojo)
+        La representación visual del jugador con sprite animado de Theseus
     """
 
     def __init__(self, x, y, radio):
@@ -29,14 +30,11 @@ class Jugador(Personaje):
         self._nombre = ""
         self._vidas = 3
         self._puntaje = 0
-        # self.color = (255, 0, 0)
 
-        # Cargar imagen del jugador
-        self.imagen = pygame.image.load(
-            "src/data/ImagenJugadorPrincipal.png"
-        ).convert_alpha()
-
-        self.imagen = pygame.transform.scale(self.imagen, (64, 64))
+        # Sprite animado de Theseus
+        self.sprite = SpriteTheseusRunner(escala=0.5)  # 32x48 píxeles
+        self.direccion_derecha = True
+        self.moviendo = False
 
         # Rect de colisión más ajustado al círculo visual
         # Usamos FACTOR_RECT_COLISION para mejor precisión
@@ -118,23 +116,33 @@ class Jugador(Personaje):
 
     def dibujar_jugador_principal(self, pantalla):
         """
-        Dibuja al jugador en la pantalla como un círculo rojo.
+        Dibuja al jugador en la pantalla con sprite animado de Theseus.
+        """
+        # Actualizar animación del sprite
+        self.sprite.actualizar(
+            moviendo=self.moviendo,
+            saltando=False,
+            muriendo=not self.esta_vivo(),
+            direccion_derecha=self.direccion_derecha,
+        )
 
-        Parámetros:
-            pantalla: Superficie de pygame donde se dibujará el jugador
-        """
-        # centro = self.jugador_principal.center
-        # pygame.draw.circle(pantalla, self.color, centro, self.radio)
+        # Dibujar sprite centrado en la posición del jugador
+        centro = self._rect.center
+        self.sprite.dibujar(pantalla, centro[0], centro[1])
 
+    def actualizar_movimiento(self, dx, dy):
         """
-        Dibuja al jugador en la pantalla con su imagen.
-        Si no se carga correctamente, dibuja un círculo rojo como respaldo.
+        Actualiza el estado de movimiento del jugador.
+
+        Args:
+            dx: Cambio en X
+            dy: Cambio en Y
         """
-        try:
-            # Obtener la posición donde se dibujará (centrando la imagen)
-            centro = self._rect.center
-            rect_imagen = self.imagen.get_rect(center=centro)
-            pantalla.blit(self.imagen, rect_imagen)
-        except AttributeError:
-            # En caso de error o si no hay imagen, dibujar círculo
-            pygame.draw.circle(pantalla, (255, 0, 0), self._rect.center, self.radio)
+        # Detectar si está moviendo
+        self.moviendo = dx != 0 or dy != 0
+
+        # Detectar dirección (solo si hay movimiento horizontal)
+        if dx > 0:
+            self.direccion_derecha = True
+        elif dx < 0:
+            self.direccion_derecha = False

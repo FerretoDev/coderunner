@@ -40,7 +40,7 @@ class MensajeModal:
         )
 
         # Botón OK centrado bajo el mensaje
-        self.btn_ok = Boton(self.ancho // 2 - 75, self.alto // 2 + 60, 150, 50, "OK")
+        self.btn_ok = Boton(self.ancho // 2 - 85, self.alto // 2 + 60, 170, 55, "OK")
 
         # Color de acento según el tipo
         self.color_acento = PaletaColores.obtener_color_tipo(tipo)

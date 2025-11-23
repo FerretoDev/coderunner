@@ -213,4 +213,4 @@ class Administrador:
             Mensaje de confirmación
         """
         salon.reiniciar()
-        return "Salón de la fama reiniciado exitosamente"
+        return "Salon reiniciado"

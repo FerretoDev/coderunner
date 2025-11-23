@@ -58,9 +58,10 @@ class Overlay:
 
 class Panel:
     """
-    Panel con fondo, borde redondeado y opcionalmente título.
+    Panel con fondo y borde estilo pixel art.
 
     Componente reutilizable para cajas de diálogo, ventanas modales, etc.
+    Estilo retro sin bordes redondeados.
     """
 
     def __init__(
@@ -72,7 +73,7 @@ class Panel:
         color_fondo=(40, 40, 60),
         color_borde=(100, 150, 255),
         grosor_borde=3,
-        radio_borde=15,
+        estilo_pixel=True,
     ):
         """
         Inicializa el panel.
@@ -83,34 +84,62 @@ class Panel:
             color_fondo: Color de fondo (tuple RGB)
             color_borde: Color del borde (tuple RGB)
             grosor_borde: Grosor del borde en pixels
-            radio_borde: Radio de las esquinas redondeadas
+            estilo_pixel: Si usar bordes pixelados (True) o redondeados (False)
         """
         self.rect = pygame.Rect(x, y, ancho, alto)
         self.color_fondo = color_fondo
         self.color_borde = color_borde
         self.grosor_borde = grosor_borde
-        self.radio_borde = radio_borde
+        self.estilo_pixel = estilo_pixel
 
     def dibujar(self, screen):
         """
-        Dibuja el panel en la pantalla.
+        Dibuja el panel en la pantalla con estilo pixel art.
 
         Args:
             screen: Surface donde dibujar
         """
         # Dibujar fondo
-        pygame.draw.rect(
-            screen, self.color_fondo, self.rect, border_radius=self.radio_borde
-        )
+        pygame.draw.rect(screen, self.color_fondo, self.rect)
 
-        # Dibujar borde
-        pygame.draw.rect(
-            screen,
-            self.color_borde,
-            self.rect,
-            self.grosor_borde,
-            border_radius=self.radio_borde,
-        )
+        # Dibujar borde exterior
+        pygame.draw.rect(screen, self.color_borde, self.rect, self.grosor_borde)
+
+        # Efecto 3D pixel art: líneas de luz y sombra
+        if self.estilo_pixel and self.grosor_borde > 1:
+            # Línea de luz superior e izquierda (más clara)
+            color_luz = tuple(min(255, c + 40) for c in self.color_borde)
+            pygame.draw.line(
+                screen,
+                color_luz,
+                (self.rect.left, self.rect.top),
+                (self.rect.right - 1, self.rect.top),
+                1,
+            )
+            pygame.draw.line(
+                screen,
+                color_luz,
+                (self.rect.left, self.rect.top),
+                (self.rect.left, self.rect.bottom - 1),
+                1,
+            )
+
+            # Línea de sombra inferior y derecha (más oscura)
+            color_sombra = tuple(max(0, c - 40) for c in self.color_borde)
+            pygame.draw.line(
+                screen,
+                color_sombra,
+                (self.rect.left, self.rect.bottom - 1),
+                (self.rect.right, self.rect.bottom - 1),
+                1,
+            )
+            pygame.draw.line(
+                screen,
+                color_sombra,
+                (self.rect.right - 1, self.rect.top),
+                (self.rect.right - 1, self.rect.bottom),
+                1,
+            )
 
     def obtener_centro(self):
         """Retorna la posición del centro del panel."""

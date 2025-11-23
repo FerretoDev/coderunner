@@ -4,7 +4,13 @@ Menú de opciones administrativas.
 
 import pygame
 
-from interfaz.componentes.input_texto import Boton
+from interfaz.componentes.boton_adaptable import BotonGrande
+from interfaz.componentes.titulo_arcade import (
+    LineaDecorativa,
+    SubtituloArcade,
+    TituloArcade,
+)
+from interfaz.gestor_fuentes import GestorFuentes
 
 
 class PantallaMenuAdministrador:
@@ -24,50 +30,44 @@ class PantallaMenuAdministrador:
             "acento": (0, 200, 100),
         }
 
-        self.font_titulo = pygame.font.Font(None, 60)
-        self.font_subtitulo = pygame.font.Font(None, 28)
+        fuentes = GestorFuentes()
+        self.font_titulo = fuentes.titulo_grande
+        self.font_subtitulo = fuentes.texto_grande
+
+        # Componentes arcade
+        self.titulo = TituloArcade("PANEL DE ADMINISTRACION", y=60, estilo="grande")
+        self.subtitulo = SubtituloArcade("Selecciona una opcion", y=130)
+        self.linea = LineaDecorativa(y=160, ancho_porcentaje=60, doble=True)
 
         # Crear botones verticales
         self._crear_botones()
 
     def _crear_botones(self):
-        """Crea los botones del menú administrativo."""
-        ancho_boton = 400
-        alto_boton = 60
-        x = (self.ancho - ancho_boton) // 2
-        y_inicial = 250
-        espacio = 20
+        """Crea los botones del menú administrativo con estilo arcade."""
+        y_inicial = 210
+        espacio = 15
 
         self.botones = []
         textos_acciones = [
             ("Cargar Laberinto", 1),
-            ("Reiniciar Salón de Fama", 2),
-            ("Volver al Menú", 3),
+            ("Reiniciar Salon de Fama", 2),
+            ("Volver al Menu", 3),
         ]
 
         for i, (texto, accion) in enumerate(textos_acciones):
-            y = y_inicial + (alto_boton + espacio) * i
-            self.botones.append(
-                Boton(x, y, ancho_boton, alto_boton, texto, accion=accion)
-            )
+            y = y_inicial + (60 + espacio) * i
+            boton = BotonGrande(self.ancho // 2, y, texto, accion=accion)
+            boton.centrar_horizontalmente(self.ancho)
+            self.botones.append(boton)
 
     def dibujar(self):
         """Dibuja la pantalla del menú administrativo."""
         self.screen.fill(self.COLORES["fondo"])
 
-        # Título
-        titulo = self.font_titulo.render(
-            "Panel de Administración", True, self.COLORES["acento"]
-        )
-        titulo_rect = titulo.get_rect(center=(self.ancho // 2, 120))
-        self.screen.blit(titulo, titulo_rect)
-
-        # Subtítulo
-        subtitulo = self.font_subtitulo.render(
-            "Selecciona una opción:", True, self.COLORES["texto"]
-        )
-        subtitulo_rect = subtitulo.get_rect(center=(self.ancho // 2, 180))
-        self.screen.blit(subtitulo, subtitulo_rect)
+        # Componentes arcade
+        self.titulo.dibujar(self.screen)
+        self.subtitulo.dibujar(self.screen)
+        self.linea.dibujar(self.screen)
 
         # Dibujar botones
         for boton in self.botones:

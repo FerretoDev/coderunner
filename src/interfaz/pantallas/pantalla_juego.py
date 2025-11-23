@@ -20,9 +20,17 @@ class PantallaJuego:
 
     def __init__(self, nombre_jugador="Jugador"):
         """Configura pantalla, colores, estados, laberinto, actores y timers."""
-        # Configuración de pantalla y reloj usando config centralizada
-        self.ANCHO = ConfigJuego.ANCHO_VENTANA
-        self.ALTO = ConfigJuego.ALTO_VENTANA
+        # Configuración de pantalla y reloj
+        # Obtener tamaño real de la pantalla actual
+        pantalla_actual = pygame.display.get_surface()
+        if pantalla_actual:
+            self.ANCHO = pantalla_actual.get_width()
+            self.ALTO = pantalla_actual.get_height()
+        else:
+            # Fallback por si acaso
+            self.ANCHO = 1200
+            self.ALTO = 800
+
         self.screen = None
         self.reloj = pygame.time.Clock()
 
@@ -62,7 +70,7 @@ class PantallaJuego:
         # Ajuste de tamaño de celda para que el laberinto ocupe la mayor área visible
         # Área disponible deja espacio para el HUD y márgenes laterales
         ancho_disponible = self.ANCHO - 40  # 20px a cada lado
-        alto_disponible = self.ALTO - 120  # 80px HUD + 40px margen
+        alto_disponible = self.ALTO - 140  # 95px HUD + 45px margen
         tam_por_ancho = ancho_disponible // len(self.mapa[0])  # Celdas por ancho
         tam_por_alto = alto_disponible // len(self.mapa)  # Celdas por alto
         self.tam_celda = min(tam_por_ancho, tam_por_alto)  # Asegura que quepa
@@ -73,7 +81,7 @@ class PantallaJuego:
         self.offset_x = (self.ANCHO - ancho_laberinto) // 2
         self.offset_y = (
             (self.ALTO - alto_laberinto) // 2
-        ) + 40  # Bajar un poco por el HUD
+        ) + 50  # Bajar un poco más por el HUD
 
         # Movimiento por celdas con cooldown (estilo "paso a paso")
         self.movimiento_por_celdas = True  # Si es False, usa movimiento pixel a pixel
@@ -334,108 +342,231 @@ class PantallaJuego:
                 y = fila * self.tam_celda + self.offset_y
 
                 if self.mapa[fila][col] == 1:
+                    # Paredes con efecto de profundidad
                     pygame.draw.rect(
                         self.screen,
-                        Colores.PARED,
+                        (45, 55, 75),  # Azul oscuro
                         (x, y, self.tam_celda, self.tam_celda),
+                    )
+                    # Borde superior más claro (efecto 3D)
+                    pygame.draw.line(
+                        self.screen, (60, 70, 90), (x, y), (x + self.tam_celda, y), 2
+                    )
+                    # Borde izquierdo más claro
+                    pygame.draw.line(
+                        self.screen, (60, 70, 90), (x, y), (x, y + self.tam_celda), 2
                     )
                 else:
                     self.screen.blit(self.imagen_pasillo, (x, y))
+                    # Borde sutil cyan
                     pygame.draw.rect(
                         self.screen,
-                        Colores.BORDE_CELDA,
+                        (0, 80, 100),
                         (x, y, self.tam_celda, self.tam_celda),
                         1,
                     )
 
     def _dibujar_hud(self):
-        """Panel superior con nombre, vidas, puntaje, dificultad, tiempo y controles."""
-        # Panel base y línea inferior
-        panel_rect = pygame.Rect(0, 0, self.ANCHO, 80)
-        pygame.draw.rect(self.screen, Colores.HUD_FONDO, panel_rect)
-        pygame.draw.line(self.screen, Colores.ACENTO, (0, 80), (self.ANCHO, 80), 2)
+        """Panel superior con nombre, vidas, puntaje, dificultad, tiempo y controles - estilo arcade."""
+        # Panel base más alto
+        panel_rect = pygame.Rect(0, 0, self.ANCHO, 95)
+        pygame.draw.rect(self.screen, (25, 30, 45), panel_rect)
 
-        # Nombre del jugador
-        nombre_surf = self.fuente_pequena.render(
-            f"Jugador: {self.nombre_jugador}", True, Colores.TEXTO
-        )
-        self.screen.blit(nombre_surf, (20, 15))
+        # Línea superior brillante
+        pygame.draw.line(self.screen, (0, 200, 255), (0, 0), (self.ANCHO, 0), 3)
 
-        # Vidas dibujadas como corazones simples
-        x_vidas = 20
-        y_vidas = 45
-        for i in range(self.jugador.vidas):  # Usando property en vez de _vidas
-            cx = x_vidas + (i * 35)
-            pygame.draw.circle(self.screen, Colores.VIDAS, (cx + 5, y_vidas + 5), 5)
-            pygame.draw.circle(self.screen, Colores.VIDAS, (cx + 15, y_vidas + 5), 5)
-            puntos = [
-                (cx, y_vidas + 6),
-                (cx + 20, y_vidas + 6),
-                (cx + 10, y_vidas + 18),
-            ]
-            pygame.draw.polygon(self.screen, Colores.VIDAS, puntos)
+        # Doble línea inferior (estilo arcade)
+        pygame.draw.line(self.screen, (0, 200, 255), (0, 93), (self.ANCHO, 93), 2)
+        pygame.draw.line(self.screen, (50, 255, 100), (0, 96), (self.ANCHO, 96), 2)
 
-        # Puntaje con estrella dibujada a mano
-        x_puntaje = 200
-        y_puntaje = 45
-        radio_ext = 12
-        radio_int = 5
+        # === FILA SUPERIOR ===
+        # IZQUIERDA: Nombre del jugador
+        nombre_texto = f"{self.nombre_jugador}"
+        nombre_surf = self.fuente_pequena.render(nombre_texto, False, (255, 255, 255))
+        self.screen.blit(nombre_surf, (15, 8))
+
+        # CENTRO: Puntaje con estrella
+        x_puntaje = self.ANCHO // 2 - 80
+        y_puntaje = 8
+
+        # Caja del puntaje
+        puntaje_box = pygame.Rect(x_puntaje - 5, y_puntaje - 3, 160, 28)
+        pygame.draw.rect(self.screen, (40, 45, 60), puntaje_box, border_radius=4)
+        pygame.draw.rect(self.screen, (255, 220, 60), puntaje_box, 2, border_radius=4)
+
+        # Estrella animada más pequeña
+        x_estrella = x_puntaje + 5
+        y_estrella_center = y_puntaje + 11
+        radio_ext = 8
+        radio_int = 3
         puntos_estrella = []
+        rotacion = (self.frame_count % 120) * 0.05
         for i in range(10):
-            angulo = math.pi / 2 + (i * math.pi / 5)
+            angulo = rotacion + math.pi / 2 + (i * math.pi / 5)
             radio = radio_ext if i % 2 == 0 else radio_int
-            px = x_puntaje + radio * math.cos(angulo)
-            py = y_puntaje + 10 - radio * math.sin(angulo)
+            px = x_estrella + radio * math.cos(angulo)
+            py = y_estrella_center - radio * math.sin(angulo)
             puntos_estrella.append((px, py))
-        pygame.draw.polygon(self.screen, Colores.PUNTAJE, puntos_estrella)
+        pygame.draw.polygon(self.screen, (255, 220, 60), puntos_estrella)
 
-        puntaje_surf = self.fuente_hud.render(
-            f"{self.jugador.puntaje}", True, Colores.PUNTAJE  # Usando property
-        )
-        self.screen.blit(puntaje_surf, (x_puntaje + 20, y_puntaje))
+        # Texto del puntaje
+        puntaje_texto = f"{self.jugador.puntaje:06d}"
+        puntaje_surf = self.fuente_pequena.render(puntaje_texto, False, (255, 220, 60))
+        self.screen.blit(puntaje_surf, (x_puntaje + 22, y_puntaje + 3))
 
-        # Dificultad relativa (velocidad / velocidad inicial)
-        nivel_dificultad = self.computadora.velocidad / self.velocidad_inicial_enemigo
-        dificultad_surf = self.fuente_pequena.render(
-            f"Dificultad: {nivel_dificultad:.1f}x", True, Colores.ENEMIGO
-        )
-        self.screen.blit(dificultad_surf, (400, 15))
-
-        # Tiempo en mm:ss
+        # DERECHA: Tiempo
         tiempo_min = self.tiempo_transcurrido // 3600
         tiempo_seg = (self.tiempo_transcurrido % 3600) // 60
-        tiempo_surf = self.fuente_pequena.render(
-            f"Tiempo: {tiempo_min:02d}:{tiempo_seg:02d}", True, Colores.TEXTO
-        )
-        self.screen.blit(tiempo_surf, (400, 45))
+        tiempo_texto = f"{tiempo_min:02d}:{tiempo_seg:02d}"
+        tiempo_surf = self.fuente_pequena.render(tiempo_texto, False, (200, 230, 255))
+        tiempo_rect = tiempo_surf.get_rect(right=self.ANCHO - 15, y=8)
+        self.screen.blit(tiempo_surf, tiempo_rect)
 
-        # Controles de ayuda al usuario
-        controles_surf = self.fuente_pequena.render(
-            "WASD/Flechas: Mover | P: Pausa | U: Música | ESC: Salir",
-            True,
-            Colores.TEXTO_SECUNDARIO,
+        # === FILA INFERIOR ===
+        # IZQUIERDA: Vidas con corazones compactos
+        x_vidas = 15
+        y_vidas = 48
+        for i in range(self.jugador.vidas):
+            cx = x_vidas + (i * 28)
+
+            # Corazón más pequeño
+            pygame.draw.circle(self.screen, (255, 80, 120), (cx + 4, y_vidas + 4), 4)
+            pygame.draw.circle(self.screen, (255, 80, 120), (cx + 12, y_vidas + 4), 4)
+            puntos = [
+                (cx, y_vidas + 5),
+                (cx + 16, y_vidas + 5),
+                (cx + 8, y_vidas + 15),
+            ]
+            pygame.draw.polygon(self.screen, (255, 80, 120), puntos)
+            # Brillo
+            pygame.draw.circle(self.screen, (255, 150, 180), (cx + 6, y_vidas + 2), 2)
+
+        # CENTRO: Dificultad con barra
+        x_dif = self.ANCHO // 2 - 70
+        y_dif = 50
+        nivel_dificultad = self.computadora.velocidad / self.velocidad_inicial_enemigo
+
+        # Texto de dificultad
+        dif_texto = f"Nivel {nivel_dificultad:.1f}x"
+        dif_surf = self.fuente_pequena.render(dif_texto, False, (255, 100, 100))
+        self.screen.blit(dif_surf, (x_dif, y_dif))
+
+        # Barra de progreso debajo del texto
+        barra_ancho = 120
+        barra_alto = 8
+        barra_x = x_dif
+        barra_y = y_dif + 20
+
+        # Fondo de la barra
+        pygame.draw.rect(
+            self.screen,
+            (40, 40, 50),
+            (barra_x, barra_y, barra_ancho, barra_alto),
+            border_radius=4,
         )
-        controles_rect = controles_surf.get_rect(right=self.ANCHO - 20, centery=40)
+
+        # Relleno según dificultad (máximo 3x)
+        progreso = min(1.0, (nivel_dificultad - 1.0) / 2.0)
+        relleno_ancho = int(barra_ancho * progreso)
+
+        # Color según nivel
+        if nivel_dificultad < 1.5:
+            color_barra = (50, 255, 100)  # Verde
+        elif nivel_dificultad < 2.0:
+            color_barra = (255, 220, 60)  # Amarillo
+        else:
+            color_barra = (255, 80, 120)  # Rojo
+
+        if relleno_ancho > 0:
+            pygame.draw.rect(
+                self.screen,
+                color_barra,
+                (barra_x, barra_y, relleno_ancho, barra_alto),
+                border_radius=4,
+            )
+
+        # Borde de la barra
+        pygame.draw.rect(
+            self.screen,
+            (100, 100, 120),
+            (barra_x, barra_y, barra_ancho, barra_alto),
+            1,
+            border_radius=4,
+        )
+
+        # DERECHA: Controles compactos
+        controles_texto = "WASD: Mover  P: Pausa  ESC: Salir"
+        controles_surf = self.fuente_pequena.render(
+            controles_texto, False, (120, 140, 160)
+        )
+        controles_rect = controles_surf.get_rect(right=self.ANCHO - 15, y=70)
         self.screen.blit(controles_surf, controles_rect)
 
     def _dibujar_pausa(self):
-        """Overlay translúcido y texto de pausa."""
+        """Overlay translúcido y texto de pausa con estilo arcade."""
+        # Overlay oscuro
         overlay = pygame.Surface((self.ANCHO, self.ALTO))
-        overlay.set_alpha(180)
-        overlay.fill(Colores.OVERLAY_OSCURO)
+        overlay.set_alpha(200)
+        overlay.fill((15, 20, 35))
         self.screen.blit(overlay, (0, 0))
 
-        titulo = self.fuente_titulo.render("PAUSA", True, Colores.TEXTO)
-        titulo_rect = titulo.get_rect(center=(self.ANCHO // 2, self.ALTO // 2 - 50))
+        # Caja central con efecto neón
+        caja_ancho = 500
+        caja_alto = 250
+        caja_x = (self.ANCHO - caja_ancho) // 2
+        caja_y = (self.ALTO - caja_alto) // 2
+
+        caja_rect = pygame.Rect(caja_x, caja_y, caja_ancho, caja_alto)
+        pygame.draw.rect(self.screen, (30, 35, 50), caja_rect, border_radius=15)
+
+        # Triple borde brillante (efecto neón)
+        pygame.draw.rect(self.screen, (0, 200, 255), caja_rect, 4, border_radius=15)
+        caja_rect2 = pygame.Rect(caja_x - 3, caja_y - 3, caja_ancho + 6, caja_alto + 6)
+        pygame.draw.rect(self.screen, (0, 150, 200), caja_rect2, 2, border_radius=15)
+        caja_rect3 = pygame.Rect(
+            caja_x - 6, caja_y - 6, caja_ancho + 12, caja_alto + 12
+        )
+        pygame.draw.rect(self.screen, (0, 100, 150), caja_rect3, 1, border_radius=15)
+
+        # Título PAUSA con triple sombra
+        y_titulo = caja_y + 60
+        # Sombra 3
+        titulo_s3 = self.fuente_titulo.render("PAUSA", False, (20, 30, 50))
+        titulo_s3_rect = titulo_s3.get_rect(center=(self.ANCHO // 2 + 4, y_titulo + 4))
+        self.screen.blit(titulo_s3, titulo_s3_rect)
+        # Sombra 2
+        titulo_s2 = self.fuente_titulo.render("PAUSA", False, (0, 200, 255))
+        titulo_s2_rect = titulo_s2.get_rect(center=(self.ANCHO // 2 + 2, y_titulo + 2))
+        self.screen.blit(titulo_s2, titulo_s2_rect)
+        # Texto principal
+        titulo = self.fuente_titulo.render("PAUSA", False, (255, 255, 255))
+        titulo_rect = titulo.get_rect(center=(self.ANCHO // 2, y_titulo))
         self.screen.blit(titulo, titulo_rect)
 
+        # Línea decorativa
+        linea_y = y_titulo + 50
+        pygame.draw.line(
+            self.screen,
+            (0, 200, 255),
+            (self.ANCHO // 2 - 150, linea_y),
+            (self.ANCHO // 2 + 150, linea_y),
+            2,
+        )
+
+        # Instrucciones con icono
+        y_instruccion = linea_y + 40
         instruccion = self.fuente_hud.render(
-            "Presiona P para continuar", True, Colores.TEXTO_SECUNDARIO
+            "Presiona P para continuar", False, (100, 255, 100)
         )
-        instruccion_rect = instruccion.get_rect(
-            center=(self.ANCHO // 2, self.ALTO // 2 + 30)
-        )
+        instruccion_rect = instruccion.get_rect(center=(self.ANCHO // 2, y_instruccion))
         self.screen.blit(instruccion, instruccion_rect)
+
+        # Tip adicional
+        tip = self.fuente_pequena.render(
+            "ESC para salir al menú", False, (150, 170, 200)
+        )
+        tip_rect = tip.get_rect(center=(self.ANCHO // 2, y_instruccion + 35))
+        self.screen.blit(tip, tip_rect)
 
     def _dibujar_game_over(self):
         """Overlay de game over, guarda puntaje una vez y muestra métricas finales con ranking."""
@@ -672,10 +803,13 @@ class PantallaJuego:
         self.screen = pygame.display.set_mode((self.ANCHO, self.ALTO))
         pygame.display.set_caption(ConfigJuego.TITULO + " - Modo Laberinto")
 
-        # Fuentes para títulos y HUD
-        self.fuente_titulo = pygame.font.Font(None, 48)
-        self.fuente_hud = pygame.font.Font(None, 32)
-        self.fuente_pequena = pygame.font.Font(None, 24)
+        # Fuentes para títulos y HUD desde GestorFuentes
+        from interfaz.gestor_fuentes import GestorFuentes
+
+        fuentes = GestorFuentes()
+        self.fuente_titulo = fuentes.hud_titulo
+        self.fuente_hud = fuentes.hud_normal
+        self.fuente_pequena = fuentes.hud_pequeño
 
         ejecutando = True
         while ejecutando:
@@ -689,6 +823,3 @@ class PantallaJuego:
 
         # Detener la música al salir
         self.sistema_sonido.detener_musica()
-
-        # No se cierra pygame aquí para retornar al menú sin destruir el contexto
-        # pygame.quit()

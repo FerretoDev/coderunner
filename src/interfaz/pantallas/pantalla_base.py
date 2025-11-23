@@ -9,6 +9,7 @@ Proporciona funcionalidad común para reducir código duplicado:
 
 import pygame
 from abc import ABC, abstractmethod
+from interfaz.gestor_fuentes import GestorFuentes
 
 
 class PantallaBase(ABC):
@@ -24,11 +25,12 @@ class PantallaBase(ABC):
         self.ancho = screen.get_width()
         self.alto = screen.get_height()
 
-        # Fuentes comunes
-        self.font_titulo = pygame.font.Font(None, 56)
-        self.font_subtitulo = pygame.font.Font(None, 32)
-        self.font_texto = pygame.font.Font(None, 24)
-        self.font_info = pygame.font.Font(None, 20)
+        # Fuentes comunes desde GestorFuentes
+        fuentes = GestorFuentes()
+        self.font_titulo = fuentes.titulo_normal
+        self.font_subtitulo = fuentes.titulo_pequeño
+        self.font_texto = fuentes.texto_normal
+        self.font_info = fuentes.texto_pequeño
 
         # Colores comunes
         self.COLORES = {

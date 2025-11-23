@@ -4,9 +4,15 @@ Pantalla para cargar archivos de laberinto.
 
 import pygame
 
+from interfaz.componentes.boton_adaptable import BotonGrande, BotonPequeño
+from interfaz.componentes.input_texto import InputTexto
+from interfaz.componentes.titulo_arcade import (
+    LineaDecorativa,
+    SubtituloArcade,
+    TituloArcade,
+)
+from interfaz.gestor_fuentes import GestorFuentes
 from utilidades.helpers import resolver_ruta_laberinto
-
-from interfaz.componentes.input_texto import Boton, InputTexto
 
 
 class PantallaCargaLaberinto:
@@ -27,47 +33,44 @@ class PantallaCargaLaberinto:
             "acento": (0, 150, 255),
         }
 
-        self.font_titulo = pygame.font.Font(None, 52)
-        self.font_texto = pygame.font.Font(None, 28)
-        self.font_info = pygame.font.Font(None, 22)
+        fuentes = GestorFuentes()
+        self.font_titulo = fuentes.titulo_mediano
+        self.font_texto = fuentes.texto_grande
+        self.font_info = fuentes.texto_normal
 
-        # Input para la ruta del archivo
+        # Componentes arcade
+        self.titulo = TituloArcade("CARGAR LABERINTO", y=50, estilo="grande")
+        self.subtitulo = SubtituloArcade("Ingresa la ruta del archivo", y=115)
+        self.linea = LineaDecorativa(y=145, ancho_porcentaje=60, doble=True)
+
+        # Input para la ruta del archivo (más ancho)
         self.input_ruta = InputTexto(
-            self.ancho // 2 - 300,
-            220,
-            600,
+            self.ancho // 2 - 450,
+            180,
+            950,
             50,
+            # "laberintos/laberinto1.json",
             "Ruta del archivo (ej: src/data/laberintos/laberinto1.json)",
         )
 
-        # Botones
-        self.btn_cargar = Boton(self.ancho // 2 - 200, 320, 190, 50, "Cargar")
-        self.btn_volver = Boton(self.ancho // 2 + 10, 320, 190, 50, "Cancelar")
+        # Botones principales
+        self.btn_cargar = BotonGrande(self.ancho // 2, 270, "Cargar")
+        self.btn_cargar.centrar_horizontalmente(self.ancho)
 
-        # Botones de acceso rápido a archivos comunes (fila 1)
-        self.btn_lab1 = Boton(
-            self.ancho // 2 - 310, 410, 200, 40, "Laberinto 1 (Fácil)", accion="lab1"
-        )
-        self.btn_lab2 = Boton(
-            self.ancho // 2 - 100, 410, 200, 40, "Laberinto 2 (Medio)", accion="lab2"
-        )
-        self.btn_lab3 = Boton(
-            self.ancho // 2 + 110,
-            410,
-            200,
-            40,
-            "Laberinto 3 (Difícil)",
-            accion="lab3",
-        )
+        self.btn_volver = BotonGrande(self.ancho // 2, 345, "Cancelar")
+        self.btn_volver.centrar_horizontalmente(self.ancho)
 
-        # Botón de ejemplo (fila 2)
-        self.btn_lab_ejemplo = Boton(
-            self.ancho // 2 - 100,
-            460,
-            200,
-            40,
-            "Laberinto Ejemplo",
-            accion="ejemplo",
+        # Botones de acceso rápido (más abajo para evitar superposición)
+        btn_y = 470
+        centro = self.ancho // 2
+
+        self.btn_lab1 = BotonPequeño(centro - 250, btn_y, "Laberinto 1", accion="lab1")
+        self.btn_lab2 = BotonPequeño(centro - 60, btn_y, "Laberinto 2", accion="lab2")
+        self.btn_lab3 = BotonPequeño(centro + 130, btn_y, "Laberinto 3", accion="lab3")
+
+        # Botón de ejemplo centrado
+        self.btn_lab_ejemplo = BotonPequeño(
+            centro - 60, btn_y + 55, "Ejemplo", accion="ejemplo"
         )
 
         self.archivo_seleccionado = None
@@ -77,19 +80,10 @@ class PantallaCargaLaberinto:
         """Dibuja la pantalla de carga de laberinto."""
         self.screen.fill(self.COLORES["fondo"])
 
-        # Título
-        titulo = self.font_titulo.render(
-            "Cargar Laberinto", True, self.COLORES["acento"]
-        )
-        titulo_rect = titulo.get_rect(center=(self.ancho // 2, 100))
-        self.screen.blit(titulo, titulo_rect)
-
-        # Instrucción
-        instruccion = self.font_texto.render(
-            "Ingresa la ruta del archivo:", True, (200, 200, 200)
-        )
-        instruccion_rect = instruccion.get_rect(center=(self.ancho // 2, 170))
-        self.screen.blit(instruccion, instruccion_rect)
+        # Componentes arcade
+        self.titulo.dibujar(self.screen)
+        self.subtitulo.dibujar(self.screen)
+        self.linea.dibujar(self.screen)
 
         # Input de ruta
         self.input_ruta.dibujar(self.screen)
@@ -98,37 +92,34 @@ class PantallaCargaLaberinto:
         self.btn_cargar.dibujar(self.screen)
         self.btn_volver.dibujar(self.screen)
 
-        # Línea separadora
+        # Línea separadora con texto (más abajo)
+        linea_y = 440
         pygame.draw.line(
             self.screen,
-            (80, 80, 100),
-            (self.ancho // 2 - 320, 395),
-            (self.ancho // 2 + 320, 395),
+            (0, 200, 255),
+            (self.ancho // 2 - 280, linea_y),
+            (self.ancho // 2 + 280, linea_y),
             2,
         )
 
         # Texto de acceso rápido
-        acceso_texto = self.font_info.render(
-            "Acceso rápido a laberintos:", True, (180, 180, 200)
-        )
-        acceso_rect = acceso_texto.get_rect(center=(self.ancho // 2, 385))
+        acceso_texto = self.font_info.render("Acceso rapido", True, (180, 200, 220))
+        acceso_rect = acceso_texto.get_rect(center=(self.ancho // 2, linea_y - 18))
         self.screen.blit(acceso_texto, acceso_rect)
 
-        # Botones de acceso rápido (fila 1)
+        # Botones de acceso rápido
         self.btn_lab1.dibujar(self.screen)
         self.btn_lab2.dibujar(self.screen)
         self.btn_lab3.dibujar(self.screen)
-
-        # Botón de ejemplo (fila 2)
         self.btn_lab_ejemplo.dibujar(self.screen)
 
-        # Información adicional
+        # Información adicional con icono
         info = self.font_info.render(
             "Formato: .json | Rutas relativas desde: src/data/",
             True,
-            (120, 120, 140),
+            (100, 120, 150),
         )
-        info_rect = info.get_rect(center=(self.ancho // 2, self.alto - 30))
+        info_rect = info.get_rect(center=(self.ancho // 2, self.alto - 35))
         self.screen.blit(info, info_rect)
 
         pygame.display.flip()
