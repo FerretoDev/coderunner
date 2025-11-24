@@ -95,7 +95,7 @@ class PantallaCargaLaberinto:
         )
 
         # Texto de acceso rápido
-        acceso_texto = self.font_info.render("Acceso rapido", True, (180, 200, 220))
+        acceso_texto = self.font_info.render("Acceso rápido", True, (180, 200, 220))
         acceso_rect = acceso_texto.get_rect(center=(self.ancho // 2, linea_y - 18))
         self.screen.blit(acceso_texto, acceso_rect)
 

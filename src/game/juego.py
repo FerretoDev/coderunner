@@ -8,20 +8,19 @@ Responsabilidades:
 - Salir de forma limpia al terminar.
 """
 
-import os  # Manejo de rutas para construir paths portables al sistema operativo [web:21]
-import sys  # Permite modificar sys.path y cerrar la app con sys.exit() [web:21]
+import os  # Manejo de rutas para construir paths portables al sistema operativo
+import sys  # Permite modificar sys.path y cerrar la app con sys.exit()
 
 import pygame
 
 from config.constants import (
     PASSWORD,
-)  # Motor de eventos, ventana y tiempo para el loop principal [web:47]
-
+)  # Motor de eventos, ventana y tiempo para el loop principal
 # Agregar el directorio 'src' al path para las importaciones relativas absolutas de paquetes internos.
 # Esto permite ejecutar el archivo desde distintos lugares sin errores de importación.
 sys.path.append(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-)  # Ajuste de ruta robusto y portátil [web:21]
+)  # Ajuste de ruta robusto y portátil
 
 from interfaz.pantallas import (
     MensajeModal,  # Modal reutilizable para mostrar mensajes (éxito/error)
@@ -35,16 +34,16 @@ from interfaz.pantallas import (
 )
 from interfaz.pantallas.pantalla_juego import (
     PantallaJuego,
-)  # Pantalla que corre el juego principal (loop propio) [web:47]
+)  # Pantalla que corre el juego principal (loop propio)
 from mundo.salon_fama import (
     SalonFama,
-)  # Modelo para gestionar puntuaciones y récords [web:21]
+)  # Modelo para gestionar puntuaciones y récords
 from servicios.administrador import (
     Administrador,
-)  # Lógica de autenticación de administrador [web:21]
+)  # Lógica de autenticación de administrador
 from servicios.sistema_sonido import (
     SistemaSonido,
-)  # Sistema centralizado de sonidos [web:47]
+)  # Sistema centralizado de sonidos
 
 
 class Juego:
@@ -115,15 +114,15 @@ class Juego:
             # Mantener el tamaño actual de la ventana
             pygame.display.set_caption(
                 "Theseus Runner"
-            )  # Restituye el título principal si cambió [web:47]
+            )  # Restituye el título principal si cambió
 
             # Mostrar menú principal y esperar a que el usuario elija
             menu = MenuPrincipal(
                 screen
-            )  # Crea el menú con la Surface de la ventana actual [web:47]
+            )  # Crea el menú con la Surface de la ventana actual
             opcion = (
                 menu.ejecutar()
-            )  # Devuelve un número de opción elegido por el usuario [web:21]
+            )  # Devuelve un número de opción elegido por el usuario
 
             if opcion == 1:  # Iniciar Juego
                 self._manejar_iniciar_juego(screen, salon_fama)
@@ -135,8 +134,8 @@ class Juego:
                 ejecutando = self._manejar_salir(screen)
 
         # Al salir del loop, cerrar Pygame y terminar el proceso de forma limpia
-        pygame.quit()  # Libera recursos de Pygame (ventana, audio, etc.) [web:47]
-        sys.exit()  # Termina el proceso del programa explícitamente [web:21]
+        pygame.quit()  # Libera recursos de Pygame (ventana, audio, etc.)
+        sys.exit()  # Termina el proceso del programa explícitamente
 
     def _manejar_iniciar_juego(self, screen, salon_fama):
         """Maneja la opción de iniciar juego y guarda el puntaje si termina."""
