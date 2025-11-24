@@ -3,18 +3,20 @@ Tests para HU-01: Movimiento básico del jugador
 Verificar que el jugador se mueve correctamente con las teclas de dirección.
 """
 
+import json
+
 import pygame
 import pytest
 
-from personajes.jugador import Jugador
 from mundo.laberinto import Laberinto
+from personajes.jugador import Jugador
 
 
 @pytest.fixture
 def laberinto_simple(tmp_path):
     """Fixture que crea un laberinto simple de 5x5 para pruebas"""
     pygame.init()
-    # Crear un laberinto simple con pasillos
+    # Crear un laberinto simple con pasillos (1=muro, 0=pasillo)
     mapa_prueba = {
         "nombre": "Laberinto Test",
         "dificultad": "facil",
@@ -25,14 +27,12 @@ def laberinto_simple(tmp_path):
             [1, 0, 0, 0, 1],
             [1, 1, 1, 1, 1],
         ],
-        "jugador_inicio": [1, 1],
-        "computadora_inicio": [3, 3],
+        "inicio_jugador": {"col": 1, "fila": 1},
+        "inicio_computadora": {"col": 3, "fila": 3},
         "obsequios": [{"posicion": [3, 2], "valor": 10}],
     }
 
     # Crear archivo temporal JSON
-    import json
-
     archivo = tmp_path / "laberinto_test.json"
     with open(archivo, "w") as f:
         json.dump(mapa_prueba, f)
@@ -43,10 +43,10 @@ def laberinto_simple(tmp_path):
 @pytest.fixture
 def jugador_test(laberinto_simple):
     """Fixture que crea un jugador en posición inicial"""
-    inicio = laberinto_simple.mapa_data["inicio_jugador"]
-    x = inicio["columna"] * 32 + 16
-    y = inicio["fila"] * 32 + 16
-    return Jugador(x=x, y=y, radio=10, velocidad=1)
+    col, fila = laberinto_simple.jugador_inicio
+    x = col * 32 + 16
+    y = fila * 32 + 16
+    return Jugador(x=x, y=y, radio=10)
 
 
 class TestMovimientoBasico:
@@ -88,37 +88,35 @@ class TestMovimientoBasico:
     def test_jugador_no_atraviesa_paredes(self, laberinto_simple):
         """Verificar que el jugador no puede atravesar paredes"""
         # Posicionar jugador cerca de una pared
-        jugador = Jugador(x=48, y=48, radio=10, velocidad=1)
+        jugador = Jugador(x=48, y=48, radio=10)
 
         # Intentar moverse hacia una pared (columna 2, fila 2 es pared en nuestro mapa)
         nueva_col = 2
         nueva_fila = 2
 
-        es_valido = laberinto_simple.es_paso_valido((nueva_fila, nueva_col))
+        es_valido = laberinto_simple.es_paso_valido((nueva_col, nueva_fila))
 
-        assert (
-            es_valido == False
-        ), "El jugador no debería poder moverse a una celda con pared"
+        assert not es_valido, "El jugador no debería poder moverse a una celda con pared"
 
     def test_movimiento_en_pasillo_valido(self, laberinto_simple):
         """Verificar que el jugador puede moverse por pasillos"""
-        # Posición en pasillo válido
-        fila, columna = 1, 1
+        # Posición en pasillo válido (col=1, fila=1)
+        columna, fila = 1, 1
 
-        es_valido = laberinto_simple.es_paso_valido((fila, columna))
+        es_valido = laberinto_simple.es_paso_valido((columna, fila))
 
-        assert es_valido == True, "El jugador debería poder moverse por pasillos"
+        assert es_valido, "El jugador debería poder moverse por pasillos"
 
     def test_posicion_inicial_valida(self, jugador_test, laberinto_simple):
         """Verificar que la posición inicial del jugador es válida"""
-        inicio = laberinto_simple.mapa_data["inicio_jugador"]
+        col_inicio, fila_inicio = laberinto_simple.jugador_inicio
 
         # Convertir posición del jugador a celda
         celda_x = jugador_test.jugador_principal.x // 32
         celda_y = jugador_test.jugador_principal.y // 32
 
-        assert celda_x == inicio["columna"]
-        assert celda_y == inicio["fila"]
+        assert celda_x == col_inicio
+        assert celda_y == fila_inicio
 
 
 class TestLimitesLaberinto:
@@ -137,14 +135,15 @@ class TestLimitesLaberinto:
 
     def test_jugador_permanece_en_limites(self, laberinto_simple):
         """Verificar que las celdas del borde son paredes"""
-        filas = laberinto_simple.mapa_data["filas"]
-        columnas = laberinto_simple.mapa_data["columnas"]
+        mapa = laberinto_simple.laberinto
+        filas = len(mapa)
+        columnas = len(mapa[0])
 
-        # Verificar esquinas (deben ser paredes)
-        assert laberinto_simple.mapa_data["mapa"][0][0] == "#"
-        assert laberinto_simple.mapa_data["mapa"][0][columnas - 1] == "#"
-        assert laberinto_simple.mapa_data["mapa"][filas - 1][0] == "#"
-        assert laberinto_simple.mapa_data["mapa"][filas - 1][columnas - 1] == "#"
+        # Verificar esquinas (deben ser paredes = 1)
+        assert mapa[0][0] == 1
+        assert mapa[0][columnas - 1] == 1
+        assert mapa[filas - 1][0] == 1
+        assert mapa[filas - 1][columnas - 1] == 1
 
 
 if __name__ == "__main__":

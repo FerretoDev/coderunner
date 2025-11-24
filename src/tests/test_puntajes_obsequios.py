@@ -6,22 +6,22 @@ Verificar el sistema de puntos y recolección de obsequios.
 import pygame
 import pytest
 
-from personajes.jugador import Jugador
 from mundo.obsequio import Obsequio
+from personajes.jugador import Jugador
 
 
 @pytest.fixture
 def jugador_test():
     """Fixture que crea un jugador"""
     pygame.init()
-    return Jugador(x=100, y=100, radio=10, velocidad=1)
+    return Jugador(x=100, y=100, radio=10)
 
 
 @pytest.fixture
 def obsequio_test():
     """Fixture que crea un obsequio"""
     pygame.init()
-    return Obsequio(x=150, y=150, radio=8)
+    return Obsequio(posicion=(4, 4), valor=10)
 
 
 class TestPuntajePorMovimiento:
@@ -50,49 +50,52 @@ class TestObsequios:
 
     def test_obsequio_tiene_posicion(self, obsequio_test):
         """Verificar que el obsequio tiene posición"""
-        assert hasattr(obsequio_test, "x"), "Obsequio debe tener coordenada x"
-        assert hasattr(obsequio_test, "y"), "Obsequio debe tener coordenada y"
-        assert obsequio_test.x >= 0
-        assert obsequio_test.y >= 0
+        assert hasattr(obsequio_test, "posicion"), "Obsequio debe tener posicion"
+        assert isinstance(
+            obsequio_test.posicion, tuple
+        ), "Posición debe ser una tupla (col, fila)"
+        assert len(obsequio_test.posicion) == 2, "Posición debe tener 2 coordenadas"
 
-    def test_obsequio_tiene_radio(self, obsequio_test):
-        """Verificar que el obsequio tiene radio para detección"""
-        assert hasattr(obsequio_test, "radio"), "Obsequio debe tener radio"
-        assert obsequio_test.radio > 0, "Radio debe ser positivo"
+    def test_obsequio_tiene_valor(self, obsequio_test):
+        """Verificar que el obsequio tiene valor en puntos"""
+        assert hasattr(obsequio_test, "valor"), "Obsequio debe tener valor"
+        assert obsequio_test.valor > 0, "Valor debe ser positivo"
 
     def test_deteccion_recoleccion_obsequio(self, jugador_test, obsequio_test):
         """Verificar que se detecta cuando el jugador recoge un obsequio"""
-        # Colocar jugador muy cerca del obsequio
-        jugador_test.jugador_principal.x = obsequio_test.x
-        jugador_test.jugador_principal.y = obsequio_test.y
+        # En la implementación actual, la detección se hace por posición de celda
+        # Colocar jugador en la misma celda que el obsequio
+        col, fila = obsequio_test.posicion
+        tam_celda = 32
 
-        # Calcular distancia
-        dx = jugador_test.jugador_principal.x - obsequio_test.x
-        dy = jugador_test.jugador_principal.y - obsequio_test.y
-        distancia = (dx**2 + dy**2) ** 0.5
+        # Posicionar jugador en el centro de la misma celda del obsequio
+        jugador_test.jugador_principal.x = col * tam_celda + tam_celda // 2
+        jugador_test.jugador_principal.y = fila * tam_celda + tam_celda // 2
 
-        # Radio de recolección (en el juego es radio * 1.8)
-        radio_recoleccion = (jugador_test.radio + obsequio_test.radio) * 1.8
+        # Convertir posición del jugador a celda
+        celda_jugador = (
+            jugador_test.jugador_principal.x // tam_celda,
+            jugador_test.jugador_principal.y // tam_celda,
+        )
 
-        recolectado = distancia < radio_recoleccion
+        recolectado = celda_jugador == obsequio_test.posicion
 
-        assert recolectado, "Debe detectar recolección cuando está cerca"
+        assert recolectado, "Debe detectar recolección cuando está en la misma celda"
 
     def test_no_recoleccion_cuando_lejos(self, jugador_test, obsequio_test):
         """Verificar que no se recoge el obsequio cuando está lejos"""
         # Colocar jugador lejos del obsequio
-        jugador_test.jugador_principal.x = 500
-        jugador_test.jugador_principal.y = 500
-        obsequio_test.x = 100
-        obsequio_test.y = 100
+        tam_celda = 32
+        jugador_test.jugador_principal.x = 0
+        jugador_test.jugador_principal.y = 0
 
-        dx = jugador_test.jugador_principal.x - obsequio_test.x
-        dy = jugador_test.jugador_principal.y - obsequio_test.y
-        distancia = (dx**2 + dy**2) ** 0.5
+        # Convertir posición del jugador a celda
+        celda_jugador = (
+            jugador_test.jugador_principal.x // tam_celda,
+            jugador_test.jugador_principal.y // tam_celda,
+        )
 
-        radio_recoleccion = (jugador_test.radio + obsequio_test.radio) * 1.8
-
-        recolectado = distancia < radio_recoleccion
+        recolectado = celda_jugador == obsequio_test.posicion
 
         assert not recolectado, "No debe recolectar cuando está lejos"
 
@@ -148,16 +151,13 @@ class TestTiempoVidaObsequios:
 
     def test_obsequio_se_reposiciona(self, obsequio_test):
         """Verificar que el obsequio puede reposicionarse"""
-        x_inicial = obsequio_test.x
-        y_inicial = obsequio_test.y
+        posicion_inicial = obsequio_test.posicion
 
         # Reposicionar obsequio
-        obsequio_test.x = 200
-        obsequio_test.y = 200
+        obsequio_test.posicion = (6, 6)
 
-        assert obsequio_test.x != x_inicial or obsequio_test.y != y_inicial
-        assert obsequio_test.x == 200
-        assert obsequio_test.y == 200
+        assert obsequio_test.posicion != posicion_inicial
+        assert obsequio_test.posicion == (6, 6)
 
 
 class TestVisualizacionPuntaje:
