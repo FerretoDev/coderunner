@@ -1,0 +1,16 @@
+{
+  "layers": [
+    {
+      "file": "bg_layer1.png",
+      "speed": 0.2
+    },
+    {
+      "file": "bg_layer2.png",
+      "speed": 0.5
+    },
+    {
+      "file": "bg_layer3.png",
+      "speed": 0.8
+    }
+  ]
+}

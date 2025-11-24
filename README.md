@@ -13,58 +13,101 @@ coderunner/
 │── README.md
 │── requirements.txt
 │── .gitignore
+│── pyproject.toml
 │
 ├── src/                     # Código fuente en Python
 │   ├── main.py              # Punto de entrada del juego
 │   │
-│   ├── models/              # Clases del UML
-│   │   ├── personaje.py
-│   │   ├── jugador.py
-│   │   ├── computadora.py
-│   │   ├── administrador.py
-│   │   ├── laberinto.py
-│   │   ├── obsequio.py
-│   │   ├── salon_fama.py
-│   │   ├── registro.py
-│   │   └── sistema_sonido.py
+│   ├── mundo/               # Modelos del mundo del juego
+│   │   ├── laberinto.py     # Gestión de laberintos y mapas
+│   │   ├── obsequio.py      # Items coleccionables
+│   │   ├── registro.py      # Registro de puntajes
+│   │   └── salon_fama.py    # Persistencia de récords
+│   │
+│   ├── personajes/          # Entidades del juego
+│   │   ├── personaje.py     # Clase base abstracta
+│   │   ├── jugador.py       # Personaje controlado por el usuario
+│   │   ├── computadora.py   # IA enemiga con pathfinding BFS
+│   │   └── sprite_animado.py # Animaciones de sprites
+│   │
+│   ├── servicios/           # Servicios compartidos
+│   │   ├── administrador.py # Gestión administrativa (carga laberintos, etc.)
+│   │   └── sistema_sonido.py # Reproductor de audio (singleton)
 │   │
 │   ├── game/                # Lógica principal del juego
-│   │   ├── juego.py
-│   │   ├── motor.py         # ciclo principal (pygame loop)
-│   │   └── interfaz.py      # menús, pantallas, interacción
+│   │   └── juego.py         # Controlador principal y coordinación
+│   │
+│   ├── interfaz/            # UI y componentes visuales
+│   │   ├── gestor_fuentes.py     # Gestión de fuentes
+│   │   ├── paleta_ui.py          # Colores del tema
+│   │   ├── componentes/          # Componentes reutilizables
+│   │   │   ├── boton_adaptable.py   # Botones con auto-sizing
+│   │   │   ├── input_texto.py       # Input de texto
+│   │   │   ├── titulo_arcade.py     # Títulos estilo arcade
+│   │   │   └── overlay.py           # Overlays y modales
+│   │   └── pantallas/            # Pantallas del juego
+│   │       ├── menu_principal.py
+│   │       ├── pantalla_juego.py
+│   │       ├── pantalla_salon_fama.py
+│   │       ├── pantalla_administracion.py
+│   │       └── ...
+│   │
+│   ├── jugabilidad/         # Mecánicas de juego
+│   │   └── gestores/
+│   │       ├── gestor_movimiento.py  # Movimiento y colisiones
+│   │       ├── gestor_obsequios.py   # Gestión de obsequios
+│   │       └── gestor_dificultad.py  # Dificultad progresiva
+│   │
+│   ├── config/              # Configuración global
+│   │   ├── config.py        # Constantes del juego
+│   │   └── colores.py       # Paleta de colores
+│   │
+│   ├── utilidades/          # Funciones auxiliares
+│   │   ├── helpers.py       # Utilidades generales
+│   │   └── coordenadas.py   # Conversión píxeles/celdas
 │   │
 │   ├── data/                # Archivos JSON/TXT para laberintos y puntajes
 │   │   ├── laberintos/      # Laberintos del juego
 │   │   │   ├── laberinto1.json
 │   │   │   ├── laberinto2.json
-│   │   │   ├── laberinto3.json
-│   │   │   └── laberinto_ejemplo.json
-│   │   ├── laberinto_demo.txt
-│   │   └── salon_fama.json
+│   │   │   └── laberinto3.json
+│   │   └── salon_fama.json  # Persistencia de puntajes
+│   │
+│   ├── assets/              # Recursos multimedia
+│   │   ├── sonidos/
+│   │   │   ├── mover.wav
+│   │   │   ├── obsequio.wav
+│   │   │   └── captura.wav
+│   │   └── imagenes/
+│   │       └── pasillos.jpg
 │   │
 │   └── tests/               # Casos de prueba
-│       ├── test_jugador.py
-│       ├── test_computadora.py
-│       ├── test_laberinto.py
+│       ├── test_carga_laberintos.py
+│       ├── test_mapa_laberinto.py
+│       ├── test_menu_navegacion.py
+│       ├── test_movimiento_jugador.py
+│       ├── test_persecucion_computadora.py
+│       ├── test_puntajes_obsequios.py
 │       ├── test_salon_fama.py
-│       └── test_integration.py
+│       └── test_sistema_vidas.py
 │
-├── docs/                    # Documentación
-│   ├── HU.md                # Historias de Usuario (las 15 que hicimos)
-│   ├── uml.pdf              # Diagrama UML
-│   ├── cronograma.xlsx
-│   ├── casos_prueba.xlsx
-│   └── prototipo_ui.png
-│
-└── assets/                  # Recursos multimedia
-    ├── sonidos/
-    │   ├── mover.wav
-    │   ├── obsequio.wav
-    │   └── captura.wav
-    └── imagenes/
-        ├── menu.png
-        └── icono.png
+└── docs/                    # Documentación
+    └── Historias de usuario.md
 ```
+
+---
+
+## ✨ Características
+
+- 🎯 **Sistema de Puntaje**: Gana puntos por moverte y recolectar obsequios
+- ❤️ **Sistema de Vidas**: 3 vidas para completar el laberinto
+- 🤖 **IA Enemiga**: Pathfinding BFS para persecución inteligente
+- 🎨 **Interfaz Arcade**: Estilo retro con componentes pixel art
+- 🏆 **Salón de la Fama**: Persistencia de récords
+- 🎵 **Efectos de Sonido**: Feedback auditivo inmersivo
+- 🔧 **Panel de Administración**: Gestión de laberintos
+- 📈 **Dificultad Progresiva**: El juego se vuelve más desafiante con el tiempo
+- 🧪 **Tests Automatizados**: Suite completa de pruebas
 
 ---
 
