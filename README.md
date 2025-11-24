@@ -188,6 +188,7 @@ pytest --cov=src src/tests/
 
 ## 📚 Documentación
 
+- **Manual de Usuario**: [`docs/MANUAL_USUARIO.md`](docs/MANUAL_USUARIO.md) - Guía completa para usuarios
 - **Historias de Usuario**: [`docs/HU.md`](docs/HU.md)
 - **Diagrama UML**: [`docs/uml.pdf`](docs/uml.pdf)
 - **Cronograma**: [`docs/cronograma.xlsx`](docs/cronograma.xlsx)
