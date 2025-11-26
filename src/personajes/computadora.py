@@ -20,6 +20,12 @@ class Computadora(Personaje):
         self.spawn_x = x
         self.spawn_y = y
 
+        # Cargar imagen de la computadora (minotauro)
+        self.imagen = pygame.image.load(
+            "src/assets/imagenes/minotaruo.png"
+        ).convert_alpha()
+        self.imagen = pygame.transform.scale(self.imagen, (64, 64))
+
         # Contador de frames para animación de esfera pulsante
         self._frame_count = 0
 
@@ -249,37 +255,47 @@ class Computadora(Personaje):
         return False
 
     def dibujar_computadora_principal(self, screen):
-        """Dibuja enemigo con efecto visual pulsante."""
-        centro = self._rect.center
+        """
+        Dibuja a la computadora en la pantalla con su imagen.
+        Si no se carga correctamente, dibuja un círculo rojo como respaldo.
+        """
+        try:
+            # Obtener la posición donde se dibujará (centrando la imagen)
+            centro = self._rect.center
+            rect_imagen = self.imagen.get_rect(center=centro)
+            screen.blit(self.imagen, rect_imagen)
+        except AttributeError:
+            # En caso de error o si no hay imagen, dibujar círculo con efecto pulsante
+            centro = self._rect.center
 
-        # Contador de frames para animación
-        self._frame_count += 1
+            # Contador de frames para animación
+            self._frame_count += 1
 
-        # Efecto pulsante usando seno (oscila entre -1 y 1)
-        pulso = abs(math.sin(self._frame_count * 0.2)) * 3
-        radio_pulso = self.radio + pulso
+            # Efecto pulsante usando seno (oscila entre -1 y 1)
+            pulso = abs(math.sin(self._frame_count * 0.2)) * 3
+            radio_pulso = self.radio + pulso
 
-        # Variar intensidad del color rojo
-        intensidad = int(200 + 55 * abs(math.sin(self._frame_count * 0.15)))
-        color_principal = (intensidad, 50, 50)
+            # Variar intensidad del color rojo
+            intensidad = int(200 + 55 * abs(math.sin(self._frame_count * 0.15)))
+            color_principal = (intensidad, 50, 50)
 
-        # Círculo principal con pulsación
-        pygame.draw.circle(screen, color_principal, centro, int(radio_pulso))
+            # Círculo principal con pulsación
+            pygame.draw.circle(screen, color_principal, centro, int(radio_pulso))
 
-        # Borde blanco para contraste
-        pygame.draw.circle(screen, (255, 255, 255), centro, int(radio_pulso), 2)
+            # Borde blanco para contraste
+            pygame.draw.circle(screen, (255, 255, 255), centro, int(radio_pulso), 2)
 
-        # Centro oscuro para dar profundidad
-        pygame.draw.circle(screen, (180, 30, 30), centro, int(self.radio * 0.6))
+            # Centro oscuro para dar profundidad
+            pygame.draw.circle(screen, (180, 30, 30), centro, int(self.radio * 0.6))
 
-        # Puntos brillantes simulando "ojos"
-        ojo_offset = 4
-        pygame.draw.circle(
-            screen, (255, 255, 255), (centro[0] - ojo_offset, centro[1] - 2), 2
-        )
-        pygame.draw.circle(
-            screen, (255, 255, 255), (centro[0] + ojo_offset, centro[1] - 2), 2
-        )
+            # Puntos brillantes simulando "ojos"
+            ojo_offset = 4
+            pygame.draw.circle(
+                screen, (255, 255, 255), (centro[0] - ojo_offset, centro[1] - 2), 2
+            )
+            pygame.draw.circle(
+                screen, (255, 255, 255), (centro[0] + ojo_offset, centro[1] - 2), 2
+            )
 
     def mover(self, direccion: str) -> None:
         """
