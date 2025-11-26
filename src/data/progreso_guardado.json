@@ -1,18 +1,18 @@
 {
-  "nombre_jugador": "",
+  "nombre_jugador": "fsf",
   "puntaje": 0,
-  "vidas": 0,
-  "tiempo_jugado": 0,
-  "laberinto": "",
+  "vidas": 3,
+  "tiempo_jugado": 1,
+  "laberinto": "Laberinto del Caos",
   "dificultad": 1.0,
-  "obsequios_restantes": 0,
-  "fecha_guardado": "",
+  "obsequios_restantes": 8,
+  "fecha_guardado": "2025-11-25 21:06:30",
   "posicion_jugador": {
-    "x": 0,
-    "y": 0
+    "x": 301,
+    "y": 158
   },
   "posicion_computadora": {
-    "x": 0,
-    "y": 0
+    "x": 674,
+    "y": 413
   }
 }
