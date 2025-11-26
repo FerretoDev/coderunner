@@ -429,32 +429,38 @@ class PantallaJuego:
                     )
 
     def _dibujar_hud(self):
-        """Panel superior con nombre, vidas, puntaje, dificultad, tiempo y controles - estilo arcade."""
-        # Panel base más alto
+        """Panel superior con nombre, vidas, puntaje, dificultad, tiempo y controles - estilo mitológico griego."""
+        # Panel base mármol/pergamino
         panel_rect = pygame.Rect(0, 0, self.ANCHO, 95)
-        pygame.draw.rect(self.screen, (25, 30, 45), panel_rect)
+        pygame.draw.rect(self.screen, (210, 195, 170), panel_rect)  # Mármol beige
 
-        # Línea superior brillante
-        pygame.draw.line(self.screen, (0, 200, 255), (0, 0), (self.ANCHO, 0), 3)
+        # Línea superior de bronce
+        pygame.draw.line(self.screen, (184, 115, 51), (0, 0), (self.ANCHO, 0), 3)
 
-        # Doble línea inferior (estilo arcade)
-        pygame.draw.line(self.screen, (0, 200, 255), (0, 93), (self.ANCHO, 93), 2)
-        pygame.draw.line(self.screen, (50, 255, 100), (0, 96), (self.ANCHO, 96), 2)
+        # Doble línea inferior (estilo columnas griegas)
+        pygame.draw.line(self.screen, (184, 115, 51), (0, 93), (self.ANCHO, 93), 2)
+        pygame.draw.line(self.screen, (139, 90, 43), (0, 96), (self.ANCHO, 96), 2)
 
         # === FILA SUPERIOR ===
         # IZQUIERDA: Nombre del jugador
         nombre_texto = f"{self.nombre_jugador}"
-        nombre_surf = self.fuente_pequena.render(nombre_texto, False, (255, 255, 255))
+        nombre_surf = self.fuente_pequena.render(
+            nombre_texto, False, (139, 69, 19)
+        )  # Marrón antiguo
         self.screen.blit(nombre_surf, (15, 8))
 
         # CENTRO: Puntaje con estrella
         x_puntaje = self.ANCHO // 2 - 80
         y_puntaje = 8
 
-        # Caja del puntaje
+        # Caja del puntaje (estilo papiro/pergamino)
         puntaje_box = pygame.Rect(x_puntaje - 5, y_puntaje - 3, 160, 28)
-        pygame.draw.rect(self.screen, (40, 45, 60), puntaje_box, border_radius=4)
-        pygame.draw.rect(self.screen, (255, 220, 60), puntaje_box, 2, border_radius=4)
+        pygame.draw.rect(
+            self.screen, (198, 156, 109), puntaje_box, border_radius=4
+        )  # Crema oscuro
+        pygame.draw.rect(
+            self.screen, (184, 115, 51), puntaje_box, 2, border_radius=4
+        )  # Borde bronce
 
         # Estrella animada más pequeña
         x_estrella = x_puntaje + 5
@@ -480,7 +486,9 @@ class PantallaJuego:
         tiempo_min = self.tiempo_transcurrido // 3600
         tiempo_seg = (self.tiempo_transcurrido % 3600) // 60
         tiempo_texto = f"{tiempo_min:02d}:{tiempo_seg:02d}"
-        tiempo_surf = self.fuente_pequena.render(tiempo_texto, False, (200, 230, 255))
+        tiempo_surf = self.fuente_pequena.render(
+            tiempo_texto, False, (139, 69, 19)
+        )  # Marrón antiguo
         tiempo_rect = tiempo_surf.get_rect(right=self.ANCHO - 15, y=8)
         self.screen.blit(tiempo_surf, tiempo_rect)
 
@@ -491,17 +499,17 @@ class PantallaJuego:
         for i in range(self.jugador.vidas):
             cx = x_vidas + (i * 28)
 
-            # Corazón más pequeño
-            pygame.draw.circle(self.screen, (255, 80, 120), (cx + 4, y_vidas + 4), 4)
-            pygame.draw.circle(self.screen, (255, 80, 120), (cx + 12, y_vidas + 4), 4)
+            # Corazón más pequeño (rojo terracota)
+            pygame.draw.circle(self.screen, (178, 34, 34), (cx + 4, y_vidas + 4), 4)
+            pygame.draw.circle(self.screen, (178, 34, 34), (cx + 12, y_vidas + 4), 4)
             puntos = [
                 (cx, y_vidas + 5),
                 (cx + 16, y_vidas + 5),
                 (cx + 8, y_vidas + 15),
             ]
-            pygame.draw.polygon(self.screen, (255, 80, 120), puntos)
+            pygame.draw.polygon(self.screen, (178, 34, 34), puntos)
             # Brillo
-            pygame.draw.circle(self.screen, (255, 150, 180), (cx + 6, y_vidas + 2), 2)
+            pygame.draw.circle(self.screen, (205, 92, 92), (cx + 6, y_vidas + 2), 2)
 
         # CENTRO: Dificultad con barra
         x_dif = self.ANCHO // 2 - 70
@@ -510,7 +518,9 @@ class PantallaJuego:
 
         # Texto de dificultad
         dif_texto = f"Nivel {nivel_dificultad:.1f}x"
-        dif_surf = self.fuente_pequena.render(dif_texto, False, (255, 100, 100))
+        dif_surf = self.fuente_pequena.render(
+            dif_texto, False, (178, 34, 34)
+        )  # Rojo terracota
         self.screen.blit(dif_surf, (x_dif, y_dif))
 
         # Barra de progreso debajo del texto
@@ -519,10 +529,10 @@ class PantallaJuego:
         barra_x = x_dif
         barra_y = y_dif + 20
 
-        # Fondo de la barra
+        # Fondo de la barra (bronce oscuro)
         pygame.draw.rect(
             self.screen,
-            (40, 40, 50),
+            (101, 67, 33),  # Marrón oscuro
             (barra_x, barra_y, barra_ancho, barra_alto),
             border_radius=4,
         )
@@ -896,7 +906,7 @@ class PantallaJuego:
         # Nota al pie
         y_nota = caja_y + caja_alto - 30
         nota = self.fuente_pequena.render(
-            "El progreso se guardará para continuar más tarde", False, (120, 90, 60)
+            "El progreso se guardará para después", False, (130, 90, 60)
         )
         nota_rect = nota.get_rect(center=(self.ANCHO // 2, y_nota))
         self.screen.blit(nota, nota_rect)
