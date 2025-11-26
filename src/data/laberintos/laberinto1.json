@@ -30,6 +30,8 @@
     {"posicion": [3, 3], "valor": 10},
     {"posicion": [7, 5], "valor": 10},
     {"posicion": [12, 3], "valor": 10},
-    {"posicion": [5, 7], "valor": 10}
+    {"posicion": [5, 7], "valor": 10},
+    {"posicion": [15, 9], "valor": 10},
+    {"posicion": [10, 11], "valor": 10}
   ]
 }

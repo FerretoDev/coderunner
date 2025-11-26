@@ -27,13 +27,13 @@
     "fila": 13
   },
   "obsequios": [
-    {"posicion": [9, 1], "valor": 10},
-    {"posicion": [15, 2], "valor": 10},
-    {"posicion": [3, 5], "valor": 10},
-    {"posicion": [11, 6], "valor": 10},
-    {"posicion": [17, 7], "valor": 10},
-    {"posicion": [6, 9], "valor": 10},
-    {"posicion": [13, 11], "valor": 10},
+    {"posicion": [7, 1], "valor": 10},
+    {"posicion": [15, 3], "valor": 10},
+    {"posicion": [2, 5], "valor": 10},
+    {"posicion": [9, 6], "valor": 10},
+    {"posicion": [16, 7], "valor": 10},
+    {"posicion": [7, 9], "valor": 10},
+    {"posicion": [12, 11], "valor": 10},
     {"posicion": [10, 13], "valor": 10}
   ]
 }
