@@ -170,9 +170,7 @@ class PantallaJuego:
             "data",
             "pasillos.jpg",
         )
-        self.imagen_pasillo = pygame.image.load(ruta_imagen_pasillo).convert_alpha()
-        self.imagen_pasillo = pygame.transform.scale(self.imagen_pasillo, (64, 64))
-
+    
     def _inicializar_timers_obsequios(self):
         """Crea un timer de vida para cada obsequio inicial del laberinto."""
         for posicion in self.laberinto._obsequios.keys():
