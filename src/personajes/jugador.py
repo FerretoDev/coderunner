@@ -36,60 +36,11 @@ class Jugador(Personaje):
         self.spawn_x = x
         self.spawn_y = y
 
-        # Contador de frames para animación de esfera pulsante
-        self._frame_count = 0
-
-        # Cargar sprite de Teseo
-        try:
-            import os
-
-            ruta_sprite = "src/assets/imagenes/teseo.png"
-            if not os.path.exists(ruta_sprite):
-                print(f"⚠️ No se encontró el sprite en: {ruta_sprite}")
-                self.sprite_teseo = None
-                self.frames_teseo = []
-            else:
-                spritesheet = pygame.image.load(ruta_sprite).convert_alpha()
-
-                # Dimensiones del spritesheet: 112x150
-                # Suponiendo 4 columnas x 3 filas = 12 frames
-                # Tamaño de cada frame: 28x50 (112/4 = 28, 150/3 = 50)
-                frame_width = 28
-                frame_height = 50
-
-                # Extraer frames del spritesheet
-                self.frames_teseo = []
-                for fila in range(3):  # 3 filas
-                    for col in range(4):  # 4 columnas
-                        x = col * frame_width
-                        y = fila * frame_height
-
-                        # Crear superficie para el frame
-                        frame = pygame.Surface(
-                            (frame_width, frame_height), pygame.SRCALPHA
-                        )
-                        frame.blit(
-                            spritesheet, (0, 0), (x, y, frame_width, frame_height)
-                        )
-
-                        # Escalar el frame al tamaño de celda
-                        tamano_celda = ConfigJuego.TAM_CELDA
-                        frame_escalado = pygame.transform.scale(
-                            frame, (tamano_celda, tamano_celda)
-                        )
-                        self.frames_teseo.append(frame_escalado)
-
-                # Frame actual para animación
-                self.frame_index = 0
-                self.sprite_teseo = self.frames_teseo[0] if self.frames_teseo else None
-
-                print(
-                    f"✅ Sprite de Teseo cargado: {len(self.frames_teseo)} frames, {tamano_celda}x{tamano_celda} cada uno"
-                )
-        except Exception as e:
-            print(f"❌ Error al cargar sprite de Teseo: {e}")
-            self.sprite_teseo = None
-            self.frames_teseo = []
+        # Cargar imagen del jugador
+        self.imagen = pygame.image.load(
+            "src/data/ImagenJugadorPrincipal.png"
+        ).convert_alpha()
+        self.imagen = pygame.transform.scale(self.imagen, (64, 64))
 
         # Rect de colisión más ajustado al círculo visual
         # Usamos FACTOR_RECT_COLISION para mejor precisión
@@ -171,24 +122,18 @@ class Jugador(Personaje):
 
     def dibujar_jugador_principal(self, pantalla):
         """
-        Dibuja al jugador usando el sprite animado de Teseo.
+        Dibuja al jugador en la pantalla con su imagen.
+        Si no se carga correctamente, dibuja un círculo rojo como respaldo.
         """
-        if not self.frames_teseo:
-            # Si no se cargaron los frames, dibujar un rectángulo de placeholder
-            pygame.draw.rect(pantalla, (0, 255, 255), self._rect)
-            pygame.draw.rect(pantalla, (255, 255, 255), self._rect, 2)
-            return
-
-        # Actualizar animación (cambiar frame cada 8 frames del juego)
-        self._frame_count += 1
-        if self._frame_count >= 8:
-            self._frame_count = 0
-            self.frame_index = (self.frame_index + 1) % len(self.frames_teseo)
-            self.sprite_teseo = self.frames_teseo[self.frame_index]
-
-        # Dibujar sprite centrado en el rect
-        rect_sprite = self.sprite_teseo.get_rect(center=self._rect.center)
-        pantalla.blit(self.sprite_teseo, rect_sprite)
+        try:
+            # Obtener la posición donde se dibujará (centrando la imagen)
+            centro = self._rect.center
+            rect_imagen = self.imagen.get_rect(center=centro)
+            pantalla.blit(self.imagen, rect_imagen)
+        except AttributeError:
+            # En caso de error o si no hay imagen, dibujar círculo
+            centro = self._rect.center
+            pygame.draw.circle(pantalla, (255, 0, 0), centro, self.radio)
 
     def actualizar_movimiento(self, dx, dy):
         """
