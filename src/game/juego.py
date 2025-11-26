@@ -13,9 +13,10 @@ import sys  # Permite modificar sys.path y cerrar la app con sys.exit()
 
 import pygame
 
-from config.constants import (
+from config.constants import (  # Motor de eventos, ventana y tiempo para el loop principal
     PASSWORD,
-)  # Motor de eventos, ventana y tiempo para el loop principal
+)
+
 # Agregar el directorio 'src' al path para las importaciones relativas absolutas de paquetes internos.
 # Esto permite ejecutar el archivo desde distintos lugares sin errores de importación.
 sys.path.append(
@@ -24,26 +25,36 @@ sys.path.append(
 
 from interfaz.pantallas import (
     MensajeModal,  # Modal reutilizable para mostrar mensajes (éxito/error)
+)
+from interfaz.pantallas import (
     MenuPrincipal,  # Menú principal que devuelve la opción elegida
+)
+from interfaz.pantallas import (
     ModalConfirmacion,  # Modal de confirmación para acciones críticas
+)
+from interfaz.pantallas import (
     PantallaAdministracion,  # Pantalla que solicita clave para administración
+)
+from interfaz.pantallas import (
     PantallaCargaLaberinto,  # Pantalla para cargar archivos de laberinto
+)
+from interfaz.pantallas import (
     PantallaIniciarJuego,  # Pantalla para capturar el nombre del jugador antes de iniciar
+)
+from interfaz.pantallas import (
     PantallaMenuAdministrador,  # Menú de opciones administrativas
+)
+from interfaz.pantallas import (
     PantallaSalonFama,  # Pantalla que muestra los mejores puntajes
 )
-from interfaz.pantallas.pantalla_juego import (
+from interfaz.pantallas.pantalla_juego import (  # Pantalla que corre el juego principal (loop propio)
     PantallaJuego,
-)  # Pantalla que corre el juego principal (loop propio)
-from mundo.salon_fama import (
-    SalonFama,
-)  # Modelo para gestionar puntuaciones y récords
-from servicios.administrador import (
+)
+from mundo.salon_fama import SalonFama  # Modelo para gestionar puntuaciones y récords
+from servicios.administrador import (  # Lógica de autenticación de administrador
     Administrador,
-)  # Lógica de autenticación de administrador
-from servicios.sistema_sonido import (
-    SistemaSonido,
-)  # Sistema centralizado de sonidos
+)
+from servicios.sistema_sonido import SistemaSonido  # Sistema centralizado de sonidos
 
 
 class Juego:
@@ -156,7 +167,6 @@ class Juego:
                     laberinto=datos_puntaje["laberinto"],
                 )
                 salon_fama.guardar_puntaje(registro)
-                print(f"Puntaje guardado: {datos_puntaje['puntaje']} puntos")
 
     def _manejar_salon_fama(self, screen, salon_fama):
         """Maneja la opción de Salón de la Fama."""

@@ -81,9 +81,6 @@ class SalonFama:
 
                 # Verificar estructura del JSON
                 if "registros" not in datos:
-                    print(
-                        f"Advertencia: Archivo {self._archivo} con formato incorrecto"
-                    )
                     self._registros = []
                     return
 

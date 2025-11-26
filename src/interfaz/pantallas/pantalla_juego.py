@@ -906,17 +906,9 @@ class PantallaJuego:
                     self.mostrar_distancia = not self.mostrar_distancia
                 if evento.key == pygame.K_m:
                     self.movimiento_por_celdas = not self.movimiento_por_celdas
-                    modo = "Celdas" if self.movimiento_por_celdas else "Píxeles"
-                    print(f"Modo de movimiento cambiado a: {modo}")
                 if evento.key == pygame.K_u:
                     # Alternar música de fondo
                     self.sistema_sonido.alternar_musica()
-                    estado = (
-                        "activada"
-                        if self.sistema_sonido.musica_activa
-                        else "desactivada"
-                    )
-                    print(f"Música {estado}")
 
                 # En game over, cualquier tecla (menos 'p') sale SOLO si pasaron los 5 segundos
                 if (

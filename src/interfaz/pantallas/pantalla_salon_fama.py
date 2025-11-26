@@ -105,7 +105,7 @@ class PantallaSalonFama:
     def _dibujar_podio(self, top3):
         """Dibuja el podio con las 3 mejores puntuaciones en tarjetas."""
         y_podio = 155
-        ancho_tarjeta = 300
+        ancho_tarjeta = 350
         alto_tarjeta = 110
         espacio = 20
 
@@ -175,7 +175,7 @@ class PantallaSalonFama:
             self.screen.blit(puntaje_surface, puntaje_rect)
 
             # Laberinto
-            laberinto = reg["laberinto"][:12]
+            laberinto = reg["laberinto"][:20]
             lab_surface = self.font_info.render(laberinto, False, (180, 180, 200))
             lab_rect = lab_surface.get_rect(
                 center=(x + ancho_tarjeta // 2, y_podio + 88)
