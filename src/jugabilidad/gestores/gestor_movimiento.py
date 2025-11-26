@@ -58,11 +58,22 @@ class GestorMovimiento:
 
         # Sistema de cooldown
         self.cooldown_actual = 0
-        self.ultima_tecla = None
+        self.ultima_tecla: str | None = None
 
         # Historial de posiciones para revertir
         self.pos_anterior_x = jugador.jugador_principal.x
         self.pos_anterior_y = jugador.jugador_principal.y
+
+        # Sistema de interpolación para movimiento suave
+        self.interpolando = False
+        self.pos_inicio_x = 0
+        self.pos_inicio_y = 0
+        self.pos_destino_x = 0
+        self.pos_destino_y = 0
+        self.frames_interpolacion = 0
+        self.frames_totales_interpolacion = (
+            3  # Frames que toma la transición (más rápido)
+        )
 
     def guardar_posicion_anterior(self):
         """Guarda la posición actual para poder revertirla si hay colisión."""
@@ -92,6 +103,11 @@ class GestorMovimiento:
 
         Maneja cooldown para evitar movimientos múltiples en un frame.
         """
+        # Actualizar interpolación si está activa
+        if self.interpolando:
+            self._actualizar_interpolacion()
+            return  # No procesar nueva entrada mientras se interpola
+
         if self.cooldown_actual > 0:
             self.cooldown_actual -= 1
             return
@@ -166,8 +182,13 @@ class GestorMovimiento:
         # Validar colisión con muros
         temp_rect = pygame.Rect(nueva_x, nueva_y, rect.width, rect.height)
         if not any(temp_rect.colliderect(m) for m in self.muros):
-            rect.x = nueva_x
-            rect.y = nueva_y
+            # Iniciar interpolación en lugar de mover instantáneamente
+            self.interpolando = True
+            self.pos_inicio_x = rect.x
+            self.pos_inicio_y = rect.y
+            self.pos_destino_x = nueva_x
+            self.pos_destino_y = nueva_y
+            self.frames_interpolacion = 0
 
             # Actualizar estado de movimiento del sprite del jugador
             self.jugador.actualizar_movimiento(dx, dy)
@@ -231,3 +252,36 @@ class GestorMovimiento:
     def actualizar_muros(self, nuevos_muros: list[pygame.Rect]):
         """Actualiza la lista de muros (útil si el laberinto cambia)."""
         self.muros = nuevos_muros
+
+    def _actualizar_interpolacion(self):
+        """
+        Interpolación suave entre celdas.
+
+        Usa una función de easing suave (ease-out) para una transición más natural.
+        """
+        self.frames_interpolacion += 1
+
+        # Calcular progreso (0.0 a 1.0)
+        t = self.frames_interpolacion / self.frames_totales_interpolacion
+
+        if t >= 1.0:
+            # Interpolación completa, establecer posición final exacta
+            rect = self.jugador.jugador_principal
+            rect.x = self.pos_destino_x
+            rect.y = self.pos_destino_y
+            self.interpolando = False
+            self.cooldown_actual = (
+                self.frames_cooldown
+            )  # Iniciar cooldown después de completar
+        else:
+            # Aplicar ease-out quadratic para movimiento rápido y dinámico
+            t_eased = 1 - (1 - t) * (1 - t)
+
+            # Interpolar posición
+            rect = self.jugador.jugador_principal
+            rect.x = int(
+                self.pos_inicio_x + (self.pos_destino_x - self.pos_inicio_x) * t_eased
+            )
+            rect.y = int(
+                self.pos_inicio_y + (self.pos_destino_y - self.pos_inicio_y) * t_eased
+            )

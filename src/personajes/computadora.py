@@ -7,11 +7,10 @@ from config.config import ConfigJuego
 from utilidades.coordenadas import ConversorCoordenadas
 
 from .personaje import Personaje
-from .sprite_animado import SpriteMinotaurRunner
 
 
 class Computadora(Personaje):
-    """Enemigo que persigue al jugador usando algoritmo BFS con sprite del Minotauro"""
+    """Enemigo que persigue al jugador usando algoritmo BFS"""
 
     def __init__(self, x: int, y: int, radio: int = 10, velocidad: float = 0):
         super().__init__(x, y, radio, velocidad)
@@ -21,10 +20,8 @@ class Computadora(Personaje):
         self.spawn_x = x
         self.spawn_y = y
 
-        # Sprite animado del Minotauro
-        self.sprite = SpriteMinotaurRunner(escala=0.5)  # 48x48 píxeles
-        self.direccion_derecha = True
-        self.moviendo = False
+        # Contador de frames para animación de esfera pulsante
+        self._frame_count = 0
 
         # Crear rect de colisión usando factor de configuración
         size = int(radio * ConfigJuego.FACTOR_RECT_COLISION)
@@ -252,8 +249,37 @@ class Computadora(Personaje):
         return False
 
     def dibujar_computadora_principal(self, screen):
-        """Dibuja al Minotauro con sprite animado."""
-        self.dibujar(screen)
+        """Dibuja enemigo con efecto visual pulsante."""
+        centro = self._rect.center
+
+        # Contador de frames para animación
+        self._frame_count += 1
+
+        # Efecto pulsante usando seno (oscila entre -1 y 1)
+        pulso = abs(math.sin(self._frame_count * 0.2)) * 3
+        radio_pulso = self.radio + pulso
+
+        # Variar intensidad del color rojo
+        intensidad = int(200 + 55 * abs(math.sin(self._frame_count * 0.15)))
+        color_principal = (intensidad, 50, 50)
+
+        # Círculo principal con pulsación
+        pygame.draw.circle(screen, color_principal, centro, int(radio_pulso))
+
+        # Borde blanco para contraste
+        pygame.draw.circle(screen, (255, 255, 255), centro, int(radio_pulso), 2)
+
+        # Centro oscuro para dar profundidad
+        pygame.draw.circle(screen, (180, 30, 30), centro, int(self.radio * 0.6))
+
+        # Puntos brillantes simulando "ojos"
+        ojo_offset = 4
+        pygame.draw.circle(
+            screen, (255, 255, 255), (centro[0] - ojo_offset, centro[1] - 2), 2
+        )
+        pygame.draw.circle(
+            screen, (255, 255, 255), (centro[0] + ojo_offset, centro[1] - 2), 2
+        )
 
     def mover(self, direccion: str) -> None:
         """
@@ -263,28 +289,10 @@ class Computadora(Personaje):
         # La computadora no usa movimiento manual, se mueve con perseguir_bfs
         pass
 
-    def dibujar(self, pantalla):
-        """
-        Dibuja al Minotauro en la pantalla con sprite animado.
-        """
-        # Actualizar animación del sprite
-        self.sprite.actualizar(
-            moviendo=self.moviendo,
-            atacando=False,
-            herido=False,
-            muriendo=False,
-            direccion_derecha=self.direccion_derecha,
-        )
-
-        # Dibujar sprite centrado en la posición de la computadora
-        centro = self._rect.center
-        self.sprite.dibujar(pantalla, centro[0], centro[1])
-
     def respawn(self):
         """Reposiciona a la computadora en su punto de spawn inicial."""
         self._rect.x = self.spawn_x
         self._rect.y = self.spawn_y
-        self.moviendo = False
         self._bfs_camino = None  # Limpiar camino para recalcular
         self._bfs_target_cell = None
 

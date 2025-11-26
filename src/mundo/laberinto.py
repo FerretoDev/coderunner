@@ -332,12 +332,13 @@ class Laberinto:
         self, pantalla, frame_count=0, tam_celda=None, offset_x=0, offset_y=0
     ):
         """
-        Dibuja los obsequios en el laberinto con efecto de brillo pulsante.
+        Dibuja los obsequios en el laberinto.
 
-        Cada obsequio se renderiza como un círculo dorado con:
-        - Efecto de pulsación (tamaño variable con seno)
-        - Múltiples capas de color (exterior, principal, centro, punto de luz)
-        - Brillo para hacerlo más visible y atractivo
+        Cada obsequio se renderiza como un diamante giratorio con:
+        - Efecto de rotación continua
+        - Pulsación de tamaño
+        - Aura brillante
+        - Estilo arcade/neón
 
         Args:
             pantalla: Superficie de pygame donde se dibujarán los obsequios
@@ -356,30 +357,47 @@ class Laberinto:
             col, fila = posicion
 
             # Calcular posición en píxeles (centro de la celda)
-            x = col * celda_size + celda_size // 2 + offset_x
-            y = fila * celda_size + celda_size // 2 + offset_y
+            cx = col * celda_size + celda_size // 2 + offset_x
+            cy = fila * celda_size + celda_size // 2 + offset_y
 
             # === Efecto de pulsación ===
-            # Usar seno para crear variación suave del tamaño
-            pulso = abs(math.sin(frame_count * 0.1)) * 2  # Varía entre 0 y 2
-            radio_base = 8
+            pulso = abs(math.sin(frame_count * 0.1)) * 3
+            radio_base = 10
             radio_pulso = radio_base + pulso
 
-            # === Capas de dibujo (de exterior a interior) ===
-            # Capa 1: Círculo exterior con brillo (amarillo claro)
-            pygame.draw.circle(pantalla, (255, 240, 100), (x, y), int(radio_pulso + 2))
+            # === Rotación del diamante ===
+            rotacion = (frame_count * 0.05) % (2 * math.pi)
 
-            # Capa 2: Círculo principal dorado
-            pygame.draw.circle(pantalla, (255, 215, 0), (x, y), int(radio_pulso))
+            # Puntos del diamante (4 puntos formando rombo)
+            puntos = []
+            for i in range(4):
+                angulo = rotacion + (i * math.pi / 2)  # 90 grados entre puntos
+                px = cx + radio_pulso * math.cos(angulo)
+                py = cy + radio_pulso * math.sin(angulo)
+                puntos.append((px, py))
 
-            # Capa 3: Centro brillante (amarillo muy claro)
-            pygame.draw.circle(
-                pantalla, (255, 255, 200), (x, y), int(radio_pulso * 0.5)
-            )
+            # === Aura exterior (círculo amarillo difuminado) ===
+            for r in range(3, 0, -1):
+                alpha_color = 255 - (r * 60)
+                pygame.draw.circle(
+                    pantalla, (255, 220, 0), (cx, cy), int(radio_pulso + r * 2), 1
+                )
 
-            # Capa 4: Punto de luz superior izquierdo (destello)
-            pygame.draw.circle(pantalla, (255, 255, 255), (x - 2, y - 2), 2)
-            pygame.draw.circle(pantalla, (255, 255, 255), (x - 2, y - 2), 2)
+            # === Diamante principal (amarillo/dorado) ===
+            pygame.draw.polygon(pantalla, (255, 215, 0), puntos)
+
+            # Borde blanco brillante
+            pygame.draw.polygon(pantalla, (255, 255, 255), puntos, 2)
+
+            # === Centro brillante (estrella pequeña) ===
+            for i in range(8):
+                angulo = (i * math.pi / 4) + rotacion * 0.5
+                x_end = cx + 4 * math.cos(angulo)
+                y_end = cy + 4 * math.sin(angulo)
+                pygame.draw.line(pantalla, (255, 255, 200), (cx, cy), (x_end, y_end), 2)
+
+            # Punto central blanco
+            pygame.draw.circle(pantalla, (255, 255, 255), (cx, cy), 2)
 
     def generar_muros_rect(
         self, tam_celda: int, offset_x: int, offset_y: int

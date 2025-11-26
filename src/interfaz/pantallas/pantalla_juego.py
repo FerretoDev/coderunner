@@ -295,33 +295,80 @@ class PantallaJuego:
         self.screen.blit(dist_texto, (pos_jugador[0] + 20, pos_jugador[1] - 20))
 
     def _dibujar_laberinto(self):
-        """Dibuja cada celda como pared o piso con borde tenue para guiar al jugador."""
+        """Dibuja el laberinto con estética retro/arcade con efectos de neón."""
+        import math
+
         for fila in range(len(self.mapa)):
             for col in range(len(self.mapa[0])):
                 x = col * self.tam_celda + self.offset_x
                 y = fila * self.tam_celda + self.offset_y
 
                 if self.mapa[fila][col] == 1:
-                    # Paredes con efecto de profundidad
+                    # === MUROS CON EFECTO NEÓN ===
+                    # Fondo oscuro
                     pygame.draw.rect(
                         self.screen,
-                        (45, 55, 75),  # Azul oscuro
+                        (20, 25, 40),
                         (x, y, self.tam_celda, self.tam_celda),
                     )
-                    # Borde superior más claro (efecto 3D)
-                    pygame.draw.line(
-                        self.screen, (60, 70, 90), (x, y), (x + self.tam_celda, y), 2
-                    )
-                    # Borde izquierdo más claro
-                    pygame.draw.line(
-                        self.screen, (60, 70, 90), (x, y), (x, y + self.tam_celda), 2
-                    )
-                else:
-                    self.screen.blit(self.imagen_pasillo, (x, y))
-                    # Borde sutil cyan
+
+                    # Patrón de cuadrícula interior
+                    grid_size = self.tam_celda // 4
+                    for i in range(4):
+                        for j in range(4):
+                            gx = x + i * grid_size + 2
+                            gy = y + j * grid_size + 2
+                            # Cuadraditos pequeños con variación
+                            color_var = 30 + ((i + j) % 2) * 10
+                            pygame.draw.rect(
+                                self.screen,
+                                (color_var, color_var + 10, color_var + 20),
+                                (gx, gy, grid_size - 4, grid_size - 4),
+                            )
+
+                    # Borde neón cyan brillante
                     pygame.draw.rect(
                         self.screen,
-                        (0, 80, 100),
+                        (0, 200, 255),
+                        (x, y, self.tam_celda, self.tam_celda),
+                        2,
+                    )
+
+                    # Borde interior más tenue
+                    pygame.draw.rect(
+                        self.screen,
+                        (0, 120, 180),
+                        (x + 2, y + 2, self.tam_celda - 4, self.tam_celda - 4),
+                        1,
+                    )
+                else:
+                    # === PASILLOS CON PATRÓN DE PUNTOS ===
+                    # Fondo oscuro
+                    pygame.draw.rect(
+                        self.screen,
+                        (15, 18, 25),
+                        (x, y, self.tam_celda, self.tam_celda),
+                    )
+
+                    # Patrón de puntos sutiles (efecto tron/arcade)
+                    dot_spacing = 8
+                    for dx in range(0, self.tam_celda, dot_spacing):
+                        for dy in range(0, self.tam_celda, dot_spacing):
+                            # Pulsación sutil basada en posición
+                            pulso = (
+                                abs(math.sin((self.frame_count + dx + dy) * 0.05)) * 10
+                            )
+                            pygame.draw.circle(
+                                self.screen,
+                                (0, 40 + int(pulso), 60 + int(pulso)),
+                                (x + dx + 4, y + dy + 4),
+                                1,
+                            )
+
+                    # Borde muy sutil
+                    pygame.draw.rect(
+                        self.screen,
+                        (0, 60, 80),
                         (x, y, self.tam_celda, self.tam_celda),
                         1,
                     )
@@ -558,8 +605,10 @@ class PantallaJuego:
         self.screen.blit(puntaje, puntaje_rect)
 
         tiempo_segundos = self.tiempo_transcurrido // 60
+        # Calcular dificultad
+        nivel_dificultad = self.computadora.velocidad / self.velocidad_inicial_enemigo
         tiempo_texto = self.fuente_pequena.render(
-            f"Tiempo: {tiempo_segundos} segundos | Dificultad: {self.computadora.velocidad:.1f}x",
+            f"Tiempo: {tiempo_segundos} segundos | Dificultad: {nivel_dificultad:.1f}x",
             True,
             Colores.TEXTO_SECUNDARIO,
         )

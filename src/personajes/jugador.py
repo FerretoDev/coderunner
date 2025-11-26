@@ -1,9 +1,10 @@
+import math
+
 import pygame
 
 from config.config import ConfigJuego
 
 from .personaje import Personaje
-from .sprite_animado import SpriteTheseusRunner
 
 
 class Jugador(Personaje):
@@ -14,7 +15,7 @@ class Jugador(Personaje):
         El movimiento del jugador usando las teclas de dirección
         El sistema de vidas (3 vidas iniciales)
         El sistema de puntaje
-        La representación visual del jugador con sprite animado de Theseus
+        La representación visual con efecto de esfera pulsante
     """
 
     def __init__(self, x, y, radio):
@@ -35,10 +36,8 @@ class Jugador(Personaje):
         self.spawn_x = x
         self.spawn_y = y
 
-        # Sprite animado de Theseus
-        self.sprite = SpriteTheseusRunner(escala=0.5)  # 32x48 píxeles
-        self.direccion_derecha = True
-        self.moviendo = False
+        # Contador de frames para animación de esfera pulsante
+        self._frame_count = 0
 
         # Rect de colisión más ajustado al círculo visual
         # Usamos FACTOR_RECT_COLISION para mejor precisión
@@ -120,19 +119,38 @@ class Jugador(Personaje):
 
     def dibujar_jugador_principal(self, pantalla):
         """
-        Dibuja al jugador en la pantalla con sprite animado de Theseus.
+        Dibuja al jugador con efecto visual pulsante.
         """
-        # Actualizar animación del sprite
-        self.sprite.actualizar(
-            moviendo=self.moviendo,
-            saltando=False,
-            muriendo=not self.esta_vivo(),
-            direccion_derecha=self.direccion_derecha,
-        )
-
-        # Dibujar sprite centrado en la posición del jugador
         centro = self._rect.center
-        self.sprite.dibujar(pantalla, centro[0], centro[1])
+
+        # Contador de frames para animación
+        self._frame_count += 1
+
+        # Efecto pulsante usando seno (oscila entre -1 y 1)
+        pulso = abs(math.sin(self._frame_count * 0.2)) * 3
+        radio_pulso = self.radio + pulso
+
+        # Variar intensidad del color cyan/azul
+        intensidad = int(200 + 55 * abs(math.sin(self._frame_count * 0.15)))
+        color_principal = (50, intensidad, intensidad)  # Cyan
+
+        # Círculo principal con pulsación
+        pygame.draw.circle(pantalla, color_principal, centro, int(radio_pulso))
+
+        # Borde blanco para contraste
+        pygame.draw.circle(pantalla, (255, 255, 255), centro, int(radio_pulso), 2)
+
+        # Centro brillante para dar efecto de "energía"
+        pygame.draw.circle(pantalla, (150, 255, 255), centro, int(self.radio * 0.6))
+
+        # Puntos brillantes simulando "ojos" o núcleo
+        ojo_offset = 4
+        pygame.draw.circle(
+            pantalla, (255, 255, 255), (centro[0] - ojo_offset, centro[1] - 2), 2
+        )
+        pygame.draw.circle(
+            pantalla, (255, 255, 255), (centro[0] + ojo_offset, centro[1] - 2), 2
+        )
 
     def actualizar_movimiento(self, dx, dy):
         """
@@ -142,17 +160,10 @@ class Jugador(Personaje):
             dx: Cambio en X
             dy: Cambio en Y
         """
-        # Detectar si está moviendo
-        self.moviendo = dx != 0 or dy != 0
-
-        # Detectar dirección (solo si hay movimiento horizontal)
-        if dx > 0:
-            self.direccion_derecha = True
-        elif dx < 0:
-            self.direccion_derecha = False
+        # Método mantenido para compatibilidad con gestor de movimiento
+        pass
 
     def respawn(self):
         """Reposiciona al jugador en su punto de spawn inicial."""
         self._rect.x = self.spawn_x
         self._rect.y = self.spawn_y
-        self.moviendo = False
