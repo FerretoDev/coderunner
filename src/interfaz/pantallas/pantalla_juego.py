@@ -541,13 +541,13 @@ class PantallaJuego:
         progreso = min(1.0, (nivel_dificultad - 1.0) / 2.0)
         relleno_ancho = int(barra_ancho * progreso)
 
-        # Color según nivel
+        # Color según nivel (paleta griega)
         if nivel_dificultad < 1.5:
-            color_barra = (50, 255, 100)  # Verde
+            color_barra = (107, 142, 35)  # Verde oliva
         elif nivel_dificultad < 2.0:
-            color_barra = (255, 220, 60)  # Amarillo
+            color_barra = (218, 165, 32)  # Oro
         else:
-            color_barra = (255, 80, 120)  # Rojo
+            color_barra = (178, 34, 34)  # Rojo terracota
 
         if relleno_ancho > 0:
             pygame.draw.rect(
@@ -560,7 +560,7 @@ class PantallaJuego:
         # Borde de la barra
         pygame.draw.rect(
             self.screen,
-            (100, 100, 120),
+            (184, 115, 51),  # Bronce
             (barra_x, barra_y, barra_ancho, barra_alto),
             1,
             border_radius=4,
@@ -569,99 +569,61 @@ class PantallaJuego:
         # DERECHA: Controles compactos
         controles_texto = "WASD: Mover  P: Pausa  ESC: Salir"
         controles_surf = self.fuente_pequena.render(
-            controles_texto, False, (120, 140, 160)
+            controles_texto, False, (101, 67, 33)  # Marrón oscuro
         )
         controles_rect = controles_surf.get_rect(right=self.ANCHO - 15, y=70)
         self.screen.blit(controles_surf, controles_rect)
 
-    def _guardar_progreso(self):
-        """Guarda el progreso actual del jugador antes de salir."""
-        import json
-        from datetime import datetime
-
-        # Crear datos de progreso
-        progreso = {
-            "nombre_jugador": self.nombre_jugador,
-            "puntaje": self.jugador._puntaje,
-            "vidas": self.jugador.vidas,
-            "tiempo_jugado": ConfigJuego.frames_a_segundos(self.tiempo_transcurrido),
-            "laberinto": self.laberinto.nombre,
-            "dificultad": round(
-                self.computadora.velocidad / self.velocidad_inicial_enemigo, 2
-            ),
-            "obsequios_restantes": len(self.laberinto._obsequios),
-            "fecha_guardado": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "posicion_jugador": {
-                "x": self.jugador.jugador_principal.x,
-                "y": self.jugador.jugador_principal.y,
-            },
-            "posicion_computadora": {
-                "x": self.computadora.computadora_principal.x,
-                "y": self.computadora.computadora_principal.y,
-            },
-        }
-
-        # Guardar en archivo
-        try:
-            ruta_guardado = "src/data/progreso_guardado.json"
-            with open(ruta_guardado, "w", encoding="utf-8") as archivo:
-                json.dump(progreso, archivo, indent=2, ensure_ascii=False)
-            print(f"\n✅ Progreso guardado en {ruta_guardado}")
-            print(f"   Jugador: {self.nombre_jugador}")
-            print(f"   Puntaje: {self.jugador._puntaje}")
-            print(f"   Vidas: {self.jugador.vidas}")
-            print(
-                f"   Tiempo: {ConfigJuego.frames_a_segundos(self.tiempo_transcurrido)}s\n"
-            )
-        except Exception as e:
-            print(f"⚠️  Error al guardar progreso: {e}")
-
     def _dibujar_pausa(self):
-        """Overlay translúcido y texto de pausa con estilo arcade."""
-        # Overlay oscuro
+        """Overlay translúcido y texto de pausa con estilo mitológico griego."""
+        # Overlay oscuro (pergamino oscuro)
         overlay = pygame.Surface((self.ANCHO, self.ALTO))
         overlay.set_alpha(200)
-        overlay.fill((15, 20, 35))
+        overlay.fill((20, 15, 10))  # Pergamino oscuro
         self.screen.blit(overlay, (0, 0))
 
-        # Caja central con efecto neón
+        # Caja central estilo templo griego
         caja_ancho = 500
         caja_alto = 250
         caja_x = (self.ANCHO - caja_ancho) // 2
         caja_y = (self.ALTO - caja_alto) // 2
 
         caja_rect = pygame.Rect(caja_x, caja_y, caja_ancho, caja_alto)
-        pygame.draw.rect(self.screen, (30, 35, 50), caja_rect, border_radius=15)
+        pygame.draw.rect(
+            self.screen, (210, 195, 170), caja_rect, border_radius=15
+        )  # Mármol
 
-        # Triple borde brillante (efecto neón)
-        pygame.draw.rect(self.screen, (0, 200, 255), caja_rect, 4, border_radius=15)
+        # Doble borde de bronce
+        pygame.draw.rect(self.screen, (184, 115, 51), caja_rect, 4, border_radius=15)
         caja_rect2 = pygame.Rect(caja_x - 3, caja_y - 3, caja_ancho + 6, caja_alto + 6)
-        pygame.draw.rect(self.screen, (0, 150, 200), caja_rect2, 2, border_radius=15)
+        pygame.draw.rect(self.screen, (139, 90, 43), caja_rect2, 2, border_radius=15)
         caja_rect3 = pygame.Rect(
             caja_x - 6, caja_y - 6, caja_ancho + 12, caja_alto + 12
         )
-        pygame.draw.rect(self.screen, (0, 100, 150), caja_rect3, 1, border_radius=15)
+        pygame.draw.rect(self.screen, (101, 67, 33), caja_rect3, 1, border_radius=15)
 
-        # Título PAUSA con triple sombra
+        # Título PAUSA con triple sombra (estilo griego)
         y_titulo = caja_y + 60
         # Sombra 3
-        titulo_s3 = self.fuente_titulo.render("PAUSA", False, (20, 30, 50))
+        titulo_s3 = self.fuente_titulo.render("PAUSA", False, (101, 67, 33))
         titulo_s3_rect = titulo_s3.get_rect(center=(self.ANCHO // 2 + 4, y_titulo + 4))
         self.screen.blit(titulo_s3, titulo_s3_rect)
         # Sombra 2
-        titulo_s2 = self.fuente_titulo.render("PAUSA", False, (0, 200, 255))
+        titulo_s2 = self.fuente_titulo.render("PAUSA", False, (184, 115, 51))  # Bronce
         titulo_s2_rect = titulo_s2.get_rect(center=(self.ANCHO // 2 + 2, y_titulo + 2))
         self.screen.blit(titulo_s2, titulo_s2_rect)
         # Texto principal
-        titulo = self.fuente_titulo.render("PAUSA", False, (255, 255, 255))
+        titulo = self.fuente_titulo.render(
+            "PAUSA", False, (139, 69, 19)
+        )  # Marrón antiguo
         titulo_rect = titulo.get_rect(center=(self.ANCHO // 2, y_titulo))
         self.screen.blit(titulo, titulo_rect)
 
-        # Línea decorativa
+        # Línea decorativa (bronce)
         linea_y = y_titulo + 50
         pygame.draw.line(
             self.screen,
-            (0, 200, 255),
+            (184, 115, 51),  # Bronce
             (self.ANCHO // 2 - 150, linea_y),
             (self.ANCHO // 2 + 150, linea_y),
             2,
@@ -670,14 +632,14 @@ class PantallaJuego:
         # Instrucciones con icono
         y_instruccion = linea_y + 40
         instruccion = self.fuente_hud.render(
-            "Presiona P para continuar", False, (100, 255, 100)
+            "Presiona P para continuar", False, (34, 139, 34)  # Verde oliva
         )
         instruccion_rect = instruccion.get_rect(center=(self.ANCHO // 2, y_instruccion))
         self.screen.blit(instruccion, instruccion_rect)
 
         # Tip adicional
         tip = self.fuente_pequena.render(
-            "ESC para salir al menú", False, (150, 170, 200)
+            "ESC para salir al menú", False, (101, 67, 33)  # Marrón
         )
         tip_rect = tip.get_rect(center=(self.ANCHO // 2, y_instruccion + 35))
         self.screen.blit(tip, tip_rect)
@@ -691,22 +653,28 @@ class PantallaJuego:
 
         overlay = pygame.Surface((self.ANCHO, self.ALTO))
         overlay.set_alpha(200)
-        overlay.fill(Colores.OVERLAY_OSCURO)
+        overlay.fill((20, 15, 10))  # Pergamino oscuro
         self.screen.blit(overlay, (0, 0))
 
-        # Caja para mostrar información
+        # Caja para mostrar información (estilo mármol)
         caja_rect = pygame.Rect(self.ANCHO // 2 - 350, 100, 700, 450)
-        pygame.draw.rect(self.screen, (40, 40, 60), caja_rect, border_radius=15)
-        pygame.draw.rect(self.screen, Colores.VIDAS, caja_rect, 3, border_radius=15)
+        pygame.draw.rect(
+            self.screen, (210, 195, 170), caja_rect, border_radius=15
+        )  # Mármol
+        pygame.draw.rect(
+            self.screen, (178, 34, 34), caja_rect, 3, border_radius=15
+        )  # Rojo terracota
 
-        titulo = self.fuente_titulo.render("GAME OVER", True, Colores.VIDAS)
+        titulo = self.fuente_titulo.render(
+            "GAME OVER", True, (139, 69, 19)
+        )  # Marrón antiguo
         titulo_rect = titulo.get_rect(center=(self.ANCHO // 2, 140))
         self.screen.blit(titulo, titulo_rect)
 
         # Información de la partida actual
         y_info = 200
         puntaje = self.fuente_hud.render(
-            f"Tu Puntaje: {self.jugador.puntaje}", True, Colores.PUNTAJE
+            f"Tu Puntaje: {self.jugador.puntaje}", True, (218, 165, 32)  # Oro
         )
         puntaje_rect = puntaje.get_rect(center=(self.ANCHO // 2, y_info))
         self.screen.blit(puntaje, puntaje_rect)
@@ -717,14 +685,14 @@ class PantallaJuego:
         tiempo_texto = self.fuente_pequena.render(
             f"Tiempo: {tiempo_segundos} segundos | Dificultad: {nivel_dificultad:.1f}x",
             True,
-            Colores.TEXTO_SECUNDARIO,
+            (101, 67, 33),  # Marrón oscuro
         )
         tiempo_rect = tiempo_texto.get_rect(center=(self.ANCHO // 2, y_info + 40))
         self.screen.blit(tiempo_texto, tiempo_rect)
 
         # Mensaje indicando que el puntaje será guardado
         mensaje = self.fuente_pequena.render(
-            "Tu puntaje ha sido guardado", True, (150, 200, 150)
+            "Tu puntaje ha sido guardado", True, (107, 142, 35)  # Verde oliva
         )
         mensaje_rect = mensaje.get_rect(center=(self.ANCHO // 2, y_info + 100))
         self.screen.blit(mensaje, mensaje_rect)
@@ -736,11 +704,13 @@ class PantallaJuego:
             instruccion = self.fuente_pequena.render(
                 f"Espera {segundos_restantes} segundos...",
                 True,
-                Colores.TEXTO_SECUNDARIO,
+                (101, 67, 33),  # Marrón oscuro
             )
         else:
             instruccion = self.fuente_pequena.render(
-                "Presiona cualquier tecla para volver al menú", True, (100, 255, 100)
+                "Presiona cualquier tecla para volver al menú",
+                True,
+                (107, 142, 35),  # Verde oliva
             )
         instruccion_rect = instruccion.get_rect(center=(self.ANCHO // 2, y_instruccion))
         self.screen.blit(instruccion, instruccion_rect)
@@ -749,25 +719,31 @@ class PantallaJuego:
         """Overlay de victoria (no se usa en modo infinito, se deja por si se activa)."""
         overlay = pygame.Surface((self.ANCHO, self.ALTO))
         overlay.set_alpha(200)
-        overlay.fill((0, 0, 0))
+        overlay.fill((20, 15, 10))  # Pergamino oscuro
         self.screen.blit(overlay, (0, 0))
 
         caja_rect = pygame.Rect(self.ANCHO // 2 - 300, self.ALTO // 2 - 150, 600, 300)
-        pygame.draw.rect(self.screen, (40, 60, 40), caja_rect, border_radius=15)
-        pygame.draw.rect(self.screen, (100, 255, 100), caja_rect, 3, border_radius=15)
+        pygame.draw.rect(
+            self.screen, (210, 195, 170), caja_rect, border_radius=15
+        )  # Mármol
+        pygame.draw.rect(
+            self.screen, (107, 142, 35), caja_rect, 3, border_radius=15
+        )  # Verde oliva
 
-        titulo = self.fuente_titulo.render("¡VICTORIA!", True, (100, 255, 100))
+        titulo = self.fuente_titulo.render(
+            "¡VICTORIA!", True, (139, 69, 19)
+        )  # Marrón antiguo
         titulo_rect = titulo.get_rect(center=(self.ANCHO // 2, self.ALTO // 2 - 80))
         self.screen.blit(titulo, titulo_rect)
 
         mensaje = self.fuente_hud.render(
-            "¡Todos los obsequios recolectados!", True, (255, 215, 0)
+            "¡Todos los obsequios recolectados!", True, (218, 165, 32)  # Oro
         )
         mensaje_rect = mensaje.get_rect(center=(self.ANCHO // 2, self.ALTO // 2 - 30))
         self.screen.blit(mensaje, mensaje_rect)
 
         puntaje = self.fuente_hud.render(
-            f"Puntaje Final: {self.jugador._puntaje}", True, self.COLORES["puntaje"]
+            f"Puntaje Final: {self.jugador._puntaje}", True, (218, 165, 32)  # Oro
         )
         puntaje_rect = puntaje.get_rect(center=(self.ANCHO // 2, self.ALTO // 2 + 20))
         self.screen.blit(puntaje, puntaje_rect)
@@ -797,7 +773,7 @@ class PantallaJuego:
         self.screen.blit(overlay, (0, 0))
 
         # Caja de diálogo estilo templo griego
-        caja_ancho = 600
+        caja_ancho = 700
         caja_alto = 400
         caja_x = (self.ANCHO - caja_ancho) // 2
         caja_y = (self.ALTO - caja_alto) // 2
@@ -829,8 +805,8 @@ class PantallaJuego:
             2,
         )
 
-        # Título en griego: "¿Abandonar?" = ΕΓΚΑΤΑΛΕΙΠΩ;
-        y_titulo = caja_y + 60
+        # Título
+        y_titulo = caja_y + 70
         titulo = self.fuente_titulo.render(
             "¿ABANDONAR EL LABERINTO?", False, (139, 69, 19)
         )
@@ -838,28 +814,15 @@ class PantallaJuego:
         self.screen.blit(titulo, titulo_rect)
 
         # Subtítulo mitológico
-        y_subtitulo = y_titulo + 50
-        subtitulo = self.fuente_pequena.render(
-            "Teseo desea escapar...", False, (101, 67, 33)
+        y_subtitulo = y_titulo + 60
+        subtitulo = self.fuente_hud.render(
+            "Teseo desea escapar del laberinto...", False, (101, 67, 33)
         )
         subtitulo_rect = subtitulo.get_rect(center=(self.ANCHO // 2, y_subtitulo))
         self.screen.blit(subtitulo, subtitulo_rect)
 
-        # Información del progreso
-        y_info = y_subtitulo + 60
-        info_textos = [
-            f"Puntaje actual: {self.jugador._puntaje}",
-            f"Vidas restantes: {self.jugador.vidas}",
-            f"Tiempo jugado: {ConfigJuego.frames_a_segundos(self.tiempo_transcurrido)}s",
-        ]
-
-        for idx, texto in enumerate(info_textos):
-            info_surf = self.fuente_pequena.render(texto, False, (80, 60, 40))
-            info_rect = info_surf.get_rect(center=(self.ANCHO // 2, y_info + idx * 25))
-            self.screen.blit(info_surf, info_rect)
-
         # Separador decorativo (línea greco-romana)
-        y_separador = y_info + 80
+        y_separador = y_subtitulo + 50
         pygame.draw.line(
             self.screen,
             (184, 115, 51),
@@ -869,11 +832,11 @@ class PantallaJuego:
         )
 
         # Opciones con iconos
-        y_opciones = y_separador + 40
+        y_opciones = y_separador + 50
 
-        # Opción 1: Salir y guardar (S)
-        opcion1 = self.fuente_pequena.render(
-            "[S] Salir y Guardar Progreso", False, (34, 139, 34)
+        # Opción 1: Salir al menú (S)
+        opcion1 = self.fuente_hud.render(
+            "[S] Salir al Menú Principal", False, (178, 34, 34)  # Rojo terracota
         )
         opcion1_rect = opcion1.get_rect(center=(self.ANCHO // 2, y_opciones))
         # Fondo sutil para opción
@@ -888,8 +851,8 @@ class PantallaJuego:
         self.screen.blit(opcion1, opcion1_rect)
 
         # Opción 2: Continuar jugando (N o ESC)
-        opcion2 = self.fuente_pequena.render(
-            "[N / ESC] Continuar Jugando", False, (178, 34, 34)
+        opcion2 = self.fuente_hud.render(
+            "[N / ESC] Continuar Jugando", False, (34, 139, 34)  # Verde oliva
         )
         opcion2_rect = opcion2.get_rect(center=(self.ANCHO // 2, y_opciones + 60))
         # Fondo sutil para opción
@@ -903,14 +866,6 @@ class PantallaJuego:
         pygame.draw.rect(self.screen, (139, 69, 19), fondo2, 2, border_radius=5)
         self.screen.blit(opcion2, opcion2_rect)
 
-        # Nota al pie
-        y_nota = caja_y + caja_alto - 30
-        nota = self.fuente_pequena.render(
-            "El progreso se guardará para después", False, (130, 90, 60)
-        )
-        nota_rect = nota.get_rect(center=(self.ANCHO // 2, y_nota))
-        self.screen.blit(nota, nota_rect)
-
     def manejar_eventos(self):
         """Lee eventos de ventana y teclado; maneja pausa, debug, modo de movimiento y salida."""
         for evento in pygame.event.get():
@@ -920,13 +875,14 @@ class PantallaJuego:
             if evento.type == pygame.KEYDOWN:
                 # Manejar menú de confirmación de salida
                 if self.menu_pausa_salir:
-                    if evento.key == pygame.K_s:  # Salir y guardar
-                        self._guardar_progreso()
+                    if evento.key == pygame.K_s:  # Salir al menú
                         return "salir"
                     elif (
                         evento.key == pygame.K_n or evento.key == pygame.K_ESCAPE
-                    ):  # Cancelar
+                    ):  # Cancelar y continuar jugando
                         self.menu_pausa_salir = False
+                        self.pausado = False
+                        self.sistema_sonido.reanudar_musica()
                     return None
 
                 if evento.key == pygame.K_ESCAPE:
