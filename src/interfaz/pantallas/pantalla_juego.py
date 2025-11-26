@@ -575,7 +575,7 @@ class PantallaJuego:
             "puntaje": self.jugador._puntaje,
             "vidas": self.jugador.vidas,
             "tiempo_jugado": ConfigJuego.frames_a_segundos(self.tiempo_transcurrido),
-            "laberinto": self.laberinto.nombre_laberinto,
+            "laberinto": self.laberinto.nombre,
             "dificultad": round(
                 self.computadora.velocidad / self.velocidad_inicial_enemigo, 2
             ),
