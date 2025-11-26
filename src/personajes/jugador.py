@@ -37,9 +37,7 @@ class Jugador(Personaje):
         self.spawn_y = y
 
         # Cargar imagen del jugador
-        self.imagen = pygame.image.load(
-            "src/data/ImagenJugadorPrincipal.png"
-        ).convert_alpha()
+        self.imagen = pygame.image.load("src/assets/imagenes/teseo.png").convert_alpha()
         self.imagen = pygame.transform.scale(self.imagen, (64, 64))
 
         # Rect de colisión más ajustado al círculo visual
