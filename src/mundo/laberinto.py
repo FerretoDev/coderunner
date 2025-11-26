@@ -60,20 +60,9 @@ class Laberinto:
         self.jugador_inicio: tuple[int, int] = (1, 1)
         self.computadora_inicio: tuple[int, int] = (18, 12)
 
-        # Cargar imagen del pasillo con manejo de errores
-        ruta_imagen_pasillo = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "..", "data", "pasillos.jpg"
-        )
-        try:
-            self.imagen_pasillo = pygame.image.load(ruta_imagen_pasillo).convert_alpha()
-            self.imagen_pasillo = pygame.transform.scale(
-                self.imagen_pasillo, (self.TAM_CELDA, self.TAM_CELDA)
-            )
-        except (pygame.error, FileNotFoundError) as e:
-            print(f"Advertencia: No se pudo cargar la imagen del pasillo: {e}")
-            # Crear una superficie de color predeterminado como fallback
-            self.imagen_pasillo = pygame.Surface((self.TAM_CELDA, self.TAM_CELDA))
-            self.imagen_pasillo.fill((50, 50, 50))
+        # Crear superficie de color para pasillos
+        self.imagen_pasillo = pygame.Surface((self.TAM_CELDA, self.TAM_CELDA))
+        self.imagen_pasillo.fill((50, 50, 50))
 
         if isinstance(archivo_json_o_datos, dict):
             self._cargar_desde_diccionario(archivo_json_o_datos)

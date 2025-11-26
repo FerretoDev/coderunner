@@ -163,14 +163,6 @@ class PantallaJuego:
         self.sistema_sonido = SistemaSonido()
         self.sistema_sonido.reproducir_musica_fondo()
 
-        ruta_imagen_pasillo = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "..",
-            "..",
-            "data",
-            "pasillos.jpg",
-        )
-
     def _inicializar_timers_obsequios(self):
         """Crea un timer de vida para cada obsequio inicial del laberinto."""
         for posicion in self.laberinto._obsequios.keys():
