@@ -39,6 +39,28 @@ class Jugador(Personaje):
         # Contador de frames para animación de esfera pulsante
         self._frame_count = 0
 
+        # Cargar sprite de Teseo
+        try:
+            import os
+
+            ruta_sprite = "src/assets/imagenes/teseo.png"
+            if not os.path.exists(ruta_sprite):
+                print(f"⚠️ No se encontró el sprite en: {ruta_sprite}")
+                self.sprite_teseo = None
+            else:
+                self.sprite_teseo = pygame.image.load(ruta_sprite).convert_alpha()
+                # Escalar el sprite para que coincida con el tamaño de celda
+                tamano_celda = ConfigJuego.TAM_CELDA
+                self.sprite_teseo = pygame.transform.scale(
+                    self.sprite_teseo, (tamano_celda, tamano_celda)
+                )
+                print(
+                    f"✅ Sprite de Teseo cargado correctamente: {tamano_celda}x{tamano_celda}"
+                )
+        except Exception as e:
+            print(f"❌ Error al cargar sprite de Teseo: {e}")
+            self.sprite_teseo = None
+
         # Rect de colisión más ajustado al círculo visual
         # Usamos FACTOR_RECT_COLISION para mejor precisión
         size = int(radio * ConfigJuego.FACTOR_RECT_COLISION)
@@ -119,38 +141,17 @@ class Jugador(Personaje):
 
     def dibujar_jugador_principal(self, pantalla):
         """
-        Dibuja al jugador con efecto visual pulsante.
+        Dibuja al jugador usando el sprite de Teseo.
         """
-        centro = self._rect.center
+        if self.sprite_teseo is None:
+            # Si no se cargó el sprite, dibujar un rectángulo de placeholder
+            pygame.draw.rect(pantalla, (0, 255, 255), self._rect)
+            pygame.draw.rect(pantalla, (255, 255, 255), self._rect, 2)
+            return
 
-        # Contador de frames para animación
-        self._frame_count += 1
-
-        # Efecto pulsante usando seno (oscila entre -1 y 1)
-        pulso = abs(math.sin(self._frame_count * 0.2)) * 3
-        radio_pulso = self.radio + pulso
-
-        # Variar intensidad del color cyan/azul
-        intensidad = int(200 + 55 * abs(math.sin(self._frame_count * 0.15)))
-        color_principal = (50, intensidad, intensidad)  # Cyan
-
-        # Círculo principal con pulsación
-        pygame.draw.circle(pantalla, color_principal, centro, int(radio_pulso))
-
-        # Borde blanco para contraste
-        pygame.draw.circle(pantalla, (255, 255, 255), centro, int(radio_pulso), 2)
-
-        # Centro brillante para dar efecto de "energía"
-        pygame.draw.circle(pantalla, (150, 255, 255), centro, int(self.radio * 0.6))
-
-        # Puntos brillantes simulando "ojos" o núcleo
-        ojo_offset = 4
-        pygame.draw.circle(
-            pantalla, (255, 255, 255), (centro[0] - ojo_offset, centro[1] - 2), 2
-        )
-        pygame.draw.circle(
-            pantalla, (255, 255, 255), (centro[0] + ojo_offset, centro[1] - 2), 2
-        )
+        # Dibujar sprite centrado en el rect
+        rect_sprite = self.sprite_teseo.get_rect(center=self._rect.center)
+        pantalla.blit(self.sprite_teseo, rect_sprite)
 
     def actualizar_movimiento(self, dx, dy):
         """
