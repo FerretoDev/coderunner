@@ -323,13 +323,8 @@ class Computadora(Personaje):
         Returns:
             True si capturó al jugador, False en caso contrario
         """
-        import math
-
         dx = jugador.jugador_principal.centerx - self._rect.centerx
         dy = jugador.jugador_principal.centery - self._rect.centery
         distancia = math.sqrt(dx**2 + dy**2)
 
         return distancia < (jugador.radio + self.radio + margen_captura)
-
-        # Resetear flag de movimiento para el siguiente frame
-        self.moviendo = False
