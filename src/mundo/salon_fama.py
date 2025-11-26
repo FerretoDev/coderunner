@@ -145,7 +145,6 @@ class SalonFama:
             with open(self._archivo, "w", encoding="utf-8") as f:
                 json.dump(datos, f, indent=2, ensure_ascii=False)
 
-            print(f"Salón de la fama guardado ({len(self._registros)} registros)")
 
         except Exception as e:
             print(f"Error al guardar salón de la fama: {e}")
