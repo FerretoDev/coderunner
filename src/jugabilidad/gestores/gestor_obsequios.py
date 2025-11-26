@@ -85,26 +85,28 @@ class GestorObsequios:
         Coloca un obsequio en una celda libre aleatoria.
 
         Busca celdas que sean:
-        - Pasillos (valor 0 en mapa)
+        - Pasillos válidos (verificados con _pasillos del laberinto)
         - Sin obsequios existentes
         - No sean posiciones de spawn
 
         Args:
             valor: Valor en puntos del obsequio (por defecto 10)
         """
-        mapa = self.laberinto.laberinto
+        # Usar directamente la lista de pasillos procesados del laberinto
+        # para garantizar que solo se elijan celdas realmente transitables
         posiciones_validas = []
 
-        for fila in range(len(mapa)):
-            for col in range(len(mapa[0])):
-                posicion = (col, fila)
-                if (
-                    mapa[fila][col] == 0
-                    and posicion not in self.laberinto._obsequios
-                    and posicion != tuple(self.laberinto.jugador_inicio)
-                    and posicion != tuple(self.laberinto.computadora_inicio)
-                ):
-                    posiciones_validas.append(posicion)
+        for posicion in self.laberinto._pasillos:
+            # Verificar que:
+            # 1. No haya ya un obsequio en esa posición
+            # 2. No sea la posición de spawn del jugador
+            # 3. No sea la posición de spawn del enemigo
+            if (
+                posicion not in self.laberinto._obsequios
+                and posicion != self.laberinto.jugador_inicio
+                and posicion != self.laberinto.computadora_inicio
+            ):
+                posiciones_validas.append(posicion)
 
         if posiciones_validas:
             nueva_posicion = random.choice(posiciones_validas)
