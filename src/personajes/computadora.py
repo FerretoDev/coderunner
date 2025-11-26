@@ -24,7 +24,7 @@ class Computadora(Personaje):
         self.imagen = pygame.image.load(
             "src/assets/imagenes/minotauro.png"
         ).convert_alpha()
-        self.imagen = pygame.transform.scale(self.imagen, (32, 32))
+        self.imagen = pygame.transform.scale(self.imagen, (44, 44))
 
         # Contador de frames para animación de esfera pulsante
         self._frame_count = 0

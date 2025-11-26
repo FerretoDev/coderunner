@@ -38,7 +38,7 @@ class Jugador(Personaje):
 
         # Cargar imagen del jugador
         self.imagen = pygame.image.load("src/assets/imagenes/teseo.png").convert_alpha()
-        self.imagen = pygame.transform.scale(self.imagen, (32, 32))
+        self.imagen = pygame.transform.scale(self.imagen, (50, 50))
 
         # Rect de colisión más ajustado al círculo visual
         # Usamos FACTOR_RECT_COLISION para mejor precisión
