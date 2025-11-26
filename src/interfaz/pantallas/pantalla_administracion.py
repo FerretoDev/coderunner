@@ -61,7 +61,7 @@ class PantallaAdministracion:
 
         # Hint con icono de candado
         hint = self.font_hint.render(
-            "🔒 Clave por defecto: admin123", True, (100, 120, 150)
+            "Clave por defecto: admin123", True, (100, 120, 150)
         )
         hint_rect = hint.get_rect(center=(self.ancho // 2, self.alto - 40))
         self.screen.blit(hint, hint_rect)

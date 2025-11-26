@@ -59,6 +59,11 @@ class SalonFama:
                     "puntaje": registro.puntaje,
                     "laberinto": registro.laberinto,
                     "fecha": registro.fecha if hasattr(registro, "fecha") else "N/A",
+                    "tiempo_juego": (
+                        registro.tiempo_juego
+                        if hasattr(registro, "tiempo_juego")
+                        else 0
+                    ),
                 }
             )
 
@@ -92,6 +97,7 @@ class SalonFama:
                         puntaje=item.get("puntaje", 0),
                         laberinto=item.get("laberinto", "desconocido"),
                         fecha=item.get("fecha"),  # Opcional, puede ser None
+                        tiempo_juego=item.get("tiempo_juego", 0),
                     )
                     self._registros.append(registro)
 
@@ -127,6 +133,9 @@ class SalonFama:
                         "puntaje": r.puntaje,
                         "laberinto": r.laberinto,
                         "fecha": r.fecha if hasattr(r, "fecha") else None,
+                        "tiempo_juego": (
+                            r.tiempo_juego if hasattr(r, "tiempo_juego") else 0
+                        ),
                     }
                     for r in self._registros
                 ]

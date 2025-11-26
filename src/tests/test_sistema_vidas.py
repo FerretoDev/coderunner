@@ -14,14 +14,20 @@ from personajes.jugador import Jugador
 def jugador_con_vidas():
     """Fixture que crea un jugador con vidas"""
     pygame.init()
-    return Jugador(x=100, y=100, radio=10, velocidad=1, vidas=3)
+    pygame.display.set_mode((1, 1))  # Modo mínimo para tests
+    jugador = Jugador(x=100, y=100, radio=10)
+    yield jugador
+    pygame.quit()
 
 
 @pytest.fixture
 def computadora_test():
     """Fixture que crea una computadora"""
     pygame.init()
-    return Computadora(x=100, y=100, radio=10, velocidad=1.5)
+    pygame.display.set_mode((1, 1))  # Modo mínimo para tests
+    comp = Computadora(x=100, y=100, radio=10, velocidad=2.0)
+    yield comp
+    pygame.quit()
 
 
 class TestVidasJugador:
@@ -50,8 +56,8 @@ class TestPerdidaVida:
         """Verificar que el jugador pierde una vida al colisionar"""
         vidas_iniciales = jugador_con_vidas.vidas
 
-        # Simular pérdida de vida
-        jugador_con_vidas.vidas -= 1
+        # Simular pérdida de vida usando el método correcto
+        jugador_con_vidas.perder_vida()
 
         assert jugador_con_vidas.vidas == vidas_iniciales - 1, "Debe perder una vida"
 
@@ -97,16 +103,15 @@ class TestPerdidaVida:
 
     def test_vidas_no_negativos(self, jugador_con_vidas):
         """Verificar que las vidas no pueden ser negativas"""
-        jugador_con_vidas.vidas = 1
-
-        # Perder una vida
-        jugador_con_vidas.vidas -= 1
+        # Perder todas las vidas
+        jugador_con_vidas.perder_vida()
+        jugador_con_vidas.perder_vida()
+        jugador_con_vidas.perder_vida()
 
         assert jugador_con_vidas.vidas == 0, "Vidas debe llegar a 0"
 
-        # Intentar perder otra vida
-        if jugador_con_vidas.vidas > 0:
-            jugador_con_vidas.vidas -= 1
+        # Intentar perder otra vida (no debe bajar de 0)
+        jugador_con_vidas.perder_vida()
 
         assert jugador_con_vidas.vidas >= 0, "Vidas no debe ser negativo"
 
@@ -116,38 +121,42 @@ class TestFinPartida:
 
     def test_juego_termina_con_cero_vidas(self, jugador_con_vidas):
         """Verificar que el juego termina cuando las vidas llegan a 0"""
-        jugador_con_vidas.vidas = 0
+        # Perder todas las vidas
+        jugador_con_vidas.perder_vida()
+        jugador_con_vidas.perder_vida()
+        jugador_con_vidas.perder_vida()
 
-        juego_terminado = jugador_con_vidas.vidas <= 0
+        juego_terminado = not jugador_con_vidas.esta_vivo()
 
         assert juego_terminado, "El juego debe terminar con 0 vidas"
 
     def test_juego_continua_con_vidas_restantes(self, jugador_con_vidas):
         """Verificar que el juego continúa mientras haya vidas"""
-        jugador_con_vidas.vidas = 2
+        # Perder una vida
+        jugador_con_vidas.perder_vida()
 
-        juego_terminado = jugador_con_vidas.vidas <= 0
+        juego_continua = jugador_con_vidas.esta_vivo()
 
-        assert not juego_terminado, "El juego debe continuar con vidas restantes"
+        assert juego_continua, "El juego debe continuar con vidas restantes"
 
     def test_secuencia_perdida_todas_vidas(self, jugador_con_vidas):
         """Verificar la secuencia completa de perder todas las vidas"""
         assert jugador_con_vidas.vidas == 3
 
         # Primera colisión
-        jugador_con_vidas.vidas -= 1
+        jugador_con_vidas.perder_vida()
         assert jugador_con_vidas.vidas == 2
-        assert jugador_con_vidas.vidas > 0  # Juego continúa
+        assert jugador_con_vidas.esta_vivo()  # Juego continúa
 
         # Segunda colisión
-        jugador_con_vidas.vidas -= 1
+        jugador_con_vidas.perder_vida()
         assert jugador_con_vidas.vidas == 1
-        assert jugador_con_vidas.vidas > 0  # Juego continúa
+        assert jugador_con_vidas.esta_vivo()  # Juego continúa
 
         # Tercera colisión
-        jugador_con_vidas.vidas -= 1
+        jugador_con_vidas.perder_vida()
         assert jugador_con_vidas.vidas == 0
-        assert jugador_con_vidas.vidas <= 0  # Juego termina
+        assert not jugador_con_vidas.esta_vivo()  # Juego termina
 
 
 class TestRespawn:

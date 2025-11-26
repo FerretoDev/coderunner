@@ -955,9 +955,12 @@ class PantallaJuego:
 
         # Retornar datos del puntaje si hubo game over
         if self.game_over and self.puntaje_final is not None:
+            # Convertir frames a segundos
+            tiempo_segundos = self.tiempo_transcurrido // 60
             return {
                 "nombre": self.nombre_jugador,
                 "puntaje": self.puntaje_final,
                 "laberinto": self.nombre_laberinto,
+                "tiempo_juego": tiempo_segundos,
             }
         return None

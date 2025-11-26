@@ -14,6 +14,7 @@ class Registro:
         puntaje: int,
         laberinto: str,
         fecha: str | None = None,
+        tiempo_juego: int = 0,
     ):
         """
         Crea un nuevo registro de partida.
@@ -23,10 +24,12 @@ class Registro:
             puntaje: Puntos obtenidos en la partida
             laberinto: Nombre o ID del laberinto jugado
             fecha: Fecha en formato ISO (si es None, usa fecha actual)
+            tiempo_juego: Tiempo de juego en segundos
         """
         self.nombre_jugador = nombre_jugador
         self.puntaje = puntaje
         self.laberinto = laberinto
+        self.tiempo_juego = tiempo_juego
 
         # Si no se proporciona fecha, usar la actual
         if fecha is None:

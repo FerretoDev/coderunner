@@ -165,6 +165,7 @@ class Juego:
                     nombre_jugador=datos_puntaje["nombre"],
                     puntaje=datos_puntaje["puntaje"],
                     laberinto=datos_puntaje["laberinto"],
+                    tiempo_juego=datos_puntaje.get("tiempo_juego", 0),
                 )
                 salon_fama.guardar_puntaje(registro)
 

@@ -160,7 +160,7 @@ class PantallaSalonFama:
             nombre = reg["nombre_jugador"][:12]
             nombre_surface = self.font_data.render(nombre, False, (255, 255, 255))
             nombre_rect = nombre_surface.get_rect(
-                center=(x + ancho_tarjeta // 2, y_podio + 50)
+                center=(x + ancho_tarjeta // 2, y_podio + 45)
             )
             self.screen.blit(nombre_surface, nombre_rect)
 
@@ -170,15 +170,26 @@ class PantallaSalonFama:
                 puntaje_text, False, config["color_borde"]
             )
             puntaje_rect = puntaje_surface.get_rect(
-                center=(x + ancho_tarjeta // 2, y_podio + 70)
+                center=(x + ancho_tarjeta // 2, y_podio + 65)
             )
             self.screen.blit(puntaje_surface, puntaje_rect)
+
+            # Tiempo
+            tiempo_seg = reg.get("tiempo_juego", 0)
+            minutos = tiempo_seg // 60
+            segundos = tiempo_seg % 60
+            tiempo_texto = f"{minutos}:{segundos:02d}"
+            tiempo_surface = self.font_info.render(tiempo_texto, False, (180, 220, 255))
+            tiempo_rect = tiempo_surface.get_rect(
+                center=(x + ancho_tarjeta // 2, y_podio + 82)
+            )
+            self.screen.blit(tiempo_surface, tiempo_rect)
 
             # Laberinto
             laberinto = reg["laberinto"][:20]
             lab_surface = self.font_info.render(laberinto, False, (180, 180, 200))
             lab_rect = lab_surface.get_rect(
-                center=(x + ancho_tarjeta // 2, y_podio + 88)
+                center=(x + ancho_tarjeta // 2, y_podio + 98)
             )
             self.screen.blit(lab_surface, lab_rect)
 
@@ -199,8 +210,8 @@ class PantallaSalonFama:
 
         # Encabezados
         y_headers = y_inicio_tabla + 30
-        headers = ["#", "Jugador", "Puntaje", "Laberinto"]
-        x_positions = [100, 180, 380, 500]
+        headers = ["#", "Jugador", "Puntaje", "Tiempo", "Laberinto"]
+        x_positions = [100, 180, 340, 440, 540]
 
         for header, x in zip(headers, x_positions, strict=True):
             texto_header = self.font_data.render(
@@ -227,11 +238,18 @@ class PantallaSalonFama:
             alpha = 255 - (i * 20)
             color = (max(150, alpha), max(150, alpha), max(180, alpha))
 
+            # Formatear tiempo
+            tiempo_seg = reg.get("tiempo_juego", 0)
+            minutos = tiempo_seg // 60
+            segundos = tiempo_seg % 60
+            tiempo_texto = f"{minutos}:{segundos:02d}"
+
             datos = [
                 f"{pos_global}.",
                 reg["nombre_jugador"][:15],
                 f"{reg['puntaje']} pts",
-                reg["laberinto"][:18],
+                tiempo_texto,
+                reg["laberinto"][:15],
             ]
 
             for dato, x in zip(datos, x_positions, strict=True):
