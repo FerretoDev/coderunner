@@ -105,9 +105,9 @@ class PantallaSalonFama:
     def _dibujar_podio(self, top3):
         """Dibuja el podio con las 3 mejores puntuaciones en tarjetas."""
         y_podio = 155
-        ancho_tarjeta = 200
-        alto_tarjeta = 100
-        espacio = 25
+        ancho_tarjeta = 300
+        alto_tarjeta = 110
+        espacio = 20
 
         # Configuración del podio
         podio_config = [
