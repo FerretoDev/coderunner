@@ -71,15 +71,16 @@ coderunner/
 │   │   │   ├── laberinto1.json
 │   │   │   ├── laberinto2.json
 │   │   │   └── laberinto3.json
-│   │   └── salon_fama.json  # Persistencia de puntajes
+│   │   ├── salon_fama.json  # Persistencia de puntajes con tiempo
+│   │   ├── config_laberinto.json  # Configuración de laberintos
+│   │   └── MusicaPerrona.mp3      # Música de fondo
 │   │
 │   ├── assets/              # Recursos multimedia
-│   │   ├── sonidos/
-│   │   │   ├── mover.wav
-│   │   │   ├── obsequio.wav
-│   │   │   └── captura.wav
+│   │   ├── fonts/
+│   │   │   └── PressStart2P-Regular.ttf  # Fuente pixel art arcade
 │   │   └── imagenes/
-│   │       └── pasillos.jpg
+│   │       ├── teseo.png         # Sprite del jugador (32x32)
+│   │       └── minotauro.png     # Sprite del enemigo (32x32)
 │   │
 │   └── tests/               # Casos de prueba
 │       ├── test_carga_laberintos.py
@@ -101,21 +102,24 @@ coderunner/
 
 - 🎯 **Sistema de Puntaje**: Gana puntos por moverte y recolectar obsequios
 - ❤️ **Sistema de Vidas**: 3 vidas para completar el laberinto
+- ⏱️ **Registro de Tiempo**: Rastrea el tiempo de supervivencia en cada partida
 - 🤖 **IA Enemiga**: Pathfinding BFS para persecución inteligente
 - 🎨 **Interfaz Arcade**: Estilo retro con componentes pixel art
-- 🏆 **Salón de la Fama**: Persistencia de récords
+- 🏆 **Salón de la Fama**: Persistencia de récords con tiempo de juego
 - 🎵 **Efectos de Sonido**: Feedback auditivo inmersivo
 - 🔧 **Panel de Administración**: Gestión de laberintos
 - 📈 **Dificultad Progresiva**: El juego se vuelve más desafiante con el tiempo
 - 🧪 **Tests Automatizados**: Suite completa de pruebas
+- 🖼️ **Sprites Personalizados**: Teseo y Minotauro con gráficos propios
 
 ---
 
 ## 🔧 Requisitos
 
-- **Python 3.8+**
-- **Pygame 2.0+**
-- **pytest** (para testing)
+- **Python 3.11+** (probado con Python 3.13.5)
+- **Pygame 2.6.1** (manejo de gráficos, sonido y eventos)
+- **pytest 8.4.2** (suite de testing)
+- **pytest-cov** (cobertura de tests - opcional)
 
 ---
 
@@ -124,7 +128,7 @@ coderunner/
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/coderunner.git
+git clone https://github.com/FerretoDev/coderunner.git
 cd coderunner
 ```
 
@@ -188,16 +192,34 @@ pytest --cov=src src/tests/
 
 ## 📚 Documentación
 
-- **Historias de Usuario**: [`docs/HU.md`](docs/HU.md)
-- **Diagrama UML**: [`docs/uml.pdf`](docs/uml.pdf)
-- **Cronograma**: [`docs/cronograma.xlsx`](docs/cronograma.xlsx)
-- **Casos de Prueba**: [`docs/casos_prueba.xlsx`](docs/casos_prueba.xlsx)
+### Documentación de Desarrollo
+
+- **Historias de Usuario**: [`src/docs/Historias de usuario.md`](src/docs/Historias%20de%20usuario.md)
+
+### Guías de Diseño
+
+- **Estética Griega**: [`docs/ESTETICA_GRIEGA.md`](docs/ESTETICA_GRIEGA.md) - Temática del juego
+- **Diseño UI**: [`docs/UI_DESIGN_GUIDE.md`](docs/UI_DESIGN_GUIDE.md) - Guía de interfaz
+- **Pixel Art**: [`docs/UI_PIXEL_ART_README.md`](docs/UI_PIXEL_ART_README.md) - Componentes visuales
+- **Laberinto**: [`docs/ESTETICA_LABERINTO.md`](docs/ESTETICA_LABERINTO.md) - Diseño del laberinto
+- **Efectos**: [`docs/ESFERAS_PULSANTES.md`](docs/ESFERAS_PULSANTES.md) - Animaciones
+- **Movimiento**: [`docs/MOVIMIENTO_SUAVE.md`](docs/MOVIMIENTO_SUAVE.md) - Sistema de movimiento
+
+---
+
+## 🏗️ Arquitectura
+
+- **Patrón MVC**: Separación clara entre modelos (mundo), vistas (interfaz) y controladores (game)
+- **Singleton**: Sistema de sonido centralizado
+- **Factory Pattern**: Creación de laberintos desde JSON
+- **Observer**: Sistema de eventos para obsequios y capturas
+- **BFS Pathfinding**: Algoritmo de búsqueda en amplitud para IA
 
 ---
 
 ## 👥 Integrantes
 
-- **Paulo Anchía** - C5C482
+- **Marcus Ferrero** - FerretoDev
 
 ---
 
