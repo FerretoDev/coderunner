@@ -22,7 +22,7 @@ class Computadora(Personaje):
 
         # Cargar imagen de la computadora (minotauro)
         self.imagen = pygame.image.load(
-            "src/assets/imagenes/minotaruo.png"
+            "src/assets/imagenes/minotauro.png"
         ).convert_alpha()
         self.imagen = pygame.transform.scale(self.imagen, (64, 64))
 
