@@ -170,7 +170,7 @@ class PantallaJuego:
             "data",
             "pasillos.jpg",
         )
-    
+
     def _inicializar_timers_obsequios(self):
         """Crea un timer de vida para cada obsequio inicial del laberinto."""
         for posicion in self.laberinto._obsequios.keys():
@@ -515,7 +515,7 @@ class PantallaJuego:
         nivel_dificultad = self.computadora.velocidad / self.velocidad_inicial_enemigo
 
         # Texto de dificultad
-        dif_texto = f"Nivel {nivel_dificultad:.1f}x"
+        dif_texto = f"Dificultad {nivel_dificultad:.1f}x"
         dif_surf = self.fuente_pequena.render(
             dif_texto, False, (178, 34, 34)
         )  # Rojo terracota
@@ -938,7 +938,7 @@ class PantallaJuego:
             pygame.init()
 
         self.screen = pygame.display.set_mode((self.ANCHO, self.ALTO))
-        pygame.display.set_caption(ConfigJuego.TITULO + " - Modo Laberinto")
+        pygame.display.set_caption(ConfigJuego.TITULO)
 
         # Fuentes para títulos y HUD desde GestorFuentes
         from interfaz.gestor_fuentes import GestorFuentes
