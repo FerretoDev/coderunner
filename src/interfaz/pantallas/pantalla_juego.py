@@ -295,7 +295,7 @@ class PantallaJuego:
         self.screen.blit(dist_texto, (pos_jugador[0] + 20, pos_jugador[1] - 20))
 
     def _dibujar_laberinto(self):
-        """Dibuja el laberinto con estética retro/arcade con efectos de neón."""
+        """Dibuja el laberinto con estética mitológica griega (Mito de Teseo y el Minotauro)."""
         import math
 
         for fila in range(len(self.mapa)):
@@ -304,71 +304,120 @@ class PantallaJuego:
                 y = fila * self.tam_celda + self.offset_y
 
                 if self.mapa[fila][col] == 1:
-                    # === MUROS CON EFECTO NEÓN ===
-                    # Fondo oscuro
+                    # === MUROS DE PIEDRA ANTIGUA (ESTILO GRIEGO) ===
+                    # Base de mármol/piedra caliza
+                    color_base = (210, 195, 170)  # Tono mármol beige
                     pygame.draw.rect(
                         self.screen,
-                        (20, 25, 40),
+                        color_base,
                         (x, y, self.tam_celda, self.tam_celda),
                     )
 
-                    # Patrón de cuadrícula interior
-                    grid_size = self.tam_celda // 4
-                    for i in range(4):
-                        for j in range(4):
-                            gx = x + i * grid_size + 2
-                            gy = y + j * grid_size + 2
-                            # Cuadraditos pequeños con variación
-                            color_var = 30 + ((i + j) % 2) * 10
+                    # Textura de bloques de piedra (vetas y grietas)
+                    block_size = self.tam_celda // 3
+                    for i in range(3):
+                        for j in range(3):
+                            bx = x + i * block_size + 1
+                            by = y + j * block_size + 1
+                            # Variación de color para simular vetas de mármol
+                            veta = ((i * 7 + j * 5 + fila * 3 + col * 2) % 15) - 7
+                            color_piedra = (
+                                min(255, max(0, 210 + veta)),
+                                min(255, max(0, 195 + veta)),
+                                min(255, max(0, 170 + veta)),
+                            )
                             pygame.draw.rect(
                                 self.screen,
-                                (color_var, color_var + 10, color_var + 20),
-                                (gx, gy, grid_size - 4, grid_size - 4),
+                                color_piedra,
+                                (bx, by, block_size - 2, block_size - 2),
+                            )
+                            # Líneas de separación entre bloques (mortero)
+                            pygame.draw.line(
+                                self.screen,
+                                (180, 165, 145),
+                                (bx, by),
+                                (bx + block_size - 2, by),
+                                1,
+                            )
+                            pygame.draw.line(
+                                self.screen,
+                                (180, 165, 145),
+                                (bx, by),
+                                (bx, by + block_size - 2),
+                                1,
                             )
 
-                    # Borde neón cyan brillante
+                    # Borde de bronce/terracota (pilares antiguos)
                     pygame.draw.rect(
                         self.screen,
-                        (0, 200, 255),
+                        (184, 115, 51),  # Bronce oxidado
                         (x, y, self.tam_celda, self.tam_celda),
                         2,
                     )
 
-                    # Borde interior más tenue
-                    pygame.draw.rect(
+                    # Sombra interior para profundidad
+                    pygame.draw.line(
                         self.screen,
-                        (0, 120, 180),
-                        (x + 2, y + 2, self.tam_celda - 4, self.tam_celda - 4),
+                        (150, 140, 120),
+                        (x + 2, y + 2),
+                        (x + self.tam_celda - 2, y + 2),
+                        1,
+                    )
+                    pygame.draw.line(
+                        self.screen,
+                        (150, 140, 120),
+                        (x + 2, y + 2),
+                        (x + 2, y + self.tam_celda - 2),
                         1,
                     )
                 else:
-                    # === PASILLOS CON PATRÓN DE PUNTOS ===
-                    # Fondo oscuro
+                    # === PASILLOS CON MOSAICO GRECO-ROMANO ===
+                    # Base terracota/arcilla
+                    base_terracota = (156, 102, 68)  # Terracota
                     pygame.draw.rect(
                         self.screen,
-                        (15, 18, 25),
+                        base_terracota,
                         (x, y, self.tam_celda, self.tam_celda),
                     )
 
-                    # Patrón de puntos sutiles (efecto tron/arcade)
-                    dot_spacing = 8
-                    for dx in range(0, self.tam_celda, dot_spacing):
-                        for dy in range(0, self.tam_celda, dot_spacing):
-                            # Pulsación sutil basada en posición
-                            pulso = (
-                                abs(math.sin((self.frame_count + dx + dy) * 0.05)) * 10
-                            )
-                            pygame.draw.circle(
+                    # Patrón de mosaico (baldosas pequeñas)
+                    tile_size = self.tam_celda // 4
+                    for tx in range(4):
+                        for ty in range(4):
+                            tile_x = x + tx * tile_size + 1
+                            tile_y = y + ty * tile_size + 1
+
+                            # Variación de color para mosaico (crema/beige/terracota)
+                            patron = (tx + ty + fila + col) % 3
+                            if patron == 0:
+                                tile_color = (198, 156, 109)  # Crema oscuro
+                            elif patron == 1:
+                                tile_color = (176, 141, 105)  # Beige
+                            else:
+                                tile_color = (166, 123, 91)  # Terracota claro
+
+                            pygame.draw.rect(
                                 self.screen,
-                                (0, 40 + int(pulso), 60 + int(pulso)),
-                                (x + dx + 4, y + dy + 4),
-                                1,
+                                tile_color,
+                                (tile_x, tile_y, tile_size - 2, tile_size - 2),
                             )
 
-                    # Borde muy sutil
+                    # Detalle central: símbolo griego ocasional
+                    if (fila + col) % 7 == 0:
+                        center_x = x + self.tam_celda // 2
+                        center_y = y + self.tam_celda // 2
+                        # Pequeña cruz griega o meandro
+                        pygame.draw.circle(
+                            self.screen,
+                            (184, 115, 51),  # Bronce
+                            (center_x, center_y),
+                            2,
+                        )
+
+                    # Borde sutil de separación
                     pygame.draw.rect(
                         self.screen,
-                        (0, 60, 80),
+                        (140, 90, 60),
                         (x, y, self.tam_celda, self.tam_celda),
                         1,
                     )

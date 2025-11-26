@@ -334,11 +334,11 @@ class Laberinto:
         """
         Dibuja los obsequios en el laberinto.
 
-        Cada obsequio se renderiza como un diamante giratorio con:
-        - Efecto de rotación continua
-        - Pulsación de tamaño
-        - Aura brillante
-        - Estilo arcade/neón
+        Cada obsequio se renderiza como el Hilo de Ariadna (ovillo dorado):
+        - Ovillo de hilo enrollado
+        - Pulsación de brillo dorado
+        - Efecto de resplandor mítico
+        - Tema mitológico griego
 
         Args:
             pantalla: Superficie de pygame donde se dibujarán los obsequios
@@ -360,44 +360,57 @@ class Laberinto:
             cx = col * celda_size + celda_size // 2 + offset_x
             cy = fila * celda_size + celda_size // 2 + offset_y
 
-            # === Efecto de pulsación ===
-            pulso = abs(math.sin(frame_count * 0.1)) * 3
-            radio_base = 10
-            radio_pulso = radio_base + pulso
+            # === Efecto de pulsación del resplandor ===
+            pulso_brillo = abs(math.sin(frame_count * 0.08)) * 0.3 + 0.7
+            pulso_tamano = abs(math.sin(frame_count * 0.06)) * 2
 
-            # === Rotación del diamante ===
-            rotacion = (frame_count * 0.05) % (2 * math.pi)
+            radio_base = 9
+            radio_ovillo = radio_base + pulso_tamano
 
-            # Puntos del diamante (4 puntos formando rombo)
-            puntos = []
-            for i in range(4):
-                angulo = rotacion + (i * math.pi / 2)  # 90 grados entre puntos
-                px = cx + radio_pulso * math.cos(angulo)
-                py = cy + radio_pulso * math.sin(angulo)
-                puntos.append((px, py))
-
-            # === Aura exterior (círculo amarillo difuminado) ===
-            for r in range(3, 0, -1):
-                alpha_color = 255 - (r * 60)
+            # === Aura dorada exterior (resplandor mítico) ===
+            for r in range(5, 0, -1):
+                intensidad = int(255 * pulso_brillo * (r / 5.0))
+                color_aura = (intensidad, int(intensidad * 0.84), 0)  # Dorado
                 pygame.draw.circle(
-                    pantalla, (255, 220, 0), (cx, cy), int(radio_pulso + r * 2), 1
+                    pantalla, color_aura, (cx, cy), int(radio_ovillo + r * 3), 1
                 )
 
-            # === Diamante principal (amarillo/dorado) ===
-            pygame.draw.polygon(pantalla, (255, 215, 0), puntos)
+            # === Ovillo base (círculo dorado) ===
+            color_oro = (218, 165, 32)  # Oro antiguo
+            pygame.draw.circle(pantalla, color_oro, (cx, cy), int(radio_ovillo))
 
-            # Borde blanco brillante
-            pygame.draw.polygon(pantalla, (255, 255, 255), puntos, 2)
+            # === Líneas de hilo enrollado (textura del ovillo) ===
+            num_lineas = 8
+            for i in range(num_lineas):
+                angulo = (frame_count * 0.03 + i * (2 * math.pi / num_lineas)) % (
+                    2 * math.pi
+                )
 
-            # === Centro brillante (estrella pequeña) ===
-            for i in range(8):
-                angulo = (i * math.pi / 4) + rotacion * 0.5
-                x_end = cx + 4 * math.cos(angulo)
-                y_end = cy + 4 * math.sin(angulo)
-                pygame.draw.line(pantalla, (255, 255, 200), (cx, cy), (x_end, y_end), 2)
+                # Líneas curvas simulando hilo enrollado
+                inicio_x = cx + (radio_ovillo - 3) * math.cos(angulo)
+                inicio_y = cy + (radio_ovillo - 3) * math.sin(angulo)
+                fin_x = cx + (radio_ovillo - 7) * math.cos(angulo + 0.5)
+                fin_y = cy + (radio_ovillo - 7) * math.sin(angulo + 0.5)
 
-            # Punto central blanco
-            pygame.draw.circle(pantalla, (255, 255, 255), (cx, cy), 2)
+                pygame.draw.line(
+                    pantalla,
+                    (184, 134, 11),  # Oro más oscuro para textura
+                    (int(inicio_x), int(inicio_y)),
+                    (int(fin_x), int(fin_y)),
+                    2,
+                )
+
+            # === Borde brillante del ovillo ===
+            color_brillo = (
+                int(255 * pulso_brillo),
+                int(215 * pulso_brillo),
+                int(100 * pulso_brillo),
+            )
+            pygame.draw.circle(pantalla, color_brillo, (cx, cy), int(radio_ovillo), 2)
+
+            # === Destello central (núcleo del hilo) ===
+            pygame.draw.circle(pantalla, (255, 235, 150), (cx - 2, cy - 2), 3)
+            pygame.draw.circle(pantalla, (255, 255, 200), (cx - 2, cy - 2), 1)
 
     def generar_muros_rect(
         self, tam_celda: int, offset_x: int, offset_y: int
