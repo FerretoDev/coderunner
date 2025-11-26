@@ -35,6 +35,9 @@ class PantallaJuego:
 
         # Estados y métricas de juego
         self.pausado = False
+        self.menu_pausa_salir = (
+            False  # True cuando se muestra el menú de confirmación de salida
+        )
         self.game_over = False
         self.game_over_timer = 0  # Timer para espera en game over
         self.frame_count = 0  # Frames acumulados (útil para animaciones HUD)
@@ -272,7 +275,10 @@ class PantallaJuego:
         # HUD y overlays
         self._dibujar_hud()
         if self.pausado:
-            self._dibujar_pausa()
+            if self.menu_pausa_salir:
+                self._dibujar_menu_confirmacion_salida()
+            else:
+                self._dibujar_pausa()
         if self.game_over:
             self._dibujar_game_over()
 
@@ -558,6 +564,48 @@ class PantallaJuego:
         controles_rect = controles_surf.get_rect(right=self.ANCHO - 15, y=70)
         self.screen.blit(controles_surf, controles_rect)
 
+    def _guardar_progreso(self):
+        """Guarda el progreso actual del jugador antes de salir."""
+        import json
+        from datetime import datetime
+
+        # Crear datos de progreso
+        progreso = {
+            "nombre_jugador": self.nombre_jugador,
+            "puntaje": self.jugador._puntaje,
+            "vidas": self.jugador.vidas,
+            "tiempo_jugado": ConfigJuego.frames_a_segundos(self.tiempo_transcurrido),
+            "laberinto": self.laberinto.nombre_laberinto,
+            "dificultad": round(
+                self.computadora.velocidad / self.velocidad_inicial_enemigo, 2
+            ),
+            "obsequios_restantes": len(self.laberinto._obsequios),
+            "fecha_guardado": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "posicion_jugador": {
+                "x": self.jugador.jugador_principal.x,
+                "y": self.jugador.jugador_principal.y,
+            },
+            "posicion_computadora": {
+                "x": self.computadora.computadora_principal.x,
+                "y": self.computadora.computadora_principal.y,
+            },
+        }
+
+        # Guardar en archivo
+        try:
+            ruta_guardado = "src/data/progreso_guardado.json"
+            with open(ruta_guardado, "w", encoding="utf-8") as archivo:
+                json.dump(progreso, archivo, indent=2, ensure_ascii=False)
+            print(f"\n✅ Progreso guardado en {ruta_guardado}")
+            print(f"   Jugador: {self.nombre_jugador}")
+            print(f"   Puntaje: {self.jugador._puntaje}")
+            print(f"   Vidas: {self.jugador.vidas}")
+            print(
+                f"   Tiempo: {ConfigJuego.frames_a_segundos(self.tiempo_transcurrido)}s\n"
+            )
+        except Exception as e:
+            print(f"⚠️  Error al guardar progreso: {e}")
+
     def _dibujar_pausa(self):
         """Overlay translúcido y texto de pausa con estilo arcade."""
         # Overlay oscuro
@@ -730,6 +778,129 @@ class PantallaJuego:
         )
         self.screen.blit(instruccion, instruccion_rect)
 
+    def _dibujar_menu_confirmacion_salida(self):
+        """Dibuja un menú de confirmación al presionar ESC con estética griega."""
+        # Overlay oscuro
+        overlay = pygame.Surface((self.ANCHO, self.ALTO))
+        overlay.set_alpha(200)
+        overlay.fill((20, 15, 10))  # Tono pergamino oscuro
+        self.screen.blit(overlay, (0, 0))
+
+        # Caja de diálogo estilo templo griego
+        caja_ancho = 600
+        caja_alto = 400
+        caja_x = (self.ANCHO - caja_ancho) // 2
+        caja_y = (self.ALTO - caja_alto) // 2
+
+        # Fondo de mármol
+        caja_rect = pygame.Rect(caja_x, caja_y, caja_ancho, caja_alto)
+        pygame.draw.rect(self.screen, (210, 195, 170), caja_rect, border_radius=10)
+
+        # Borde de bronce doble
+        pygame.draw.rect(self.screen, (184, 115, 51), caja_rect, 4, border_radius=10)
+        caja_rect2 = pygame.Rect(
+            caja_x + 8, caja_y + 8, caja_ancho - 16, caja_alto - 16
+        )
+        pygame.draw.rect(self.screen, (139, 90, 43), caja_rect2, 3, border_radius=8)
+
+        # Sombra interior para profundidad
+        pygame.draw.line(
+            self.screen,
+            (180, 165, 145),
+            (caja_x + 12, caja_y + 12),
+            (caja_x + caja_ancho - 12, caja_y + 12),
+            2,
+        )
+        pygame.draw.line(
+            self.screen,
+            (180, 165, 145),
+            (caja_x + 12, caja_y + 12),
+            (caja_x + 12, caja_y + caja_alto - 12),
+            2,
+        )
+
+        # Título en griego: "¿Abandonar?" = ΕΓΚΑΤΑΛΕΙΠΩ;
+        y_titulo = caja_y + 60
+        titulo = self.fuente_titulo.render(
+            "¿ABANDONAR EL LABERINTO?", False, (139, 69, 19)
+        )
+        titulo_rect = titulo.get_rect(center=(self.ANCHO // 2, y_titulo))
+        self.screen.blit(titulo, titulo_rect)
+
+        # Subtítulo mitológico
+        y_subtitulo = y_titulo + 50
+        subtitulo = self.fuente_pequena.render(
+            "Teseo desea escapar...", False, (101, 67, 33)
+        )
+        subtitulo_rect = subtitulo.get_rect(center=(self.ANCHO // 2, y_subtitulo))
+        self.screen.blit(subtitulo, subtitulo_rect)
+
+        # Información del progreso
+        y_info = y_subtitulo + 60
+        info_textos = [
+            f"Puntaje actual: {self.jugador._puntaje}",
+            f"Vidas restantes: {self.jugador.vidas}",
+            f"Tiempo jugado: {ConfigJuego.frames_a_segundos(self.tiempo_transcurrido)}s",
+        ]
+
+        for idx, texto in enumerate(info_textos):
+            info_surf = self.fuente_pequena.render(texto, False, (80, 60, 40))
+            info_rect = info_surf.get_rect(center=(self.ANCHO // 2, y_info + idx * 25))
+            self.screen.blit(info_surf, info_rect)
+
+        # Separador decorativo (línea greco-romana)
+        y_separador = y_info + 80
+        pygame.draw.line(
+            self.screen,
+            (184, 115, 51),
+            (caja_x + 50, y_separador),
+            (caja_x + caja_ancho - 50, y_separador),
+            2,
+        )
+
+        # Opciones con iconos
+        y_opciones = y_separador + 40
+
+        # Opción 1: Salir y guardar (S)
+        opcion1 = self.fuente_pequena.render(
+            "[S] Salir y Guardar Progreso", False, (34, 139, 34)
+        )
+        opcion1_rect = opcion1.get_rect(center=(self.ANCHO // 2, y_opciones))
+        # Fondo sutil para opción
+        fondo1 = pygame.Rect(
+            opcion1_rect.x - 15,
+            opcion1_rect.y - 8,
+            opcion1_rect.width + 30,
+            opcion1_rect.height + 16,
+        )
+        pygame.draw.rect(self.screen, (198, 156, 109), fondo1, border_radius=5)
+        pygame.draw.rect(self.screen, (139, 69, 19), fondo1, 2, border_radius=5)
+        self.screen.blit(opcion1, opcion1_rect)
+
+        # Opción 2: Continuar jugando (N o ESC)
+        opcion2 = self.fuente_pequena.render(
+            "[N / ESC] Continuar Jugando", False, (178, 34, 34)
+        )
+        opcion2_rect = opcion2.get_rect(center=(self.ANCHO // 2, y_opciones + 60))
+        # Fondo sutil para opción
+        fondo2 = pygame.Rect(
+            opcion2_rect.x - 15,
+            opcion2_rect.y - 8,
+            opcion2_rect.width + 30,
+            opcion2_rect.height + 16,
+        )
+        pygame.draw.rect(self.screen, (198, 156, 109), fondo2, border_radius=5)
+        pygame.draw.rect(self.screen, (139, 69, 19), fondo2, 2, border_radius=5)
+        self.screen.blit(opcion2, opcion2_rect)
+
+        # Nota al pie
+        y_nota = caja_y + caja_alto - 30
+        nota = self.fuente_pequena.render(
+            "El progreso se guardará para continuar más tarde", False, (120, 90, 60)
+        )
+        nota_rect = nota.get_rect(center=(self.ANCHO // 2, y_nota))
+        self.screen.blit(nota, nota_rect)
+
     def manejar_eventos(self):
         """Lee eventos de ventana y teclado; maneja pausa, debug, modo de movimiento y salida."""
         for evento in pygame.event.get():
@@ -737,10 +908,31 @@ class PantallaJuego:
                 return "salir"
 
             if evento.type == pygame.KEYDOWN:
+                # Manejar menú de confirmación de salida
+                if self.menu_pausa_salir:
+                    if evento.key == pygame.K_s:  # Salir y guardar
+                        self._guardar_progreso()
+                        return "salir"
+                    elif (
+                        evento.key == pygame.K_n or evento.key == pygame.K_ESCAPE
+                    ):  # Cancelar
+                        self.menu_pausa_salir = False
+                    return None
+
                 if evento.key == pygame.K_ESCAPE:
-                    return "salir"
+                    # Mostrar menú de confirmación
+                    if not self.pausado:
+                        self.pausado = True
+                        self.menu_pausa_salir = True
+                        self.sistema_sonido.pausar_musica()
+                    else:
+                        # Si ya está pausado, cancelar el menú
+                        self.menu_pausa_salir = False
+                        self.pausado = False
+                        self.sistema_sonido.reanudar_musica()
                 if evento.key == pygame.K_p:
                     self.pausado = not self.pausado
+                    self.menu_pausa_salir = False  # Resetear menú de salida
                     # Pausar/reanudar música según el estado
                     if self.pausado:
                         self.sistema_sonido.pausar_musica()

@@ -1,0 +1,18 @@
+{
+  "nombre_jugador": "",
+  "puntaje": 0,
+  "vidas": 0,
+  "tiempo_jugado": 0,
+  "laberinto": "",
+  "dificultad": 1.0,
+  "obsequios_restantes": 0,
+  "fecha_guardado": "",
+  "posicion_jugador": {
+    "x": 0,
+    "y": 0
+  },
+  "posicion_computadora": {
+    "x": 0,
+    "y": 0
+  }
+}
